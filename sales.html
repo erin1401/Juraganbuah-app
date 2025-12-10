@@ -1,112 +1,280 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Penjualan — Juragan Buah</title><link rel="stylesheet" href="styles.css"><script src="utils.js"></script><script src="data.js"></script></head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjualan – Juragan Buah</title>
+<link rel="stylesheet" href="styles.css">
+
+<style>
+body {
+    background: #f3f6f4;
+    font-family: Poppins, sans-serif;
+    margin: 0;
+}
+
+.header {
+    background: #2e7d32;
+    color: white;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    padding: 15px;
+}
+
+.box {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: 600;
+}
+
+select, input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.btn {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #2e7d32;
+    color: white;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.btn:hover { background: #46a149; }
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table th, .table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.table th {
+    background: #e8f5e9;
+}
+
+.total-box {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: right;
+    padding: 10px;
+}
+
+.invoice-box {
+    display: none;
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+.print-btn {
+    background: #000;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 15px;
+    cursor: pointer;
+}
+</style>
+
+<script src="data.js"></script>
+<script src="utils.js"></script>
+
+</head>
 <body>
-  <div class="sidebar"><img src="assets/logo.svg" class="sidebar-logo"><div class="app-name">Juragan Buah</div><nav><a href="dashboard.html">Dashboard</a><a href="items.html">Master Item</a><a href="buyers.html">Pembeli</a><a href="stock-in.html">Item Masuk</a><a href="stock-out.html">Item Keluar</a><a href="opname.html">Stok Opname</a><a href="sales.html" class="active">Penjualan</a><a href="report-sales.html">Laporan</a></nav></div>
 
-  <div class="main">
-    <header class="topbar"><h2>Penjualan (POS)</h2></header>
-    <div class="container">
-      <div class="card">
-        <div style="display:flex;gap:10px">
-          <input id="scan" placeholder="Scan / ketik kode lalu Enter">
-          <select id="selectItem"></select>
-          <input id="qty" type="number" min="1" value="1" style="width:90px">
-          <button class="btn" id="addCart">Tambah</button>
-        </div>
-      </div>
+<div class="header">
+    <span>Kasir Penjualan</span>
+    <button onclick="logout()" style="background:#c62828;color:white;border:none;padding:8px 15px;border-radius:8px">Logout</button>
+</div>
 
-      <div class="card">
-        <h3>Keranjang</h3>
-        <table id="cart_tbl" class="mt10"><thead><tr><th>Item</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th></th></tr></thead><tbody></tbody></table>
-        <div style="text-align:right;margin-top:10px">Total: <strong id="total">Rp 0</strong></div>
-      </div>
+<div class="container">
 
-      <div class="card">
-        <h3>Pembayaran</h3>
-        <label>Metode</label>
-        <select id="payMethod"><option value="cash">Tunai</option><option value="transfer">Transfer</option></select>
-        <label>Jumlah Bayar</label><input id="pay" type="number" placeholder="0">
-        <label>Kembalian</label><input id="change" readonly>
-        <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="process">Simpan & Cetak</button><button class="btn btn-outline" id="clearCart">Bersihkan</button></div>
-      </div>
+    <!-- PILIH PEMBELI -->
+    <div class="box">
+        <label>Pilih Konsumen</label>
+        <select id="buyerSelect"></select>
     </div>
-  </div>
 
-<div id="modal" class="modal-bg"><div id="modalBox" class="modal-box"></div></div>
-<div id="toast" class="toast"></div>
+    <!-- PILIH ITEM -->
+    <div class="box">
+        <label>Pilih Barang</label>
+        <select id="itemSelect"></select>
+
+        <label>Qty</label>
+        <input type="number" id="qtyInput" min="1" value="1">
+
+        <button class="btn" onclick="addItem()">+ Tambah Item</button>
+    </div>
+
+    <!-- TABEL PEMBELIAN -->
+    <div class="box">
+        <table class="table" id="cartTable">
+            <thead>
+                <tr>
+                    <th>Barang</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="total-box">
+            Total: <span id="grandTotal">0</span>
+        </div>
+    </div>
+
+    <!-- METODE PEMBAYARAN -->
+    <div class="box">
+        <label>Metode Pembayaran</label>
+        <select id="payMethod">
+            <option value="tunai">Tunai</option>
+            <option value="qris">QRIS</option>
+            <option value="transfer">Transfer</option>
+        </select>
+
+        <label>Bayar</label>
+        <input type="number" id="payAmount" value="0" oninput="updateKembali()">
+
+        <div style="margin-top:10px;font-weight:bold">
+            Kembali: <span id="kembali">0</span>
+        </div>
+
+        <button class="btn" onclick="finishSale()">Selesaikan Transaksi</button>
+    </div>
+
+    <!-- INVOICE -->
+    <div class="invoice-box" id="invoiceBox">
+        <h3>Struk Pembayaran</h3>
+        <div id="invoiceContent"></div>
+
+        <button class="print-btn" onclick="window.print()">🖨 Print Struk</button>
+    </div>
+
+</div>
 
 <script>
-(function(){
-  if(!DataStore.getLoginUser()) location.href='login.html';
-  const items = DataStore.getItems();
-  const select = document.getElementById('selectItem');
-  items.forEach(it=> select.appendChild(Object.assign(document.createElement('option'),{ value: it.id, textContent: `${it.name} (Rp ${Number(it.price).toLocaleString()})` })));
-  let cart=[];
-
-  function renderCart(){
-    const tbody=document.querySelector('#cart_tbl tbody'); tbody.innerHTML=''; let total=0;
-    cart.forEach((c,idx)=>{
-      const item = DataStore.getItems().find(i=>i.id===c.id);
-      const sub = item.price * c.qty; total += sub;
-      const tr = document.createElement('tr'); tr.innerHTML=`<td>${item.name}</td><td><input type="number" value="${c.qty}" min="1" onchange="updateQty(${idx},this.value)"></td><td>${formatRupiah(item.price)}</td><td>${formatRupiah(sub)}</td><td><button class="btn btn-danger" onclick="removeCart(${idx})">X</button></td>`; tbody.appendChild(tr);
+// LOAD DATA PEMBELI & ITEM
+function loadData() {
+    const buyerSelect = document.getElementById("buyerSelect");
+    buyers.forEach(b => {
+        buyerSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
     });
-    document.getElementById('total').innerText = formatRupiah(total);
-  }
 
-  window.updateQty=function(i,q){ cart[i].qty=Number(q); renderCart(); };
-  window.removeCart=function(i){ cart.splice(i,1); renderCart(); };
+    const itemSelect = document.getElementById("itemSelect");
+    items.forEach(i => {
+        itemSelect.innerHTML += `<option value="${i.id}">${i.name} - Rp${i.price}</option>`;
+    });
+}
 
-  document.getElementById('addCart').onclick = ()=>{
-    const id = select.value; const qty = Number(qty_input.value||document.getElementById('qty').value||1);
-    const stock = DataStore.getStock(id);
-    if(qty>stock){ toast('Stok kurang'); return; }
-    const idx = cart.findIndex(x=>x.id===id);
-    if(idx>=0) cart[idx].qty += qty; else cart.push({ id, qty });
+let cart = [];
+
+function addItem() {
+    const id = document.getElementById("itemSelect").value;
+    const qty = parseInt(document.getElementById("qtyInput").value);
+
+    const item = items.find(x => x.id == id);
+    if (!item) return;
+
+    const total = item.price * qty;
+
+    cart.push({
+        name: item.name,
+        qty,
+        price: item.price,
+        total
+    });
+
     renderCart();
-  };
+}
 
-  // scan enter
-  document.getElementById('scan').addEventListener('keydown', e=>{
-    if(e.key==='Enter'){ const v = e.target.value.trim(); if(!v) return; const found = DataStore.getItems().find(i => (i.code && i.code===v) || i.id===v || i.name.toLowerCase()===v.toLowerCase()); if(found){ select.value=found.id; addBtnClick(); } else toast('Item tidak ditemukan'); e.target.value=''; }
-  });
+function renderCart() {
+    const tbody = document.querySelector("#cartTable tbody");
+    tbody.innerHTML = "";
 
-  function addBtnClick(){
-    const id = select.value; const q = Number(document.getElementById('qty').value||1);
-    const stock = DataStore.getStock(id); if(q>stock){ toast('Stok kurang'); return; }
-    const idx = cart.findIndex(x=>x.id===id);
-    if(idx>=0) cart[idx].qty += q; else cart.push({ id, qty: q }); renderCart();
-  }
-  window.addBtnClick = addBtnClick;
+    let grand = 0;
 
-  document.getElementById('clearCart').onclick = ()=>{ if(confirm('Kosongkan keranjang?')){ cart=[]; renderCart(); } };
+    cart.forEach(c => {
+        tbody.innerHTML += `
+        <tr>
+            <td>${c.name}</td>
+            <td>${c.qty}</td>
+            <td>Rp${c.price}</td>
+            <td>Rp${c.total}</td>
+        </tr>`;
+        grand += c.total;
+    });
 
-  document.getElementById('pay').addEventListener('input', ()=> {
-    const total = Number(document.getElementById('total').innerText.replace(/[^\d]/g,''))||0;
-    const p = Number(document.getElementById('pay').value)||0;
-    document.getElementById('change').value = p >= total ? 'Rp '+pTotal(p-total) : 'Kurang';
-  });
+    document.getElementById("grandTotal").innerText = grand;
+}
 
-  function pTotal(n){ return n.toLocaleString('id-ID'); }
+function updateKembali() {
+    const bayar = parseInt(document.getElementById("payAmount").value);
+    const total = parseInt(document.getElementById("grandTotal").innerText);
 
-  document.getElementById('process').onclick = ()=>{
-    if(cart.length===0){ toast('Keranjang kosong'); return; }
-    const total = Number(document.getElementById('total').innerText.replace(/[^\d]/g,''))||0;
-    const pay = Number(document.getElementById('pay').value)||0;
-    if(pay < total){ toast('Pembayaran kurang'); return; }
-    const itemsPayload = cart.map(c=>({ itemId: c.id, qty: c.qty, price: DataStore.getItems().find(i=>i.id===c.id).price }));
-    DataStore.addSale({ date: today(), items: itemsPayload, total: total, bayar: pay, kembali: pay-total, metode: document.getElementById('payMethod').value });
-    // reduce stock
-    itemsPayload.forEach(it => DataStore.addStockOut({ itemId: it.itemId, qty: it.qty, reason: 'Penjualan', date: today() }));
-    toast('Transaksi tersimpan');
-    // print simple receipt
-    const sale = DataStore.getSales().slice(-1)[0];
-    const win = window.open('','_blank'); win.document.write('<pre style="font-family:monospace">'); win.document.write('Juragan Buah\\n'); win.document.write('Invoice: '+sale.id+'\\n'); win.document.write('Tanggal: '+sale.date+'\\n\\n'); sale.items.forEach(it=> { const name=DataStore.getItems().find(i=>i.id===it.itemId).name; win.document.write(name+' x'+it.qty+' @'+formatRupiah(it.price)+' => '+formatRupiah(it.price*it.qty)+'\\n'); }); win.document.write('\\nTotal: '+formatRupiah(sale.total)+'\\nBayar: '+formatRupiah(sale.bayar)+'\\nKembali: '+formatRupiah(sale.kembali)+'\\n'); win.document.write('</pre>'); win.print(); win.close();
-    cart=[]; renderCart();
-  };
+    let kembali = bayar - total;
+    if (kembali < 0) kembali = 0;
 
-  renderCart();
-})();
+    document.getElementById("kembali").innerText = kembali;
+}
+
+function finishSale() {
+    const buyerID = document.getElementById("buyerSelect").value;
+    const buyer = buyers.find(x => x.id == buyerID);
+
+    const metode = document.getElementById("payMethod").value;
+    const total = document.getElementById("grandTotal").innerText;
+    const bayar = document.getElementById("payAmount").value;
+    const kembali = document.getElementById("kembali").innerText;
+
+    // INVOICE
+    document.getElementById("invoiceBox").style.display = "block";
+    document.getElementById("invoiceContent").innerHTML = `
+        <p><b>Pembeli:</b> ${buyer.name}</p>
+        <p><b>Metode:</b> ${metode.toUpperCase()}</p>
+        <p><b>Total:</b> Rp${total}</p>
+        <p><b>Bayar:</b> Rp${bayar}</p>
+        <p><b>Kembali:</b> Rp${kembali}</p>
+        <hr>
+        <b>Detail Barang:</b>
+        <ul>
+            ${cart.map(c => `<li>${c.name} (${c.qty}) - Rp${c.total}</li>`).join("")}
+        </ul>
+    `;
+
+    cart = [];
+    renderCart();
+}
+
+// LOGOUT
+function logout() {
+    localStorage.removeItem("loginUser");
+    window.location = "login.html";
+}
+
+loadData();
 </script>
+
 </body>
 </html>
