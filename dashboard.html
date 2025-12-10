@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard — Juragan Buah</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="utils.js"></script>
+  <script src="data.js"></script>
+  <script src="dashboard.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="assets/logo.svg" class="sidebar-logo">
+    <div class="app-name">Juragan Buah</div>
+    <nav>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Persediaan</a>
+      <a href="report-profit.html">Laba Rugi</a>
+      <a href="users.html">User Management</a>
+      <a href="#" onclick="DataStore.logout();location.href='login.html'">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="muted">Ringkasan cepat toko buah</p>
+      </div>
+      <div id="userBox" class="userBox"></div>
+    </header>
+
+    <div class="container">
+      <div class="kpi-grid">
+        <div class="kpi card"><h4>Total Penjualan</h4><div id="k_total">Rp 0</div></div>
+        <div class="kpi card"><h4>Transaksi</h4><div id="k_tx">0</div></div>
+        <div class="kpi card"><h4>Total Item</h4><div id="k_items">0</div></div>
+        <div class="kpi card"><h4>Stok Rendah</h4><div id="k_low">0</div></div>
+      </div>
+
+      <div class="card">
+        <h3>Grafik Penjualan (7 hari)</h3>
+        <canvas id="salesChart" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Chart.js loaded in dashboard.js -->
+</body>
+</html>

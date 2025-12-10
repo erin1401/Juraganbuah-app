@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Laporan Persediaan — Juragan Buah</title><link rel="stylesheet" href="styles.css"><script src="utils.js"></script><script src="data.js"></script></head>
+<body>
+  <div class="sidebar"><img src="assets/logo.svg" class="sidebar-logo"><div class="app-name">Juragan Buah</div><nav><a href="dashboard.html">Dashboard</a><a href="report-stock.html" class="active">Laporan Persediaan</a></nav></div>
+  <div class="main"><header class="topbar"><h2>Laporan Persediaan</h2></header><div class="container">
+  <div class="card"><table id="stock_tbl"><thead><tr><th>Item</th><th>Stok Akhir</th></tr></thead><tbody></tbody></table></div>
+  </div></div>
+
+<script>
+(function(){ if(!DataStore.getLoginUser()) location.href='login.html';
+  const tb=document.querySelector('#stock_tbl tbody'); tb.innerHTML=''; DataStore.getItems().forEach(i=> { const tr=document.createElement('tr'); tr.innerHTML=`<td>${i.name}</td><td>${DataStore.getStock(i.id)}</td>`; tb.appendChild(tr); });
+})();
+</script>
+</body>
+</html>

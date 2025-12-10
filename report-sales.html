@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Laporan Penjualan — Juragan Buah</title><link rel="stylesheet" href="styles.css"><script src="utils.js"></script><script src="data.js"></script></head>
+<body>
+  <div class="sidebar"><img src="assets/logo.svg" class="sidebar-logo"><div class="app-name">Juragan Buah</div><nav><a href="dashboard.html">Dashboard</a><a href="report-sales.html" class="active">Laporan Penjualan</a></nav></div>
+  <div class="main"><header class="topbar"><h2>Laporan Penjualan</h2></header><div class="container">
+  <div class="card"><div style="display:flex;gap:10px"><label>Dari</label><input id="from" type="date" value="${today()}"><label>Sampai</label><input id="to" type="date" value="${today()}"><button class="btn" id="btnFilter">Terapkan</button></div></div>
+  <div class="card"><table id="r_tbl"><thead><tr><th>Invoice</th><th>Tanggal</th><th>Total</th><th>Metode</th></tr></thead><tbody></tbody></table></div>
+  </div></div>
+
+<div id="modal" class="modal-bg"><div id="modalBox" class="modal-box"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){ if(!DataStore.getLoginUser()) location.href='login.html';
+  function load(){
+    const f=document.getElementById('from').value; const t=document.getElementById('to').value;
+    const list = DataStore.getSales().filter(s => s.date >= f && s.date <= t);
+    const tb=document.querySelector('#r_tbl tbody'); tb.innerHTML='';
+    list.forEach(s=> { const tr=document.createElement('tr'); tr.innerHTML=`<td>${s.id}</td><td>${s.date}</td><td>${formatRupiah(s.total)}</td><td>${s.metode||'-'}</td>`; tb.appendChild(tr); });
+  }
+  document.getElementById('btnFilter').onclick = load; load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Laba Rugi — Juragan Buah</title><link rel="stylesheet" href="styles.css"><script src="utils.js"></script><script src="data.js"></script></head>
+<body>
+  <div class="sidebar"><img src="assets/logo.svg" class="sidebar-logo"><div class="app-name">Juragan Buah</div><nav><a href="dashboard.html">Dashboard</a><a href="report-profit.html" class="active">Laba Rugi</a></nav></div>
+  <div class="main"><header class="topbar"><h2>Laba Rugi</h2></header><div class="container">
+  <div class="card"><div id="profit_summary"></div></div>
+  <div class="card"><table id="profit_tbl"><thead><tr><th>Invoice</th><th>Total</th><th>HPP</th><th>Laba</th></tr></thead><tbody></tbody></table></div>
+  </div></div>
+
+<script>
+(function(){ if(!DataStore.getLoginUser()) location.href='login.html';
+  const sales = DataStore.getSales(); const items = DataStore.getItems();
+  let totalSales=0, totalHpp=0;
+  const tbody=document.querySelector('#profit_tbl tbody'); tbody.innerHTML='';
+  sales.forEach(s=>{ let hpp = 0; s.items.forEach(it=> { const itm = items.find(x=>x.id===it.itemId) || {}; hpp += (itm.cost||0) * it.qty; }); totalSales += s.total; totalHpp += hpp; const tr=document.createElement('tr'); tr.innerHTML=`<td>${s.id}</td><td>${formatRupiah(s.total)}</td><td>${formatRupiah(hpp)}</td><td>${formatRupiah(s.total - hpp)}</td>`; tbody.appendChild(tr); });
+  document.getElementById('profit_summary').innerHTML = `<p>Total Penjualan: ${formatRupiah(totalSales)}</p><p>Total HPP: ${formatRupiah(totalHpp)}</p><p>Laba Kotor: ${formatRupiah(totalSales - totalHpp)}</p>`;
+})();
+</script>
+</body>
+</html>

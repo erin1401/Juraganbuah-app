@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Stok Opname — Juragan Buah</title><link rel="stylesheet" href="styles.css"><script src="utils.js"></script><script src="data.js"></script></head>
+<body>
+  <div class="sidebar"><img src="assets/logo.svg" class="sidebar-logo"><div class="app-name">Juragan Buah</div><nav><a href="dashboard.html">Dashboard</a><a href="items.html">Master Item</a><a href="buyers.html">Pembeli</a><a href="stock-in.html">Item Masuk</a><a href="stock-out.html">Item Keluar</a><a href="opname.html" class="active">Stok Opname</a><a href="sales.html">Penjualan</a></nav></div>
+
+  <div class="main">
+    <header class="topbar"><h2>Stok Opname</h2></header>
+    <div class="container">
+      <div class="card">
+        <div style="display:flex;gap:10px"><input id="op_search" placeholder="Cari..."><button class="btn" id="op_save">Simpan Opname</button></div>
+        <div id="op_list" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+<div id="modal" class="modal-bg"><div id="modalBox" class="modal-box"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  if(!DataStore.getLoginUser()) location.href='login.html';
+  function build(){
+    const items = DataStore.getItems(); const kw=(op_search.value||'').toLowerCase(); const el=document.getElementById('op_list'); el.innerHTML='';
+    items.filter(i=>i.name.toLowerCase().includes(kw)).forEach(it=>{
+      const div=document.createElement('div'); div.className='op-row card'; div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${it.name}</strong><div class="muted">Stok Sistem: ${DataStore.getStock(it.id)}</div></div><div><input type="number" min="0" value="${DataStore.getStock(it.id)}" data-id="${it.id}" class="phys"></div></div>`; el.appendChild(div);
+      div.querySelector('.phys').addEventListener('input', ()=>{ div.style.borderColor='#0a7a32'; });
+    });
+  }
+
+  document.getElementById('op_save').onclick = ()=>{
+    const inputs = Array.from(document.querySelectorAll('.phys'));
+    const changes = [];
+    inputs.forEach(inp => {
+      const id = inp.dataset.id; const val = Number(inp.value||0); const sys = DataStore.getStock(id);
+      if(val !== sys) changes.push({ itemId: id, qty: val, date: today() });
+    });
+    if(changes.length===0){ toast('Tidak ada perubahan'); return; }
+    changes.forEach(c=> DataStore.addOpname(c));
+    toast('Opname disimpan'); build();
+  };
+
+  window.toast=function(m){ const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=> t.style.display='none',1800); };
+  op_search.addEventListener('input', build);
+  build();
+})();
+</script>
+</body>
+</html>

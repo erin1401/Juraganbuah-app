@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Invoice — Juragan Buah</title><link rel="stylesheet" href="styles.css"><script src="utils.js"></script><script src="data.js"></script></head>
+<body>
+  <div class="container card" style="max-width:720px;margin:20px auto" id="invoiceBox"></div>
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id'); const sale = DataStore.getSales().find(s=>s.id===id);
+  const box = document.getElementById('invoiceBox');
+  if(!sale){ box.innerHTML = '<p>Transaksi tidak ditemukan</p>'; return; }
+  let html = `<h2>Juragan Buah</h2><p>Invoice: ${sale.id}</p><p>Tanggal: ${sale.date}</p><table style="width:100%;margin-top:10px;"><thead><tr><th>Item</th><th>Qty</th><th>Harga</th></tr></thead><tbody>`;
+  sale.items.forEach(it=> { const item = DataStore.getItems().find(x=>x.id===it.itemId); html += `<tr><td>${item.name}</td><td>${it.qty}</td><td>${formatRupiah(it.price)}</td></tr>`; });
+  html += `</tbody></table><div style="text-align:right;margin-top:12px"><b>Total: ${formatRupiah(sale.total)}</b></div>`;
+  box.innerHTML = html;
+})();
+</script>
+</body>
+</html>

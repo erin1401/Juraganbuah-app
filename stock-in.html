@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Item Masuk — Juragan Buah</title>
+<link rel="stylesheet" href="styles.css">
+<script src="utils.js"></script>
+<script src="data.js"></script>
+</head>
+<body>
+  <div class="sidebar"><img src="assets/logo.svg" class="sidebar-logo"><div class="app-name">Juragan Buah</div><nav><a href="dashboard.html">Dashboard</a><a href="items.html">Master Item</a><a href="buyers.html">Pembeli</a><a href="stock-in.html" class="active">Item Masuk</a><a href="stock-out.html">Item Keluar</a><a href="opname.html">Stok Opname</a><a href="sales.html">Penjualan</a></nav></div>
+
+  <div class="main">
+    <header class="topbar"><h2>Item Masuk</h2></header>
+    <div class="container">
+      <div class="card">
+        <div style="display:flex;gap:10px"><input id="si_search" placeholder="Cari..."><button class="btn" id="si_add">+ Catat Masuk</button></div>
+        <table id="si_tbl" class="mt10"><thead><tr><th>Tgl</th><th>Item</th><th>Qty</th><th>Harga</th><th>Total</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+<div id="modal" class="modal-bg"><div id="modalBox" class="modal-box"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  if(!DataStore.getLoginUser()) location.href='login.html';
+  function render(){
+    const rows = DataStore.getStockIn(); const items = DataStore.getItems();
+    const kw = (si_search.value||'').toLowerCase();
+    const tb=document.querySelector('#si_tbl tbody'); tb.innerHTML='';
+    rows.slice().reverse().filter(r=> (items.find(i=>i.id==r.itemId)?.name||'').toLowerCase().includes(kw)).forEach(r=>{
+      const it = items.find(i=>i.id==r.itemId)||{name:'(terhapus)'};
+      const tr = document.createElement('tr'); tr.innerHTML = `<td>${r.date}</td><td>${it.name}</td><td>${r.qty}</td><td>${formatRupiah(r.price)}</td><td>${formatRupiah(r.qty*r.price)}</td>`; tb.appendChild(tr);
+    });
+  }
+
+  document.getElementById('si_add').onclick = ()=>{
+    const items = DataStore.getItems();
+    if(items.length===0){ alert('Tambah item dulu'); return; }
+    let opts = items.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
+    openModal(`<h3>Catat Barang Masuk</h3><label>Item</label><select id="si_item">${opts}</select><label>Qty</label><input id="si_qty" type="number" value="1"><label>Harga</label><input id="si_price" type="number" value="0"><label>Tanggal</label><input id="si_date" type="date" value="${today()}"><div style="text-align:right;margin-top:10px"><button class="btn" id="si_save">Simpan</button></div>`);
+    setTimeout(()=> document.getElementById('si_save').onclick = ()=>{
+      DataStore.addStockIn({ itemId: si_item.value, qty: Number(si_qty.value)||0, price: Number(si_price.value)||0, date: si_date.value||today() });
+      closeModal(); toast('Tercatat'); render();
+    },40);
+  };
+
+  window.openModal = function(html){ document.getElementById('modalBox').innerHTML=html; document.getElementById('modal').style.display='flex'; };
+  window.closeModal = function(){ document.getElementById('modal').style.display='none'; };
+  window.toast = function(m){ const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=> t.style.display='none',1800); };
+
+  si_search.addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>

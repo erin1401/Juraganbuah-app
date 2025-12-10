@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pembeli — Juragan Buah</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="utils.js"></script>
+  <script src="data.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="assets/logo.svg" class="sidebar-logo">
+    <div class="app-name">Juragan Buah</div>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html" class="active">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan</a>
+      <a href="users.html">User Management</a>
+    </nav>
+  </div>
+
+  <div class="main">
+    <header class="topbar"><h2>Pembeli</h2></header>
+    <div class="container">
+      <div class="card">
+        <div style="display:flex;gap:10px">
+          <input id="searchBuyer" placeholder="Cari nama/HP">
+          <button class="btn" id="btnAddBuyer">+ Tambah</button>
+        </div>
+        <table id="tblBuyer" class="mt10"><thead><tr><th>Nama</th><th>HP</th><th>Alamat</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+<div id="modal" class="modal-bg"><div id="modalBox" class="modal-box"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  if(!DataStore.getLoginUser()){ location.href='login.html'; return; }
+  const render = () => {
+    const list = DataStore.getBuyers();
+    const tbody = document.querySelector('#tblBuyer tbody'); tbody.innerHTML='';
+    const kw = (document.getElementById('searchBuyer').value||'').toLowerCase();
+    list.filter(b => (b.name||'').toLowerCase().includes(kw) || (b.phone||'').toLowerCase().includes(kw)).forEach(b=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${b.name}</td><td>${b.phone||'-'}</td><td>${b.address||'-'}</td><td><button class="btn" onclick="editBuyer('${b.id}')">Edit</button> <button class="btn btn-danger" onclick="delBuyer('${b.id}')">Hapus</button></td>`;
+      tbody.appendChild(tr);
+    });
+  };
+
+  window.editBuyer = function(id){
+    const b = DataStore.getBuyers().find(x=>x.id===id); if(!b) return;
+    openModal(`<h3>Edit Pembeli</h3><input type="hidden" id="eb_id" value="${b.id}"><label>Nama</label><input id="eb_name" value="${b.name}"><label>No HP</label><input id="eb_phone" value="${b.phone||''}"><label>Alamat</label><input id="eb_addr" value="${b.address||''}"><div style="text-align:right;margin-top:10px"><button class="btn" id="saveEb">Simpan</button></div>`);
+    setTimeout(()=> document.getElementById('saveEb').onclick = ()=>{
+      DataStore.updateBuyer(b.id, { name: eb_name.value.trim(), phone: eb_phone.value.trim(), address: eb_addr.value.trim() });
+      toast('Diperbarui'); closeModal(); render();
+    },40);
+  };
+
+  window.delBuyer = function(id){ if(!confirm('Hapus?')) return; DataStore.deleteBuyer(id); toast('Dihapus'); render(); };
+
+  document.getElementById('btnAddBuyer').onclick = ()=> {
+    openModal(`<h3>Tambah Pembeli</h3><label>Nama</label><input id="nb_name"><label>No HP</label><input id="nb_phone"><label>Alamat</label><input id="nb_addr"><div style="text-align:right;margin-top:10px"><button class="btn" id="saveNb">Simpan</button></div>`);
+    setTimeout(()=> document.getElementById('saveNb').onclick = ()=> {
+      if(!nb_name.value.trim()){ toast('Nama wajib'); return; }
+      DataStore.addBuyer({ name: nb_name.value.trim(), phone: nb_phone.value.trim(), address: nb_addr.value.trim() });
+      toast('Pembeli ditambahkan'); closeModal(); render();
+    },40);
+  };
+
+  window.openModal = function(html){ document.getElementById('modalBox').innerHTML = html; document.getElementById('modal').style.display='flex'; };
+  window.closeModal = function(){ document.getElementById('modal').style.display='none'; };
+  window.toast = function(msg){ const t=document.getElementById('toast'); t.innerText=msg; t.style.display='block'; setTimeout(()=> t.style.display='none',1800); };
+
+  document.getElementById('searchBuyer').addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>

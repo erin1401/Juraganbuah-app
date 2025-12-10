@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Master Item — Juragan Buah</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="utils.js"></script>
+  <script src="data.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="assets/logo.svg" class="sidebar-logo">
+    <div class="app-name">Juragan Buah</div>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html" class="active">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Persediaan</a>
+      <a href="report-profit.html">Laba Rugi</a>
+      <a href="users.html">User Management</a>
+    </nav>
+  </div>
+
+  <div class="main">
+    <header class="topbar"><h2>Master Item</h2><div id="userBox"></div></header>
+    <div class="container">
+      <div class="card">
+        <div style="display:flex;gap:10px;align-items:center">
+          <input id="searchItem" placeholder="Cari item... (nama/kode)">
+          <button class="btn" id="btnNewItem">+ Tambah Item</button>
+        </div>
+        <table id="tblItems" class="mt10">
+          <thead><tr><th>Kode</th><th>Nama</th><th>Harga</th><th>HPP</th><th>Stok</th><th>Aksi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal-bg"><div id="modalBox" class="modal-box"></div></div>
+  <div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  if(!DataStore.getLoginUser()) { location.href = 'login.html'; return; }
+  const render = ()=>{
+    const tbody = document.querySelector('#tblItems tbody'); tbody.innerHTML='';
+    const items = DataStore.getItems();
+    const kw = (document.getElementById('searchItem').value||'').toLowerCase();
+    items.filter(i=> (i.name||'').toLowerCase().includes(kw) || (i.code||'').toLowerCase().includes(kw)).forEach(it=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${it.code||''}</td><td>${it.name}</td><td>${formatRupiah(it.price)}</td><td>${formatRupiah(it.cost)}</td><td>${it.stock||0}</td>
+        <td><button class="btn" onclick="editItem('${it.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteItem('${it.id}')">Hapus</button></td>`;
+      tbody.appendChild(tr);
+    });
+  };
+
+  window.editItem = function(id){
+    const it = DataStore.getItems().find(x=>x.id===id);
+    openModal(`<h3>Edit Item</h3>
+      <input type="hidden" id="ei_id" value="${it.id}">
+      <label>Kode</label><input id="ei_code" value="${it.code||''}">
+      <label>Nama</label><input id="ei_name" value="${it.name||''}">
+      <label>Harga Jual</label><input id="ei_price" type="number" value="${it.price||0}">
+      <label>HPP</label><input id="ei_cost" type="number" value="${it.cost||0}">
+      <label>Stok</label><input id="ei_stock" type="number" value="${it.stock||0}">
+      <div style="text-align:right;margin-top:10px"><button class="btn" id="saveEdit">Simpan</button> <button class="btn btn-danger" onclick="closeModal()">Batal</button></div>`);
+    setTimeout(()=> {
+      document.getElementById('saveEdit').onclick = ()=>{
+        DataStore.updateItem(it.id,{ code: ei_code.value.trim(), name: ei_name.value.trim(), price: Number(ei_price.value)||0, cost: Number(ei_cost.value)||0, stock: Number(ei_stock.value)||0 });
+        toast('Item diperbarui');
+        closeModal(); render();
+      };
+    },50);
+  };
+
+  window.deleteItem = function(id){
+    if(!confirm('Hapus item?')) return;
+    DataStore.deleteItem(id); toast('Item dihapus'); render();
+  };
+
+  document.getElementById('btnNewItem').onclick = ()=>{
+    openModal(`<h3>Tambah Item</h3>
+      <label>Kode</label><input id="ni_code">
+      <label>Nama</label><input id="ni_name">
+      <label>Harga</label><input id="ni_price" type="number" value="0">
+      <label>HPP</label><input id="ni_cost" type="number" value="0">
+      <label>Stok</label><input id="ni_stock" type="number" value="0">
+      <div style="text-align:right;margin-top:10px"><button class="btn" id="saveNew">Simpan</button> <button class="btn btn-danger" onclick="closeModal()">Batal</button></div>`);
+    setTimeout(()=> {
+      document.getElementById('saveNew').onclick = ()=>{
+        if(!ni_name.value.trim()){ toast('Nama wajib','warn'); return; }
+        DataStore.addItem({ code: ni_code.value.trim(), name: ni_name.value.trim(), price: Number(ni_price.value)||0, cost: Number(ni_cost.value)||0, stock: Number(ni_stock.value)||0 });
+        closeModal(); toast('Item ditambahkan'); render();
+      };
+    },50);
+  };
+
+  document.getElementById('searchItem').addEventListener('input', render);
+
+  // modal helpers (simple)
+  window.openModal = function(html){ document.getElementById('modalBox').innerHTML = html; document.getElementById('modal').style.display='flex'; };
+  window.closeModal = function(){ document.getElementById('modal').style.display='none'; };
+
+  // toast simple
+  window.toast = function(txt, type='ok'){ const t = document.getElementById('toast'); t.innerText = txt; t.style.display='block'; setTimeout(()=> t.style.display='none', 2200); };
+
+  render();
+})();
+</script>
+</body>
+</html>
