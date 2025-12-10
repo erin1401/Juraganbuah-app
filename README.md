@@ -1,1 +1,0 @@
-# Juraganbuah-app
