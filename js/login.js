@@ -1,15 +1,41 @@
-function doLogin() {
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
+/* ============================================================
+   JURAGAN BUAH — login.js FINAL LEVEL 4
+   Fix utama:
+   ✔ Tidak reload sendiri
+   ✔ Tidak infinite redirect
+   ✔ Path dashboard benar
+   ✔ Validasi user benar
+   ✔ Error message tampil
+   ============================================================ */
 
-  const users = DataStore.getUsers();
-  const user = users.find(x => x.username === u && x.password === p);
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
+    const err = document.getElementById("errorMsg");
 
-  if (!user) {
-    alert("Username atau password salah!");
-    return;
-  }
+    if (!form) {
+        console.error("FORM LOGIN TIDAK DITEMUKAN!");
+        return;
+    }
 
-  localStorage.setItem("currentUser", JSON.stringify(user));
-  window.location.href = "dashboard.html";
-}
+    form.addEventListener("submit", (e) => {
+        e.preventDefault(); // HENTIKAN RELOAD
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        // AMBIL USER DARI DATASTORE
+        const user = DataStore.loginUser(username, password);
+
+        if (!user) {
+            err.style.display = "block";
+            err.innerText = "Username atau password salah!";
+            return;
+        }
+
+        // SIMPAN USER YANG LOGIN
+        localStorage.setItem("jb_logged_user", JSON.stringify(user));
+
+        // REDIRECT BENAR KE DASHBOARD
+        window.location.href = "dashboard.html";
+    });
+});
