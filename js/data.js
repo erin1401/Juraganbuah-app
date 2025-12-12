@@ -275,3 +275,10 @@ const DataStore = {
 };
 
 console.log("DataStore Level 4 Loaded");
+
+// Data default
+let users = [
+  { id:"1", username:"admin", password:"admin123", role:"admin" }
+];
+
+
