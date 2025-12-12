@@ -1,172 +1,71 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Login — Juragan Buah</title>
 
-<!-- CSS utama -->
 <link rel="stylesheet" href="../css/styles.css">
 
 <style>
   body {
-    margin:0;
-    background:#eef1f2;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    font-family:Inter, sans-serif;
-    padding:20px;
+    margin:0; display:flex; justify-content:center; align-items:center;
+    height:100vh; background:#f2f5f5; font-family:Inter, sans-serif;
   }
-
   .login-box {
-    width: 100%;
-    max-width: 420px;
-    background:white;
-    padding:30px;
-    border-radius:14px;
-    box-shadow:0 8px 22px rgba(0,0,0,0.08);
+    width:340px; background:white; padding:24px;
+    border-radius:14px; box-shadow:0 4px 14px rgba(0,0,0,0.15);
     text-align:center;
   }
-
-  img.logo {
-    width:85px;
-    margin-bottom:16px;
-  }
-
-  h2 {
-    margin:0;
-    font-size:24px;
-    color:#0E4F24;
-  }
-
-  .form-row {
-    margin-top:16px;
-    text-align:left;
-  }
-
-  label {
-    display:block;
-    font-size:14px;
-    margin-bottom:6px;
-  }
-
+  img { width:90px; margin-bottom:10px; }
   input {
-    width:100%;
-    padding:12px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:15px;
+    width:100%; padding:12px; margin-top:10px;
+    border-radius:8px; border:1px solid #ccc;
   }
-
-  .btn-login {
-    width:100%;
-    padding:12px;
-    background:#0E4F24;
-    border:none;
-    border-radius:10px;
-    color:white;
-    font-weight:700;
-    font-size:16px;
-    margin-top:18px;
+  button {
+    width:100%; padding:12px; border:none; border-radius:8px;
+    background:#0E4F24; color:white; margin-top:14px;
     cursor:pointer;
   }
-
-  #loginMsg {
-    display:none;
-    margin-top:14px;
-    padding:10px;
-    border-radius:8px;
-    font-size:14px;
-  }
-
-  #loginMsg.err {
-    display:block;
-    background:#ffefef;
-    color:#b00000;
-  }
-
-  #loginMsg.ok {
-    display:block;
-    background:#eaffef;
-    color:#006f2c;
-  }
-
-  #scriptError {
-    margin-top:15px;
-    color:#b00000;
-    font-size:14px;
-    display:none;
-  }
 </style>
-
 </head>
 <body>
 
 <div class="login-box">
+  <img src="../assets/logo.svg" alt="logo" onerror="this.style.display='none'">
 
-  <img src="../assets/logo.svg" alt="Logo Juragan Buah" class="logo" onerror="this.style.display='none'">
+  <h2>Juragan Buah</h2>
+  <p>Silakan login untuk melanjutkan</p>
 
-  <h2>Masuk ke Juragan Buah</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
 
-  <form id="loginForm" autocomplete="off" novalidate>
-    
-    <div class="form-row">
-      <label for="username">Username</label>
-      <input id="username" type="text" placeholder="admin / kasir" required>
-    </div>
-
-    <div class="form-row">
-      <label for="password">Password</label>
-      <input id="password" type="password" placeholder="********" required>
-    </div>
-
-    <button class="btn-login" type="submit">Masuk</button>
-
-    <div id="loginMsg"></div>
-  </form>
-
-  <div id="scriptError">
-    ⚠ Gagal memuat file aplikasi. Periksa folder <b>/js/</b>.
-  </div>
-
+  <button onclick="doLogin()">Login</button>
 </div>
 
-<!-- FLAG AGAR utils.js TIDAK REDIRECT -->
-<script>
-  window.__IS_LOGIN_PAGE = true;
-</script>
-
-<!-- SCRIPT WAJIB -->
+<!-- JS WAJIB URUTAN INI -->
 <script src="../js/utils.js"></script>
-<script>
-  if (typeof formatRupiah !== "function") {
-    document.getElementById("scriptError").style.display = "block";
-  }
-</script>
-
 <script src="../js/data.js"></script>
-<script>
-  if (typeof DataStore === "undefined") {
-    document.getElementById("scriptError").style.display = "block";
-  }
-</script>
 
-<script src="../js/login.js"></script>
 <script>
-  // Safety fallback jika login.js gagal
-  const form = document.getElementById("loginForm");
-  if (form && !form._hasLoginHandler) {
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      let msg = document.getElementById("loginMsg");
-      msg.className = "err";
-      msg.style.display = "block";
-      msg.textContent = "Fungsi login tidak aktif. Periksa js/login.js";
-    });
+function doLogin() {
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value.trim();
+
+  // DATA USER DARI data.js LEVEL 4
+  const user = DataStore.getUsers().find(x => x.username === u && x.password === p);
+
+  if (!user) {
+    alert("Username / password salah!");
+    return;
   }
+
+  // SIMPAN LOGIN
+  localStorage.setItem("currentUser", JSON.stringify(user));
+
+  // MASUK DASHBOARD
+  window.location.href = "dashboard.html";
+}
 </script>
 
 </body>
