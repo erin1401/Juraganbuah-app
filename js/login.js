@@ -2,7 +2,8 @@ function doLogin() {
   const u = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value.trim();
 
-  const user = DataStore.getUsers().find(x => x.username === u && x.password === p);
+  const users = DataStore.getUsers();
+  const user = users.find(x => x.username === u && x.password === p);
 
   if (!user) {
     alert("Username atau password salah!");
