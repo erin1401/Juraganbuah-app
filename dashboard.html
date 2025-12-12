@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Dashboard — Juragan Buah</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<!-- Chart JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
+
+  .layout {
+    display:flex;
+    min-height:100vh;
+  }
+
+  .content {
+    flex:1;
+    padding:22px;
+  }
+
+  .box {
+    background:white;
+    padding:22px;
+    border-radius:16px;
+    margin-bottom:20px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  .info-row {
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+
+  .card {
+    flex:1;
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 0 12px rgba(0,0,0,0.05);
+    min-width:200px;
+  }
+
+  .card h3 {
+    margin:0;
+    font-size:30px;
+    color:#0E4F24;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/logo.svg">
+      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+    </div>
+
+    <nav class="menu">
+      <a class="active" href="dashboard.html">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Persediaan</a>
+      <a href="report-profit.html">Laba Rugi</a>
+    </nav>
+
+    <button class="logout-btn" onclick="logout()">Keluar</button>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <h2>Dashboard</h2>
+
+    <!-- SUMMARY -->
+    <div class="info-row">
+      <div class="card">
+        <p>Total Item</p>
+        <h3 id="sumItems">0</h3>
+      </div>
+
+      <div class="card">
+        <p>Total Pembeli</p>
+        <h3 id="sumBuyers">0</h3>
+      </div>
+
+      <div class="card">
+        <p>Transaksi Penjualan</p>
+        <h3 id="sumSales">0</h3>
+      </div>
+
+      <div class="card">
+        <p>Total Pendapatan</p>
+        <h3 id="sumRevenue">Rp 0</h3>
+      </div>
+    </div>
+
+    <!-- GRAPH -->
+    <div class="box">
+      <h3>Grafik Penjualan 7 Hari Terakhir</h3>
+      <canvas id="salesChart" height="140"></canvas>
+    </div>
+
+  </main>
+
+</div>
+
+<script src="utils.js"></script>
+<script src="data.js"></script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>

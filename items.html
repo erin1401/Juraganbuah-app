@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Master Item — Juragan Buah</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  body { margin:0; font-family:Inter, sans-serif; background:#f4f6f7; }
+
+  .layout { display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width:240px;
+    background:#0E4F24;
+    color:white;
+    padding:22px 0;
+    display:flex;
+    flex-direction:column;
+    box-shadow:4px 0 12px rgba(0,0,0,0.2);
+  }
+
+  .brand { display:flex; align-items:center; gap:12px; padding:0 22px; margin-bottom:30px; }
+  .brand img { width:50px; padding:6px; background:rgba(255,255,255,0.09); border-radius:10px; }
+
+  .menu a {
+    display:block; padding:14px 26px; text-decoration:none; color:white;
+    font-size:15px; opacity:.9;
+  }
+  .menu a:hover, .menu a.active { background:rgba(255,255,255,0.15); opacity:1; }
+
+  .logout-btn {
+    margin:20px; padding:12px;
+    border:0; background:#ffdede; color:#8b0000;
+    border-radius:10px; cursor:pointer; font-weight:700;
+  }
+
+  /* CONTENT */
+  .content { flex:1; padding:28px; }
+
+  .title { font-size:24px; font-weight:700; margin-bottom:18px; }
+
+  .top-actions {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:22px;
+  }
+
+  .btn-primary {
+    background:#0E4F24; color:white;
+    padding:10px 16px;
+    border-radius:10px; border:0;
+    cursor:pointer; font-weight:700;
+  }
+
+  table {
+    width:100%;
+    background:white;
+    border-radius:14px;
+    border-collapse:collapse;
+    box-shadow:0 0 12px rgba(0,0,0,0.06);
+  }
+
+  th, td {
+    padding:12px 14px;
+    border-bottom:1px solid #e3e3e3;
+  }
+
+  th { text-align:left; background:#f9f9f9; }
+
+  tr:hover td { background:#f6fff7; }
+
+  .btn-small {
+    padding:6px 10px;
+    margin-right:4px;
+    font-size:13px;
+    border:0;
+    cursor:pointer;
+    border-radius:8px;
+  }
+
+  .btn-edit { background:#d9f5ff; color:#005b7f; }
+  .btn-del { background:#ffe0e0; color:#a10000; }
+
+  @media(max-width:720px){
+    table { font-size:13px; }
+  }
+</style>
+
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="logo">
+      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+    </div>
+
+    <nav class="menu">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html" class="active">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Persediaan</a>
+      <a href="report-profit.html">Laba Rugi</a>
+    </nav>
+
+    <button class="logout-btn" onclick="logout()">Keluar</button>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="title">Master Item</div>
+
+    <div class="top-actions">
+      <button class="btn-primary" onclick="openAddItem()">+ Tambah Item</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Nama Item</th>
+          <th>Harga</th>
+          <th>Satuan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="itemsTable"></tbody>
+    </table>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modalContainer"></div>
+
+<script src="utils.js"></script>
+<script src="data.js"></script>
+<script src="items.js"></script>
+
+</body>
+</html>
