@@ -1,19 +1,149 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard — Juragan Buah</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="utils.js"></script>
-  <script src="data.js"></script>
-  <script src="dashboard.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dashboard — Juragan Buah</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  body {
+    margin: 0;
+    font-family: Inter, sans-serif;
+    background: #f5f7f8;
+  }
+
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    background: #0E4F24;
+    color: white;
+    padding: 22px 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+  }
+
+  .sidebar .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 22px;
+    margin-bottom: 30px;
+  }
+
+  .sidebar .brand img {
+    width: 50px;
+    padding: 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .sidebar .menu {
+    flex: 1;
+  }
+
+  .menu a {
+    display: block;
+    padding: 14px 26px;
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    opacity: .9;
+  }
+
+  .menu a:hover,
+  .menu a.active {
+    background: rgba(255,255,255,0.15);
+    opacity: 1;
+  }
+
+  .logout-btn {
+    margin: 20px;
+    padding: 12px;
+    border: 0;
+    background: #ffdede;
+    color: #8b0000;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  /* CONTENT AREA */
+  .content {
+    flex: 1;
+    padding: 28px;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #1b1b1b;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.06);
+  }
+
+  .card .label {
+    font-size: 13px;
+    opacity: .65;
+  }
+
+  .card .value {
+    font-size: 26px;
+    margin-top: 6px;
+    font-weight: 700;
+  }
+
+  .chart-container {
+    margin-top: 30px;
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.06);
+  }
+
+  canvas {
+    width: 100% !important;
+    max-height: 360px;
+  }
+
+  @media(max-width:720px){
+    .sidebar { width: 190px; }
+  }
+</style>
+
 </head>
+
 <body>
-  <div class="sidebar">
-    <img src="assets/logo.svg" class="sidebar-logo">
-    <div class="app-name">Juragan Buah</div>
-    <nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="">
+      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+    </div>
+
+    <nav class="menu">
       <a href="dashboard.html" class="active">Dashboard</a>
       <a href="items.html">Master Item</a>
       <a href="buyers.html">Pembeli</a>
@@ -24,34 +154,47 @@
       <a href="report-sales.html">Laporan Penjualan</a>
       <a href="report-stock.html">Laporan Persediaan</a>
       <a href="report-profit.html">Laba Rugi</a>
-      <a href="users.html">User Management</a>
-      <a href="#" onclick="DataStore.logout();location.href='login.html'">Logout</a>
     </nav>
-  </div>
 
-  <div class="main">
-    <header class="topbar">
-      <div>
-        <h1>Dashboard</h1>
-        <p class="muted">Ringkasan cepat toko buah</p>
-      </div>
-      <div id="userBox" class="userBox"></div>
-    </header>
+    <button class="logout-btn" onclick="logout()">Keluar</button>
+  </aside>
 
-    <div class="container">
-      <div class="kpi-grid">
-        <div class="kpi card"><h4>Total Penjualan</h4><div id="k_total">Rp 0</div></div>
-        <div class="kpi card"><h4>Transaksi</h4><div id="k_tx">0</div></div>
-        <div class="kpi card"><h4>Total Item</h4><div id="k_items">0</div></div>
-        <div class="kpi card"><h4>Stok Rendah</h4><div id="k_low">0</div></div>
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="title">Dashboard</div>
+
+    <!-- Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="label">Total Penjualan Hari Ini</div>
+        <div class="value" id="salesToday">Rp 0</div>
       </div>
 
       <div class="card">
-        <h3>Grafik Penjualan (7 hari)</h3>
-        <canvas id="salesChart" height="160"></canvas>
+        <div class="label">Total Item</div>
+        <div class="value" id="totalItems">0</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Total Pembeli</div>
+        <div class="value" id="totalBuyers">0</div>
       </div>
     </div>
-  </div>
-  <!-- Chart.js loaded in dashboard.js -->
+
+    <div class="chart-container">
+      <h3 style="margin:0 0 14px 0;">Grafik Penjualan Mingguan</h3>
+      <canvas id="salesChart"></canvas>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- FILE JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="utils.js"></script>
+<script src="data.js"></script>
+<script src="dashboard.js"></script>
+
 </body>
 </html>

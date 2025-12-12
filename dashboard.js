@@ -1,35 +1,131 @@
-// dashboard.js
-document.addEventListener('DOMContentLoaded', ()=>{
-  // require login
-  const user = DataStore.getLoginUser();
-  if(!user){ location.href = 'login.html'; return; }
-  document.getElementById('userBox').innerText = user.username + ' (' + user.role + ')';
+/* ==========================================================
+   dashboard.js — Juragan Buah (Level 4)
+   Mengisi statistik + grafik + validasi login
+   ========================================================== */
 
-  const items = DataStore.getItems();
-  const sales = DataStore.getSales();
-  const buyers = DataStore.getBuyers();
+console.log("Dashboard JS Loaded ✔");
 
-  document.getElementById('k_items').innerText = items.length;
-  document.getElementById('k_tx').innerText = sales.length;
-  const totalSales = sales.reduce((s,x)=>s + Number(x.total || 0), 0);
-  document.getElementById('k_total').innerText = formatRupiah(totalSales);
-  document.getElementById('k_low').innerText = items.filter(i => Number(i.stock || 0) <= 5).length;
+// -------------------------------
+// CEK LOGIN
+// -------------------------------
+function checkLogin() {
+  const user = localStorage.getItem("loggedUser");
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+}
+checkLogin();
 
-  // chart
-  const daily = {};
-  sales.forEach(s => { daily[s.date] = (daily[s.date] || 0) + Number(s.total || 0); });
-  const labels = Object.keys(daily).slice(-7);
-  const values = labels.map(d => daily[d]);
+// -------------------------------
+// LOGOUT
+// -------------------------------
+function logout() {
+  localStorage.removeItem("loggedUser");
+  window.location.href = "login.html";
+}
 
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-  script.onload = ()=> {
-    const ctx = document.getElementById('salesChart');
-    new Chart(ctx, {
-      type: 'bar',
-      data: { labels, datasets: [{ label: 'Penjualan', data: values, backgroundColor:'#28a745'}] },
-      options: { responsive:true, scales:{ y:{ ticks:{ callback: v => formatRupiah(v) } } } }
+// -------------------------------
+// FORMAT RUPIAH
+// -------------------------------
+function formatRupiah(num) {
+  return "Rp " + Number(num).toLocaleString("id-ID");
+}
+
+// -------------------------------
+// HITUNG PENJUALAN HARI INI
+// -------------------------------
+function getSalesToday() {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const todaySales = sales.filter(s => s.date === today);
+
+  let total = 0;
+  todaySales.forEach(sale => {
+    sale.items.forEach(item => {
+      total += item.qty * item.price;
     });
-  };
-  document.head.appendChild(script);
-});
+  });
+
+  return total;
+}
+
+// -------------------------------
+// ISI CARD
+// -------------------------------
+function fillCards() {
+  document.getElementById("salesToday").textContent = formatRupiah(
+    getSalesToday()
+  );
+
+  document.getElementById("totalItems").textContent = items.length;
+  document.getElementById("totalBuyers").textContent = buyers.length;
+}
+
+fillCards();
+
+// -------------------------------
+// SIAPKAN DATA GRAFIK MINGGUAN
+// -------------------------------
+function getWeeklyChartData() {
+  const labels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
+
+  const weekly = [0,0,0,0,0,0,0];
+
+  sales.forEach(sale => {
+    let d = new Date(sale.date);
+    let day = d.getDay(); 
+
+    // Ubah format JS (0=Min) ke format kita (0=Sen)
+    let idx = (day === 0 ? 6 : day - 1);
+
+    sale.items.forEach(it => {
+      weekly[idx] += it.price * it.qty;
+    });
+  });
+
+  return { labels, weekly };
+}
+
+const chartData = getWeeklyChartData();
+
+// -------------------------------
+// RENDER GRAFIK
+// -------------------------------
+function renderChart() {
+  const ctx = document.getElementById("salesChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: chartData.labels,
+      datasets: [
+        {
+          label: "Penjualan",
+          data: chartData.weekly,
+          borderColor: "#0E4F24",
+          backgroundColor: "rgba(14,79,36,0.15)",
+          borderWidth: 3,
+          tension: 0.35,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function (value) {
+              return "Rp " + value.toLocaleString("id-ID");
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+renderChart();
