@@ -1,135 +1,58 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Dashboard — Juragan Buah</title>
 
 <link rel="stylesheet" href="styles.css">
 
+<!-- Chart JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  body {
-    margin: 0;
-    font-family: Inter, sans-serif;
-    background: #f5f7f8;
-  }
+  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
 
   .layout {
-    display: flex;
-    min-height: 100vh;
+    display:flex;
+    min-height:100vh;
   }
 
-  /* SIDEBAR */
-  .sidebar {
-    width: 240px;
-    background: #0E4F24;
-    color: white;
-    padding: 22px 0;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 4px 0 12px rgba(0,0,0,0.2);
-  }
-
-  .sidebar .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 22px;
-    margin-bottom: 30px;
-  }
-
-  .sidebar .brand img {
-    width: 50px;
-    padding: 6px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.1);
-  }
-
-  .sidebar .menu {
-    flex: 1;
-  }
-
-  .menu a {
-    display: block;
-    padding: 14px 26px;
-    color: white;
-    text-decoration: none;
-    font-size: 15px;
-    opacity: .9;
-  }
-
-  .menu a:hover,
-  .menu a.active {
-    background: rgba(255,255,255,0.15);
-    opacity: 1;
-  }
-
-  .logout-btn {
-    margin: 20px;
-    padding: 12px;
-    border: 0;
-    background: #ffdede;
-    color: #8b0000;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-
-  /* CONTENT AREA */
   .content {
-    flex: 1;
-    padding: 28px;
+    flex:1;
+    padding:22px;
   }
 
-  .title {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 18px;
-    color: #1b1b1b;
+  .box {
+    background:white;
+    padding:22px;
+    border-radius:16px;
+    margin-bottom:20px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.06);
   }
 
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-    gap: 20px;
+  .info-row {
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
   }
 
   .card {
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.06);
+    flex:1;
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 0 12px rgba(0,0,0,0.05);
+    min-width:200px;
   }
 
-  .card .label {
-    font-size: 13px;
-    opacity: .65;
-  }
-
-  .card .value {
-    font-size: 26px;
-    margin-top: 6px;
-    font-weight: 700;
-  }
-
-  .chart-container {
-    margin-top: 30px;
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.06);
-  }
-
-  canvas {
-    width: 100% !important;
-    max-height: 360px;
-  }
-
-  @media(max-width:720px){
-    .sidebar { width: 190px; }
+  .card h3 {
+    margin:0;
+    font-size:30px;
+    color:#0E4F24;
   }
 </style>
-
 </head>
 
 <body>
@@ -139,12 +62,12 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
-      <img src="assets/logo.svg" alt="">
+      <img src="assets/logo.svg">
       <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
     </div>
 
     <nav class="menu">
-      <a href="dashboard.html" class="active">Dashboard</a>
+      <a class="active" href="dashboard.html">Dashboard</a>
       <a href="items.html">Master Item</a>
       <a href="buyers.html">Pembeli</a>
       <a href="stock-in.html">Item Masuk</a>
@@ -161,37 +84,42 @@
 
   <!-- CONTENT -->
   <main class="content">
-    <div class="title">Dashboard</div>
 
-    <!-- Cards -->
-    <div class="cards">
+    <h2>Dashboard</h2>
+
+    <!-- SUMMARY -->
+    <div class="info-row">
       <div class="card">
-        <div class="label">Total Penjualan Hari Ini</div>
-        <div class="value" id="salesToday">Rp 0</div>
+        <p>Total Item</p>
+        <h3 id="sumItems">0</h3>
       </div>
 
       <div class="card">
-        <div class="label">Total Item</div>
-        <div class="value" id="totalItems">0</div>
+        <p>Total Pembeli</p>
+        <h3 id="sumBuyers">0</h3>
       </div>
 
       <div class="card">
-        <div class="label">Total Pembeli</div>
-        <div class="value" id="totalBuyers">0</div>
+        <p>Transaksi Penjualan</p>
+        <h3 id="sumSales">0</h3>
+      </div>
+
+      <div class="card">
+        <p>Total Pendapatan</p>
+        <h3 id="sumRevenue">Rp 0</h3>
       </div>
     </div>
 
-    <div class="chart-container">
-      <h3 style="margin:0 0 14px 0;">Grafik Penjualan Mingguan</h3>
-      <canvas id="salesChart"></canvas>
+    <!-- GRAPH -->
+    <div class="box">
+      <h3>Grafik Penjualan 7 Hari Terakhir</h3>
+      <canvas id="salesChart" height="140"></canvas>
     </div>
 
   </main>
 
 </div>
 
-<!-- FILE JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="utils.js"></script>
 <script src="data.js"></script>
 <script src="dashboard.js"></script>

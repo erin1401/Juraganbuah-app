@@ -1,131 +1,117 @@
-/* ==========================================================
-   dashboard.js — Juragan Buah (Level 4)
-   Mengisi statistik + grafik + validasi login
-   ========================================================== */
+// =========================
+//  DASHBOARD.JS FINAL V4
+// =========================
 
-console.log("Dashboard JS Loaded ✔");
+// Cek login
+document.addEventListener("DOMContentLoaded", () => {
+    const user = localStorage.getItem("loggedUser");
+    if (!user) {
+        window.location = "login.html";
+        return;
+    }
 
-// -------------------------------
-// CEK LOGIN
-// -------------------------------
-function checkLogin() {
-  const user = localStorage.getItem("loggedUser");
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
+    loadSummary();
+    loadSalesChart();
+});
+
+
+// =========================
+// LOAD SUMMARY
+// =========================
+
+function loadSummary() {
+    const items = getItems();
+    const buyers = getBuyers();
+    const sales = getSales();
+
+    // Hitung pendapatan total
+    let revenue = 0;
+    sales.forEach(s => revenue += Number(s.total || 0));
+
+    document.getElementById("sumItems").textContent = items.length;
+    document.getElementById("sumBuyers").textContent = buyers.length;
+    document.getElementById("sumSales").textContent = sales.length;
+    document.getElementById("sumRevenue").textContent = formatRupiah(revenue);
 }
-checkLogin();
 
-// -------------------------------
-// LOGOUT
-// -------------------------------
+
+
+// =========================
+//  GRAFIK 7 HARI TERAKHIR
+// =========================
+
+function loadSalesChart() {
+    const sales = getSales();
+
+    // Siapkan tanggal 7 hari terakhir
+    let labels = [];
+    let dataRevenue = [];
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+
+        const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
+        labels.push(formatTanggalShort(key));
+
+        // hitung total penjualan hari tersebut
+        let totalDay = 0;
+        sales.forEach(s => {
+            if (s.date === key) {
+                totalDay += Number(s.total || 0);
+            }
+        });
+
+        dataRevenue.push(totalDay);
+    }
+
+    // Jika belum ada transaksi → tampilkan grafik kosong
+    const ctx = document.getElementById('salesChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Pendapatan",
+                data: dataRevenue,
+                borderWidth: 3,
+                borderColor: "#0E4F24",
+                backgroundColor: "rgba(14, 79, 36, 0.2)",
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: "#0E4F24"
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+
+
+// =========================
+//  LOGOUT
+// =========================
+
 function logout() {
-  localStorage.removeItem("loggedUser");
-  window.location.href = "login.html";
+    localStorage.removeItem("loggedUser");
+    window.location = "login.html";
 }
 
-// -------------------------------
-// FORMAT RUPIAH
-// -------------------------------
-function formatRupiah(num) {
-  return "Rp " + Number(num).toLocaleString("id-ID");
+
+
+// =========================
+//  HELPER TANGGAL SINGKAT
+// =========================
+
+function formatTanggalShort(str) {
+    const bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+    const d = new Date(str);
+    return d.getDate() + " " + bulan[d.getMonth()];
 }
-
-// -------------------------------
-// HITUNG PENJUALAN HARI INI
-// -------------------------------
-function getSalesToday() {
-  const today = new Date().toISOString().slice(0, 10);
-
-  const todaySales = sales.filter(s => s.date === today);
-
-  let total = 0;
-  todaySales.forEach(sale => {
-    sale.items.forEach(item => {
-      total += item.qty * item.price;
-    });
-  });
-
-  return total;
-}
-
-// -------------------------------
-// ISI CARD
-// -------------------------------
-function fillCards() {
-  document.getElementById("salesToday").textContent = formatRupiah(
-    getSalesToday()
-  );
-
-  document.getElementById("totalItems").textContent = items.length;
-  document.getElementById("totalBuyers").textContent = buyers.length;
-}
-
-fillCards();
-
-// -------------------------------
-// SIAPKAN DATA GRAFIK MINGGUAN
-// -------------------------------
-function getWeeklyChartData() {
-  const labels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
-
-  const weekly = [0,0,0,0,0,0,0];
-
-  sales.forEach(sale => {
-    let d = new Date(sale.date);
-    let day = d.getDay(); 
-
-    // Ubah format JS (0=Min) ke format kita (0=Sen)
-    let idx = (day === 0 ? 6 : day - 1);
-
-    sale.items.forEach(it => {
-      weekly[idx] += it.price * it.qty;
-    });
-  });
-
-  return { labels, weekly };
-}
-
-const chartData = getWeeklyChartData();
-
-// -------------------------------
-// RENDER GRAFIK
-// -------------------------------
-function renderChart() {
-  const ctx = document.getElementById("salesChart").getContext("2d");
-
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: chartData.labels,
-      datasets: [
-        {
-          label: "Penjualan",
-          data: chartData.weekly,
-          borderColor: "#0E4F24",
-          backgroundColor: "rgba(14,79,36,0.15)",
-          borderWidth: 3,
-          tension: 0.35,
-          fill: true,
-        },
-      ],
-    },
-    options: {
-      plugins: {
-        legend: { display: false },
-      },
-      scales: {
-        y: {
-          ticks: {
-            callback: function (value) {
-              return "Rp " + value.toLocaleString("id-ID");
-            },
-          },
-        },
-      },
-    },
-  });
-}
-
-renderChart();
