@@ -1,151 +1,173 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Login — Juragan Buah</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <!-- Styles utama -->
-  <link rel="stylesheet" href="../css/styles.css">
+<title>Login — Juragan Buah</title>
 
-  <style>
-    /* Local overrides to ensure form always readable even if styles.css gagal */
-    body {
-      margin:0;
-      background:#f4f6f7;
-      font-family: Inter, sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      padding:20px;
-    }
-    .login-box {
-      width: 100%;
-      max-width: 420px;
-      background: white;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
-      text-align: center;
-    }
-    .login-box img { width:84px; margin-bottom:10px; }
-    h2 { margin: 0 0 12px 0; color:#0E4F24; }
-    .form-row { margin-top:10px; text-align:left; }
-    label { display:block; font-size:13px; margin-bottom:6px; color:#333; }
-    input[type="text"], input[type="password"] {
-      width:100%; padding:12px; border-radius:8px; border:1px solid #d2d2d2; font-size:15px;
-    }
-    .btn-login {
-      width:100%; margin-top:14px; padding:12px; border-radius:10px; border:0;
-      background:#0E4F24; color:white; font-weight:700; cursor:pointer;
-    }
-    #loginMsg {
-      display:none; margin-top:12px; padding:10px; border-radius:8px; font-size:14px;
-    }
-    #loginMsg.err { background:#fff0f0; color:#b00000; display:block; }
-    #loginMsg.ok { background:#e9fff0; color:#007a2f; display:block; }
-    .small-muted { font-size:13px; color:#666; margin-top:8px; }
-    .noscript-warning { color:#b00000; font-weight:700; margin-top:12px; display:none; }
-    @media (max-width:420px){
-      .login-box { padding:18px; }
-    }
-  </style>
+<!-- CSS utama -->
+<link rel="stylesheet" href="../css/styles.css">
+
+<style>
+  body {
+    margin:0;
+    background:#eef1f2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:Inter, sans-serif;
+    padding:20px;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 420px;
+    background:white;
+    padding:30px;
+    border-radius:14px;
+    box-shadow:0 8px 22px rgba(0,0,0,0.08);
+    text-align:center;
+  }
+
+  img.logo {
+    width:85px;
+    margin-bottom:16px;
+  }
+
+  h2 {
+    margin:0;
+    font-size:24px;
+    color:#0E4F24;
+  }
+
+  .form-row {
+    margin-top:16px;
+    text-align:left;
+  }
+
+  label {
+    display:block;
+    font-size:14px;
+    margin-bottom:6px;
+  }
+
+  input {
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:15px;
+  }
+
+  .btn-login {
+    width:100%;
+    padding:12px;
+    background:#0E4F24;
+    border:none;
+    border-radius:10px;
+    color:white;
+    font-weight:700;
+    font-size:16px;
+    margin-top:18px;
+    cursor:pointer;
+  }
+
+  #loginMsg {
+    display:none;
+    margin-top:14px;
+    padding:10px;
+    border-radius:8px;
+    font-size:14px;
+  }
+
+  #loginMsg.err {
+    display:block;
+    background:#ffefef;
+    color:#b00000;
+  }
+
+  #loginMsg.ok {
+    display:block;
+    background:#eaffef;
+    color:#006f2c;
+  }
+
+  #scriptError {
+    margin-top:15px;
+    color:#b00000;
+    font-size:14px;
+    display:none;
+  }
+</style>
+
 </head>
 <body>
 
-  <div class="login-box" role="main" aria-labelledby="loginTitle">
-    <img src="../assets/logo.svg" alt="Logo Juragan Buah" onerror="this.style.display='none'">
+<div class="login-box">
 
-    <h2 id="loginTitle">Masuk ke Juragan Buah</h2>
+  <img src="../assets/logo.svg" alt="Logo Juragan Buah" class="logo" onerror="this.style.display='none'">
 
-    <!-- FORM -->
-    <form id="loginForm" autocomplete="off" novalidate>
-      <div class="form-row">
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" placeholder="admin / kasir" required>
-      </div>
+  <h2>Masuk ke Juragan Buah</h2>
 
-      <div class="form-row">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" placeholder="********" required>
-      </div>
-
-      <button type="submit" class="btn-login">Masuk</button>
-
-      <div id="loginMsg" role="status" aria-live="polite"></div>
-
-      <div class="small-muted">Gunakan akun default: <strong>admin / admin123</strong> atau <strong>kasir / kasir123</strong></div>
-    </form>
-
-    <div id="scriptError" style="margin-top:12px; color:#b00; display:none;">
-      Ada masalah memuat file script aplikasi. Pastikan folder <code>/js/</code> berisi file <code>utils.js</code>, <code>data.js</code>, dan <code>login.js</code>.
+  <form id="loginForm" autocomplete="off" novalidate>
+    
+    <div class="form-row">
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="admin / kasir" required>
     </div>
 
-    <noscript>
-      <div style="margin-top:12px; color:#b00000; font-weight:700;">
-        JavaScript harus diaktifkan untuk menggunakan aplikasi ini.
-      </div>
-    </noscript>
+    <div class="form-row">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="********" required>
+    </div>
+
+    <button class="btn-login" type="submit">Masuk</button>
+
+    <div id="loginMsg"></div>
+  </form>
+
+  <div id="scriptError">
+    ⚠ Gagal memuat file aplikasi. Periksa folder <b>/js/</b>.
   </div>
 
-  <!-- Load minimal scripts (urutan penting) -->
-  <script>
-    // Safety: jangan biarkan skrip lain melakukan redirect otomatis pada halaman login.
-    // Jika ada script lama yang memeriksa session dan langsung redirect, kita blok sementara.
-    (function(){
-      // define a global flag to indicate "on login page" — other scripts should NOT redirect when this true.
-      window.__IS_LOGIN_PAGE = true;
-    })();
-  </script>
+</div>
 
-  <script src="../js/utils.js"></script>
-  <script>
-    // cek utils ter-load
-    if (typeof formatRupiah !== 'function') {
-      document.getElementById('scriptError').style.display = 'block';
-    }
-  </script>
+<!-- FLAG AGAR utils.js TIDAK REDIRECT -->
+<script>
+  window.__IS_LOGIN_PAGE = true;
+</script>
 
-  <script src="../js/data.js"></script>
-  <script>
-    // cek data store
-    if (typeof window.DataStore === 'undefined') {
-      // DataStore belum terdefinisi (data.js gagal) -> tampilkan error kecil
-      document.getElementById('scriptError').style.display = 'block';
-    } else {
-      // Ensure users exist (compatibility)
-      try {
-        const users = DataStore.getUsers ? DataStore.getUsers() : JSON.parse(localStorage.getItem('users')||'[]');
-        if (!users || users.length === 0) {
-          // create default users if none
-          localStorage.setItem('users', JSON.stringify([
-            { id:1, username:'admin', password: btoa('admin123'), role:'admin', name:'Administrator' },
-            { id:2, username:'kasir', password: btoa('kasir123'), role:'kasir', name:'Kasir' }
-          ]));
-        }
-      } catch(e){}
-    }
-  </script>
+<!-- SCRIPT WAJIB -->
+<script src="../js/utils.js"></script>
+<script>
+  if (typeof formatRupiah !== "function") {
+    document.getElementById("scriptError").style.display = "block";
+  }
+</script>
 
-  <script src="../js/login.js"></script>
-  <script>
-    // Setelah login.js dimuat: pastikan login form handler aktif
-    (function(){
-      // jika login.js tidak mendaftarkan event listener, beri fallback agar form tidak submit native
-      var form = document.getElementById('loginForm');
-      if (form && !form._hasLoginHandler) {
-        // block default submit and show help text
-        form.addEventListener('submit', function(e){
-          e.preventDefault();
-          var msg = document.getElementById('loginMsg');
-          msg.className = 'err';
-          msg.innerText = 'Fungsi login tidak aktif. Mohon cek file js/login.js';
-          msg.style.display = 'block';
-        });
-      }
-    })();
-  </script>
+<script src="../js/data.js"></script>
+<script>
+  if (typeof DataStore === "undefined") {
+    document.getElementById("scriptError").style.display = "block";
+  }
+</script>
+
+<script src="../js/login.js"></script>
+<script>
+  // Safety fallback jika login.js gagal
+  const form = document.getElementById("loginForm");
+  if (form && !form._hasLoginHandler) {
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      let msg = document.getElementById("loginMsg");
+      msg.className = "err";
+      msg.style.display = "block";
+      msg.textContent = "Fungsi login tidak aktif. Periksa js/login.js";
+    });
+  }
+</script>
 
 </body>
 </html>
