@@ -3,132 +3,302 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Item Masuk — Juragan Buah</title>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../css/styles.css">
 
 <style>
-  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
-  .layout { display:flex; min-height:100vh; }
+  body {
+    margin:0;
+    background:#f4f5f7;
+    font-family:Inter, sans-serif;
+    display:flex;
+  }
 
   /* SIDEBAR */
   .sidebar {
-    width:240px; background:#0E4F24; color:white;
-    padding:22px 0; display:flex; flex-direction:column;
-    box-shadow:4px 0 12px rgba(0,0,0,0.18);
+    width:240px;
+    background:#0E4F24;
+    color:white;
+    min-height:100vh;
+    padding:20px 0;
+    position:fixed;
+    left:0;
+    top:0;
   }
 
-  .brand { display:flex; align-items:center; gap:12px; padding:0 22px; margin-bottom:30px; }
-  .brand img { width:50px; padding:6px; background:rgba(255,255,255,0.09); border-radius:10px; }
-
-  .menu a {
-    display:block; padding:14px 26px; text-decoration:none; color:white;
-    font-size:15px; opacity:.9;
+  .sidebar .logo-box {
+    text-align:center;
+    margin-bottom:20px;
   }
-  .menu a.active, .menu a:hover { background:rgba(255,255,255,0.15); opacity:1; }
 
-  .logout-btn {
-    margin:20px; padding:12px; border:0; border-radius:10px;
-    background:#ffdede; color:#8b0000; cursor:pointer; font-weight:700;
+  .sidebar img {
+    width:80px;
+  }
+
+  .sidebar a {
+    display:block;
+    padding:12px 24px;
+    color:white;
+    text-decoration:none;
+  }
+
+  .sidebar a:hover {
+    background:#145f33;
   }
 
   /* CONTENT */
-  .content { flex:1; padding:28px; }
-  .title { font-size:24px; font-weight:700; margin-bottom:18px; }
-
-  .top-actions {
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:22px;
+  .content {
+    margin-left:240px;
+    padding:20px;
+    width:calc(100% - 240px);
   }
 
-  .btn-primary {
-    background:#0E4F24; color:white; padding:10px 16px; border-radius:10px;
-    border:0; cursor:pointer; font-weight:700;
-  }
+  h1 { margin-top:0; }
 
   table {
-    width:100%; background:white; border-radius:14px;
-    border-collapse:collapse; box-shadow:0 0 12px rgba(0,0,0,0.06);
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
   }
 
-  th, td { padding:12px 14px; border-bottom:1px solid #ececec; }
-  th { background:#f9f9f9; text-align:left; }
-
-  tr:hover td { background:#f3fff4; }
-
-  .btn-small {
-    padding:6px 10px; border-radius:8px; border:0; cursor:pointer;
-    font-size:13px; margin-right:4px;
+  th, td {
+    padding:12px;
+    border-bottom:1px solid #ddd;
   }
 
-  .btn-del { background:#ffe0e0; color:#a10000; }
+  th {
+    background:#0E4F24;
+    color:white;
+  }
 
-  @media(max-width:720px){
-    table { font-size:13px; }
+  tr:hover { background:#f4f4f4; }
+
+  .btn {
+    padding:10px 16px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+  }
+
+  .btn-green { background:#0E4F24; color:white; }
+  .btn-yellow { background:#ffc800; color:black; }
+  .btn-red { background:#d32f2f; color:white; }
+
+  /* MODAL */
+  .modal {
+    position:fixed;
+    left:0; top:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .modal-content {
+    background:white;
+    width:90%;
+    max-width:420px;
+    padding:20px;
+    border-radius:16px;
+  }
+
+  .form-row {
+    margin-top:14px;
+  }
+
+  label {
+    display:block;
+    margin-bottom:6px;
+  }
+
+  input, select {
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
   }
 </style>
 
 </head>
 <body>
 
-<div class="layout">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo-box">
+    <img src="../assets/logo.svg" onerror="this.style.display='none'">
+  </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="brand">
-      <img src="assets/logo.svg" alt="logo">
-      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
-    </div>
-
-    <nav class="menu">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="items.html">Master Item</a>
-      <a href="buyers.html">Pembeli</a>
-      <a href="stock-in.html" class="active">Item Masuk</a>
-      <a href="stock-out.html">Item Keluar</a>
-      <a href="opname.html">Stok Opname</a>
-      <a href="sales.html">Penjualan</a>
-      <a href="report-sales.html">Laporan Penjualan</a>
-      <a href="report-stock.html">Laporan Persediaan</a>
-      <a href="report-profit.html">Laba Rugi</a>
-    </nav>
-
-    <button class="logout-btn" onclick="logout()">Keluar</button>
-  </aside>
-
-  <!-- CONTENT -->
-  <main class="content">
-
-    <div class="title">Item Masuk</div>
-
-    <div class="top-actions">
-      <button class="btn-primary" onclick="openAddStockIn()">+ Tambah Item Masuk</button>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Tanggal</th>
-          <th>Item</th>
-          <th>Jumlah</th>
-          <th>Harga Modal</th>
-          <th>Pemasok</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="stockInTable"></tbody>
-    </table>
-
-  </main>
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="items.html">🍎 Master Item</a>
+  <a href="buyers.html">🧑 Pembeli</a>
+  <a href="stock-in.html">📥 Item Masuk</a>
+  <a href="stock-out.html">📤 Item Keluar</a>
+  <a href="opname.html">📦 Stok Opname</a>
+  <a href="sales.html">🛒 Penjualan</a>
+  <a href="report-sales.html">📑 Laporan Penjualan</a>
+  <a href="report-stock.html">📦 Laporan Persediaan</a>
+  <a href="report-profit.html">💰 Laba Rugi</a>
+  <a href="#" onclick="logout()">🚪 Logout</a>
 </div>
 
+<!-- CONTENT -->
+<div class="content">
+
+  <h1>Item Masuk</h1>
+
+  <button class="btn btn-green" onclick="openAdd()">+ Tambah Item Masuk</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nama Item</th>
+        <th>Jumlah</th>
+        <th>Harga Masuk</th>
+        <th>Tanggal</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="stockInTable"></tbody>
+  </table>
+
+</div>
 
 <!-- MODAL -->
-<div id="modalContainer"></div>
+<div class="modal" id="modalStockIn">
+  <div class="modal-content">
+    <h3 id="modalTitle">Tambah Item Masuk</h3>
 
-<script src="utils.js"></script>
-<script src="data.js"></script>
-<script src="stock-in.js"></script>
+    <div class="form-row">
+      <label>Nama Item</label>
+      <select id="itemSelect"></select>
+    </div>
+
+    <div class="form-row">
+      <label>Jumlah</label>
+      <input type="number" id="qtyInput" min="1">
+    </div>
+
+    <div class="form-row">
+      <label>Harga Masuk (Rp)</label>
+      <input type="number" id="priceInput" min="0">
+    </div>
+
+    <br>
+
+    <button class="btn btn-green" onclick="saveStockIn()">Simpan</button>
+    <button class="btn" onclick="closeModal()">Batal</button>
+
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<script src="../js/utils.js"></script>
+<script src="../js/data.js"></script>
+
+<script>
+let editId = null;
+
+function loadStockIn() {
+  const list = DataStore.getStockIn();
+  const tbody = document.getElementById("stockInTable");
+
+  tbody.innerHTML = "";
+
+  list.forEach(s => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${getItemName(s.itemId)}</td>
+        <td>${s.qty}</td>
+        <td>${formatRupiah(s.price)}</td>
+        <td>${s.date}</td>
+        <td>
+          <button class="btn btn-yellow" onclick="editStock('${s.id}')">Edit</button>
+          <button class="btn btn-red" onclick="deleteStock('${s.id}')">Hapus</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function getItemName(id) {
+  const item = DataStore.getItems().find(a => a.id === id);
+  return item ? item.name : "-";
+}
+
+function loadItemSelect() {
+  const items = DataStore.getItems();
+  const select = document.getElementById("itemSelect");
+
+  select.innerHTML = items.map(i => `<option value="${i.id}">${i.name}</option>`).join("");
+}
+
+function openAdd() {
+  editId = null;
+  loadItemSelect();
+  document.getElementById("modalTitle").innerText = "Tambah Item Masuk";
+  document.getElementById("qtyInput").value = "";
+  document.getElementById("priceInput").value = "";
+  document.getElementById("modalStockIn").style.display = "flex";
+}
+
+function editStock(id) {
+  editId = id;
+  const s = DataStore.getStockIn().find(x => x.id === id);
+
+  loadItemSelect();
+
+  document.getElementById("modalTitle").innerText = "Edit Item Masuk";
+  document.getElementById("itemSelect").value = s.itemId;
+  document.getElementById("qtyInput").value = s.qty;
+  document.getElementById("priceInput").value = s.price;
+
+  document.getElementById("modalStockIn").style.display = "flex";
+}
+
+function saveStockIn() {
+  const itemId = document.getElementById("itemSelect").value;
+  const qty    = Number(document.getElementById("qtyInput").value);
+  const price  = Number(document.getElementById("priceInput").value);
+  const date   = new Date().toISOString().slice(0, 10);
+
+  if (!itemId || qty <= 0) return alert("Isi data dengan benar!");
+
+  const data = { itemId, qty, price, date };
+
+  if (editId) {
+    DataStore.updateStockIn(editId, data);
+  } else {
+    DataStore.addStockIn(data);
+  }
+
+  closeModal();
+  loadStockIn();
+}
+
+function deleteStock(id) {
+  if (confirm("Hapus data ini?")) {
+    DataStore.deleteStockIn(id);
+    loadStockIn();
+  }
+}
+
+function closeModal() {
+  document.getElementById("modalStockIn").style.display = "none";
+}
+
+function logout() {
+  localStorage.removeItem("loginUser");
+  window.location.href = "login.html";
+}
+
+document.addEventListener("DOMContentLoaded", loadStockIn);
+</script>
 
 </body>
 </html>
