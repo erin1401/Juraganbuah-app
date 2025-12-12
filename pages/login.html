@@ -1,1 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
+<title>Login — Juragan Buah</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  body {
+    margin:0;
+    font-family: Inter, sans-serif;
+    background:#f4f6f7;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+  }
+
+  .login-box {
+    width: 92%;
+    max-width: 420px;
+    background:white;
+    padding:32px;
+    border-radius:16px;
+    box-shadow:0 0 14px rgba(0,0,0,0.08);
+    text-align:center;
+  }
+
+  .logo-area img {
+    width:95px;
+    margin-bottom:12px;
+  }
+
+  h2 {
+    margin:0 0 20px 0;
+    color:#0E4F24;
+  }
+
+  input {
+    width:100%;
+    padding:14px;
+    margin:8px 0;
+    border-radius:12px;
+    border:1px solid #ccc;
+    font-size:15px;
+  }
+
+  .btn {
+    display:block;
+    width:100%;
+    padding:14px;
+    background:#0E4F24;
+    color:white;
+    border:0;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    margin-top:12px;
+    cursor:pointer;
+  }
+
+  #loginMsg {
+    display:none;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+    background:#ffdddd;
+    color:#b80000;
+    font-size:14px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+  <div class="logo-area">
+    <img src="assets/logo.svg" alt="logo">
+  </div>
+
+  <h2>Masuk</h2>
+
+  <form id="loginForm">
+
+    <input type="text" id="username" placeholder="Username" autocomplete="off">
+    <input type="password" id="password" placeholder="Password">
+
+    <button type="submit" class="btn">Masuk</button>
+
+    <div id="loginMsg"></div>
+
+  </form>
+</div>
+
+<!-- SCRIPT -->
+<script src="utils.js"></script>
+<script src="data.js"></script>
+<script src="login.js"></script>
+
+</body>
+</html>

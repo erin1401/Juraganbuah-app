@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stok Opname — Juragan Buah</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
+  .layout { display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width:240px; background:#0E4F24; color:white;
+    padding:22px 0; display:flex; flex-direction:column;
+    box-shadow:4px 0 12px rgba(0,0,0,0.18);
+  }
+
+  .brand { display:flex; align-items:center; gap:12px; padding:0 22px; margin-bottom:30px; }
+  .brand img { width:50px; padding:6px; background:rgba(255,255,255,0.09); border-radius:10px; }
+
+  .menu a {
+    display:block; padding:14px 26px; text-decoration:none; color:white;
+    font-size:15px; opacity:.9;
+  }
+  .menu a.active, .menu a:hover { background:rgba(255,255,255,0.15); opacity:1; }
+
+  .logout-btn {
+    margin:20px; padding:12px; border:0; border-radius:10px;
+    background:#ffdede; color:#8b0000; cursor:pointer; font-weight:700;
+  }
+
+  /* CONTENT */
+  .content { flex:1; padding:28px; }
+  .title { font-size:24px; font-weight:700; margin-bottom:18px; }
+
+  table {
+    width:100%; background:white; border-radius:14px;
+    border-collapse:collapse; box-shadow:0 0 12px rgba(0,0,0,0.06);
+  }
+
+  th, td { padding:12px 14px; border-bottom:1px solid #ececec; }
+  th { background:#f9f9f9; text-align:left; }
+
+  tr:hover td { background:#f4fff4; }
+
+  .btn-primary {
+    background:#0E4F24; color:white; padding:10px 16px; border-radius:10px;
+    border:0; cursor:pointer; font-weight:700; margin-bottom:18px;
+  }
+
+  .btn-small {
+    padding:6px 10px; border-radius:8px; border:0; cursor:pointer;
+    font-size:13px; margin-right:4px;
+  }
+
+  .btn-save { background:#0E4F24; color:white; }
+  .btn-cancel { background:#ddd; }
+</style>
+
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="logo">
+      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+    </div>
+
+    <nav class="menu">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html" class="active">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Persediaan</a>
+      <a href="report-profit.html">Laba Rugi</a>
+    </nav>
+
+    <button class="logout-btn" onclick="logout()">Keluar</button>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="title">Stok Opname</div>
+
+    <button class="btn-primary" onclick="startOpname()">Mulai Opname</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Item</th>
+          <th>Stok Sistem</th>
+          <th>Stok Hitung</th>
+          <th>Selisih</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="opnameTable"></tbody>
+    </table>
+
+  </main>
+</div>
+
+<div id="modalContainer"></div>
+
+<script src="utils.js"></script>
+<script src="data.js"></script>
+<script src="opname.js"></script>
+
+</body>
+</html>

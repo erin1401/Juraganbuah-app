@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Persediaan — Juragan Buah</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
+  .layout { display:flex; min-height:100vh; }
+
+  .content {
+    flex:1; padding:22px;
+  }
+
+  .box {
+    background:white; padding:22px; border-radius:14px;
+    box-shadow:0 0 12px rgba(0,0,0,0.06);
+  }
+
+  table { width:100%; border-collapse:collapse; margin-top:20px; }
+  th, td { border-bottom:1px solid #eee; padding:10px; font-size:14px; }
+  th { background:#fafafa; }
+
+  .btn {
+    background:#0E4F24; color:white;
+    padding:10px 16px; border-radius:10px;
+    border:none; cursor:pointer; font-weight:700;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/logo.svg">
+      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+    </div>
+
+    <nav class="menu">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a href="stock-in.html">Item Masuk</a>
+      <a href="stock-out.html">Item Keluar</a>
+      <a href="opname.html">Stok Opname</a>
+      <a href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html" class="active">Laporan Persediaan</a>
+      <a href="report-profit.html">Laba Rugi</a>
+    </nav>
+
+    <button class="logout-btn" onclick="logout()">Keluar</button>
+  </aside>
+
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <h2>Laporan Persediaan</h2>
+
+    <div class="box">
+
+      <button class="btn" onclick="printStockReport()">Cetak PDF</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Item</th>
+            <th>Stok Awal</th>
+            <th>Masuk</th>
+            <th>Keluar</th>
+            <th>Opname</th>
+            <th>Sisa Akhir</th>
+          </tr>
+        </thead>
+        <tbody id="stockReportTable"></tbody>
+      </table>
+
+    </div>
+
+  </main>
+
+</div>
+
+<iframe id="printFrame" style="display:none;"></iframe>
+
+<script src="utils.js"></script>
+<script src="data.js"></script>
+<script src="report-stock.js"></script>
+
+</body>
+</html>
