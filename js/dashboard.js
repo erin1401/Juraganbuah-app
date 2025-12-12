@@ -1,117 +1,78 @@
-// =========================
-//  DASHBOARD.JS FINAL V4
-// =========================
+/* ============================================================
+   DASHBOARD.JS — FINAL LEVEL 4
+   Mengisi ringkasan + grafik penjualan pada dashboard
+   ============================================================ */
 
-// Cek login
 document.addEventListener("DOMContentLoaded", () => {
-    const user = localStorage.getItem("loggedUser");
-    if (!user) {
-        window.location = "login.html";
-        return;
-    }
 
-    loadSummary();
-    loadSalesChart();
-});
+    // DATA
+    const items = DataStore.getItems();
+    const buyers = DataStore.getBuyers();
+    const sales = DataStore.getSales();
 
+    /* ===================== RINGKASAN ======================== */
 
-// =========================
-// LOAD SUMMARY
-// =========================
+    document.getElementById("sumItems").innerText = items.length;
+    document.getElementById("sumBuyers").innerText = buyers.length;
+    document.getElementById("sumSales").innerText = sales.length;
 
-function loadSummary() {
-    const items = getItems();
-    const buyers = getBuyers();
-    const sales = getSales();
+    let totalRevenue = 0;
+    sales.forEach(s => {
+        totalRevenue += Number(s.total || 0);
+    });
 
-    // Hitung pendapatan total
-    let revenue = 0;
-    sales.forEach(s => revenue += Number(s.total || 0));
-
-    document.getElementById("sumItems").textContent = items.length;
-    document.getElementById("sumBuyers").textContent = buyers.length;
-    document.getElementById("sumSales").textContent = sales.length;
-    document.getElementById("sumRevenue").textContent = formatRupiah(revenue);
-}
+    document.getElementById("sumRevenue").innerText = formatRupiah(totalRevenue);
 
 
+    /* ===================== GRAFIK PENJUALAN ================== */
 
-// =========================
-//  GRAFIK 7 HARI TERAKHIR
-// =========================
-
-function loadSalesChart() {
-    const sales = getSales();
-
-    // Siapkan tanggal 7 hari terakhir
+    // Ambil 7 hari terakhir
     let labels = [];
-    let dataRevenue = [];
-    const today = new Date();
+    let values = [];
 
     for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
+        let d = new Date();
+        d.setDate(d.getDate() - i);
+        let tanggal = d.toISOString().slice(0, 10);
 
-        const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
-        labels.push(formatTanggalShort(key));
+        labels.push(tanggal);
 
-        // hitung total penjualan hari tersebut
-        let totalDay = 0;
-        sales.forEach(s => {
-            if (s.date === key) {
-                totalDay += Number(s.total || 0);
-            }
-        });
+        // Hitung total pendapatan hari tersebut
+        let daily = sales
+            .filter(s => s.date === tanggal)
+            .reduce((a, b) => a + Number(b.total || 0), 0);
 
-        dataRevenue.push(totalDay);
+        values.push(daily);
     }
 
-    // Jika belum ada transaksi → tampilkan grafik kosong
-    const ctx = document.getElementById('salesChart').getContext('2d');
+    // Render Chart.js
+    const ctx = document.getElementById("salesChart");
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "Pendapatan",
-                data: dataRevenue,
-                borderWidth: 3,
-                borderColor: "#0E4F24",
-                backgroundColor: "rgba(14, 79, 36, 0.2)",
-                tension: 0.3,
-                pointRadius: 5,
-                pointBackgroundColor: "#0E4F24"
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
+    if (ctx) {
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Pendapatan Harian",
+                    data: values,
+                    borderColor: "#0E4F24",
+                    backgroundColor: "rgba(14, 79, 36, 0.20)",
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: (v) => "Rp " + v.toLocaleString("id-ID")
+                        }
+                    }
+                }
             }
-        }
-    });
-}
-
-
-
-// =========================
-//  LOGOUT
-// =========================
-
-function logout() {
-    localStorage.removeItem("loggedUser");
-    window.location = "login.html";
-}
-
-
-
-// =========================
-//  HELPER TANGGAL SINGKAT
-// =========================
-
-function formatTanggalShort(str) {
-    const bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-    const d = new Date(str);
-    return d.getDate() + " " + bulan[d.getMonth()];
-}
+        });
+    }
+});
