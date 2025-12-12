@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Juragan Buah — Selamat Datang</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    body {
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg,#0f6b2f 0%, #073b1f 100%);
+      font-family: Inter, "Segoe UI", Roboto, sans-serif;
+      color:#fff;
+    }
+
+    .landing {
+      width:100%;
+      max-width:980px;
+      margin:32px;
+      display:grid;
+      grid-template-columns:420px 1fr;
+      gap:28px;
+      align-items:center;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .brand {
+      display:flex;
+      gap:18px;
+      align-items:center;
+    }
+
+    .brand img {
+      width:92px; height:92px; object-fit:contain;
+      border-radius:12px;
+      background: rgba(255,255,255,0.03);
+      padding:8px;
+    }
+
+    .brand h1 { font-size:28px; margin:0; }
+    .brand p { margin:6px 0 0 0; color: rgba(255,255,255,0.85); }
+
+    .lead {
+      margin-top:18px;
+      font-size:15px;
+      color: rgba(255,255,255,0.9);
+      line-height:1.5;
+    }
+
+    .cta-row {
+      margin-top:20px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .btn-primary {
+      background:#e9fff1;
+      color:#0b5f2a;
+      border:0;
+      padding:12px 18px;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .btn-secondary {
+      background:transparent;
+      color:#fff;
+      border:1px solid rgba(255,255,255,0.18);
+      padding:12px 18px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .features { display:grid; gap:12px; }
+    .feature { display:flex; gap:12px; align-items:flex-start; color:#eaf7ec; }
+    .feature .dot {
+      width:10px; height:10px; border-radius:50%;
+      background:#8ff09a; margin-top:8px;
+    }
+
+    @media(max-width:920px){
+      .landing { grid-template-columns:1fr; }
+      .brand img { width:72px;height:72px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="landing">
+
+    <!-- PANEL KIRI -->
+    <section class="panel">
+      <div class="brand">
+        <img src="assets/logo.svg" alt="Logo Juragan Buah">
+        <div>
+          <h1>Juragan Buah</h1>
+          <p>Aplikasi Kasir & Persediaan Modern</p>
+        </div>
+      </div>
+
+      <p class="lead">
+        Kelola penjualan, pembeli, stok masuk/keluar, stok opname, dan laporan profit.
+        Siap digunakan di HP maupun komputer!
+      </p>
+
+      <div class="cta-row">
+        <button class="btn-primary" onclick="location.href='login.html'">Masuk</button>
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Lihat Dashboard</button>
+      </div>
+
+      <div style="margin-top:22px" class="features">
+        <div class="feature">
+          <span class="dot"></span>
+          <div>
+            <strong>Kasir Modern</strong>
+            <div style="font-size:13px;color:rgba(255,255,255,0.8)">Tunai • Transfer • QRIS • Cetak Struk</div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="dot"></span>
+          <div>
+            <strong>Persediaan Lengkap</strong>
+            <div style="font-size:13px;color:rgba(255,255,255,0.8)">Item Masuk • Item Keluar • Opname</div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="dot"></span>
+          <div>
+            <strong>Laporan Akurat</strong>
+            <div style="font-size:13px;color:rgba(255,255,255,0.8)">Penjualan • Stok • Laba Rugi</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL KANAN -->
+    <aside class="panel">
+      <h3 style="margin:0 0 12px 0">Ringkasan Cepat (Demo)</h3>
+
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <div style="flex:1;background:rgba(0,0,0,0.18);padding:14px;border-radius:10px">
+          <div style="font-size:12px;color:#cfe6d4">Penjualan Hari Ini</div>
+          <div style="font-size:20px;font-weight:700;margin-top:6px">Rp 0</div>
+        </div>
+
+        <div style="flex:1;background:rgba(0,0,0,0.15);padding:14px;border-radius:10px">
+          <div style="font-size:12px;color:#cfe6d4">Total Item</div>
+          <div style="font-size:20px;font-weight:700;margin-top:6px">0</div>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:rgba(255,255,255,0.8)">
+        Ini tampilan demo. Data akan terisi otomatis setelah login.
+      </p>
+    </aside>
+
+  </main>
+
+</body>
+</html>
