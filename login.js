@@ -159,12 +159,11 @@
 
       // short delay supaya storage settle (browsers biasanya OK but safer)
       setTimeout(() => {
-        showMsg("Login berhasil. Mengarahkan...", "ok");
-        // redirect ke dashboard
-        window.location.href = "dashboard.html";
-      }, 200);
+       window.location.href = "dashboard.html";
+       }, 200);
     });
 
     // optional: Enter handling already done by form submit
   });
 })();
+
