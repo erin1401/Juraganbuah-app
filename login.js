@@ -4,6 +4,16 @@
    - Menulis session ke localStorage.loggedUser (legacy) & DataStore loginUser
    - Validasi, pesan, dan redirect aman
    ========================================================================= */
+// FIX: Anti refresh loop di halaman login
+(function(){
+  const page = location.pathname.split("/").pop();
+  const user = JSON.parse(localStorage.getItem("loggedUser") || "null");
+
+  // Jangan redirect otomatis ketika user sedang proses login
+  if (page === "login.html") {
+    return; // <-- STOP redirect apapun
+  }
+})();
 
 (function () {
   // Helper kecil
@@ -152,7 +162,7 @@
         showMsg("Login berhasil. Mengarahkan...", "ok");
         // redirect ke dashboard
         window.location.href = "dashboard.html";
-      }, 120);
+      }, 200);
     });
 
     // optional: Enter handling already done by form submit
