@@ -1,147 +1,127 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Kasir Penjualan | Juragan Buah</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>Kasir | Juragan Buah</title>
 
-<link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
 </head>
 
 <body>
 
-<!-- ===== HEADER ===== -->
-<header class="topbar">
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
   <div class="logo">
     <img src="../assets/logo.png" alt="Juragan Buah">
-    <span>Juragan Buah</span>
+    <strong>Juragan Buah — Kasir</strong>
+  </div>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="items.html">Item</a>
+    <a href="buyers.html">Pembeli</a>
+    <a href="sales.html" class="active">Penjualan</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
+
+<!-- ================= CONTENT ================= -->
+<div class="container">
+
+  <!-- ADD ITEM -->
+  <div class="card">
+    <h3>Tambah Produk</h3>
+    <select id="itemSelect"></select>
+    <input type="number" id="qty" placeholder="Qty" value="1">
+    <button id="addItemBtn" type="button" class="btn btn-green">Tambah</button>
   </div>
 
-  <nav class="nav">
-    <a href="./dashboard.html">Dashboard</a>
-    <a href="./items.html">Master Item</a>
-    <a href="./buyers.html">Pembeli</a>
-    <a href="./sales.html" class="active">Kasir</a>
-    <a href="./report-sales.html">Laporan</a>
-    <button id="logoutBtn" type="button" class="btn btn-red btn-sm">Logout</button>
-  </nav>
-</header>
+  <!-- CART -->
+  <div class="card">
+    <h3>Keranjang</h3>
+    <table class="table" id="cartTable">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Harga</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <h3>Total: Rp <span id="grandTotal">0</span></h3>
+  </div>
 
-<!-- ===== MAIN ===== -->
-<main class="container">
+  <!-- PAYMENT -->
+  <div class="card">
+    <h3>Pembayaran</h3>
+    <select id="paymentMethod">
+      <option value="Cash">Cash</option>
+      <option value="Transfer">Transfer</option>
+      <option value="QRIS">QRIS</option>
+    </select>
 
-<h2>🧾 Kasir Penjualan</h2>
+    <div id="qrisBox" style="display:none; text-align:center">
+      <img src="../assets/qris.png" style="max-width:200px">
+      <p>Scan QRIS</p>
+    </div>
 
-<!-- ===== ADD ITEM ===== -->
-<section class="card">
-  <h3>Tambah Produk</h3>
+    <input type="number" id="paid" placeholder="Uang Dibayar">
+    <p>Kembalian: Rp <span id="change">0</span></p>
 
-  <input id="barcodeInput" placeholder="Scan / Input Barcode">
+    <button id="payBtn" type="button" class="btn btn-green btn-big">Simpan Transaksi</button>
+    <button id="printBtn" type="button" class="btn btn-blue btn-big">Print Struk</button>
+  </div>
 
-  <select id="itemSelect"></select>
+</div>
 
-  <input id="qtyInput" type="number" min="1" value="1">
-
-  <button id="addItemBtn" type="button" class="btn btn-green">Tambah</button>
-</section>
-
-<!-- ===== CART ===== -->
-<section class="card">
-  <h3>Daftar Belanja</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-        <th>Harga</th>
-        <th>Total</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="cartBody"></tbody>
-  </table>
-</section>
-
-<!-- ===== PAYMENT ===== -->
-<section class="card">
-  <h3>Pembayaran</h3>
-
-  <select id="buyerSelect"></select>
-
-  <select id="paymentMethod">
-    <option value="cash">Tunai</option>
-    <option value="transfer">Transfer</option>
-    <option value="qris">QRIS</option>
-  </select>
-
-  <input id="paidInput" type="number" placeholder="Jumlah Bayar">
-
-  <p><strong>Total:</strong> Rp <span id="grandTotal">0</span></p>
-  <p><strong>Kembalian:</strong> Rp <span id="change">0</span></p>
-
-  <button id="payBtn" type="button" class="btn btn-green btn-big">Bayar & Simpan</button>
-  <button id="printBtn" type="button" class="btn btn-blue">Print Struk</button>
-</section>
-
-</main>
-
-<!-- ===== SCRIPT ===== -->
-<script src="../js/data.js"></script>
-<script src="../js/auth.js"></script>
-
+<!-- ================= SCRIPT ================= -->
 <script>
-/* ===============================
-   SALES LOGIC (HP SAFE)
-================================ */
-
-const items = DataStore.getItems();
-const buyers = DataStore.getBuyers();
 let cart = [];
 
-/* init dropdown */
+const items = DataStore.getItems();
 const itemSelect = document.getElementById("itemSelect");
+const cartBody = document.querySelector("#cartTable tbody");
+
 items.forEach(i => {
-  itemSelect.innerHTML += `<option value="${i.id}">${i.name} - Rp${i.price}</option>`;
+  itemSelect.innerHTML += `<option value="${i.id}">${i.name} - Rp ${i.price}</option>`;
 });
 
-const buyerSelect = document.getElementById("buyerSelect");
-buyers.forEach(b => {
-  buyerSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
-});
-
-/* barcode auto select */
-document.getElementById("barcodeInput").onchange = e => {
-  const item = items.find(i => i.barcode === e.target.value);
-  if (item) itemSelect.value = item.id;
-};
-
-/* add item */
 document.getElementById("addItemBtn").onclick = () => {
-  const id = itemSelect.value;
-  const qty = parseInt(document.getElementById("qtyInput").value);
-  const item = items.find(x => x.id === id);
+  const item = items.find(i => i.id === itemSelect.value);
+  const qty = parseInt(document.getElementById("qty").value);
+
   if (!item || qty <= 0) return;
 
-  cart.push({ name: item.name, qty, price: item.price });
+  cart.push({
+    name: item.name,
+    price: item.price,
+    qty
+  });
+
   renderCart();
 };
 
 function renderCart() {
-  const body = document.getElementById("cartBody");
-  body.innerHTML = "";
+  cartBody.innerHTML = "";
   let total = 0;
 
-  cart.forEach((c, i) => {
-    const t = c.qty * c.price;
-    total += t;
-    body.innerHTML += `
+  cart.forEach((c, index) => {
+    const sub = c.qty * c.price;
+    total += sub;
+
+    cartBody.innerHTML += `
       <tr>
         <td>${c.name}</td>
         <td>${c.qty}</td>
-        <td>Rp${c.price}</td>
-        <td>Rp${t}</td>
+        <td>${c.price}</td>
+        <td>${sub}</td>
         <td>
-          <button type="button" onclick="removeItem(${i})">❌</button>
+          <button type="button" class="btn btn-red btn-sm" onclick="removeItem(${index})">X</button>
         </td>
       </tr>`;
   });
@@ -149,46 +129,39 @@ function renderCart() {
   document.getElementById("grandTotal").innerText = total;
 }
 
-window.removeItem = (i) => {
+function removeItem(i) {
   cart.splice(i, 1);
   renderCart();
+}
+
+document.getElementById("paymentMethod").onchange = e => {
+  document.getElementById("qrisBox").style.display =
+    e.target.value === "QRIS" ? "block" : "none";
 };
 
-/* payment */
-document.getElementById("paidInput").oninput = e => {
-  const paid = parseInt(e.target.value) || 0;
+document.getElementById("paid").oninput = () => {
+  const paid = parseInt(document.getElementById("paid").value) || 0;
   const total = parseInt(document.getElementById("grandTotal").innerText);
   document.getElementById("change").innerText = paid - total;
 };
 
-/* save sale */
 document.getElementById("payBtn").onclick = () => {
   if (cart.length === 0) return alert("Keranjang kosong");
 
   const sales = DataStore.getSales();
   sales.push({
-    id: "S" + Date.now(),
     date: new Date().toISOString(),
-    buyer: buyerSelect.value,
     items: cart,
     total: document.getElementById("grandTotal").innerText,
     payment: document.getElementById("paymentMethod").value
   });
-
   DataStore.saveSales(sales);
+
   alert("Transaksi tersimpan");
-  location.reload();
 };
 
-/* print (HP safe) */
 document.getElementById("printBtn").onclick = () => {
   setTimeout(() => window.print(), 300);
-};
-
-/* logout */
-document.getElementById("logoutBtn").onclick = () => {
-  localStorage.removeItem("user");
-  window.location.href = "./login.html";
 };
 </script>
 
