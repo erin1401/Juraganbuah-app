@@ -8,14 +8,17 @@
    ✔ Error message tampil
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
+  const btn = document.getElementById("loginBtn");
   const errorMsg = document.getElementById("errorMsg");
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault(); // 🔥 INI KUNCI ANTI REFRESH
-
+  btn.addEventListener("click", () => {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
+
+    if (!username || !password) {
+      errorMsg.innerText = "❌ Lengkapi username & password";
+      return;
+    }
 
     const users = DataStore.getUsers();
     const user = users.find(
@@ -29,8 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     localStorage.setItem("user", JSON.stringify(user));
 
-    // 🔥 Redirect STABIL (HP AMAN)
-    window.location.replace("../pages/dashboard.html");
+    // 🔥 REDIRECT AMAN HP
+    window.location.href = "dashboard.html";
   });
 });
+
 
