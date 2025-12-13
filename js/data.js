@@ -1,9 +1,9 @@
-/* ===============================
-   JURAGAN BUAH - DATA STORE FINAL
-   HP & DESKTOP SAFE
-================================ */
+/* =====================================================
+   JURAGAN BUAH - DATA STORE LEVEL 5 (FINAL)
+   HP & DESKTOP SAFE | GITHUB PAGES FRIENDLY
+===================================================== */
 
-// ================= INIT USERS =================
+/* ================= USERS ================= */
 (function initUsers() {
   const users = JSON.parse(localStorage.getItem("users"));
   if (!users || users.length === 0) {
@@ -14,14 +14,15 @@
   }
 })();
 
-// ================= INIT DATA =================
-function initIfEmpty(key, value) {
+/* ================= INIT HELPER ================= */
+function init(key, value) {
   if (!localStorage.getItem(key)) {
     localStorage.setItem(key, JSON.stringify(value));
   }
 }
 
-initIfEmpty("items", [
+/* ================= MASTER DATA ================= */
+init("items", [
   {
     id: "I001",
     name: "Apel Merah",
@@ -34,69 +35,82 @@ initIfEmpty("items", [
   }
 ]);
 
-initIfEmpty("buyers", [
+init("buyers", [
   { id: "B001", name: "Umum" }
 ]);
 
-initIfEmpty("sales", []);
-initIfEmpty("stockIn", []);
-initIfEmpty("stockOut", []);
+init("sales", []);
+init("stockIn", []);
+init("stockOut", []);
 
-// ================= DATA STORE =================
+/* ================= DATA STORE API ================= */
 const DataStore = {
 
-  /* -------- USERS -------- */
+  /* USERS */
   getUsers() {
     return JSON.parse(localStorage.getItem("users")) || [];
   },
 
-  /* -------- ITEMS -------- */
+  /* ITEMS */
   getItems() {
     return JSON.parse(localStorage.getItem("items")) || [];
   },
-
   saveItems(data) {
     localStorage.setItem("items", JSON.stringify(data));
   },
 
-  /* -------- BUYERS -------- */
+  /* BUYERS */
   getBuyers() {
     return JSON.parse(localStorage.getItem("buyers")) || [];
   },
-
   saveBuyers(data) {
     localStorage.setItem("buyers", JSON.stringify(data));
   },
 
-  /* -------- SALES -------- */
+  /* SALES */
   getSales() {
     return JSON.parse(localStorage.getItem("sales")) || [];
   },
-
   saveSales(data) {
     localStorage.setItem("sales", JSON.stringify(data));
   },
 
-  /* -------- STOCK IN -------- */
+  /* STOCK IN */
   getStockIn() {
     return JSON.parse(localStorage.getItem("stockIn")) || [];
   },
-
   saveStockIn(data) {
     localStorage.setItem("stockIn", JSON.stringify(data));
   },
 
-  /* -------- STOCK OUT -------- */
+  /* STOCK OUT */
   getStockOut() {
     return JSON.parse(localStorage.getItem("stockOut")) || [];
   },
-
   saveStockOut(data) {
     localStorage.setItem("stockOut", JSON.stringify(data));
   }
 };
 
-// ================= AUTH GUARD (OPTIONAL) =================
-// Pakai ini di dashboard & page lain jika mau
+/* ================= UTIL PROFIT ================= */
+function calculateProfit() {
+  const sales = DataStore.getSales();
+  const items = DataStore.getItems();
 
+  let revenue = 0;
+  let cost = 0;
 
+  sales.forEach(s => {
+    s.items.forEach(i => {
+      revenue += i.qty * i.price;
+      const item = items.find(x => x.name === i.name);
+      if (item) cost += i.qty * item.cost;
+    });
+  });
+
+  return {
+    revenue,
+    cost,
+    profit: revenue - cost
+  };
+}
