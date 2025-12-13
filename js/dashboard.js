@@ -12,8 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!user) {
     // 🔥 PATH ABSOLUTE
+    document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("user")) {
     window.location.href = "../pages/login.html";
-    return;
   }
 });
 
@@ -95,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
 
 
 
