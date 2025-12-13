@@ -1,164 +1,144 @@
-/* ==========================================================
-   items.js — Juragan Buah (Level 4)
-   Mengelola master item: tambah, edit, hapus
-   ========================================================== */
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Master Item | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-console.log("Items JS Loaded ✔");
+<link rel="stylesheet" href="../css/styles.css">
+</head>
 
-// -------------------------------------------------------------
-// CEK LOGIN
-// -------------------------------------------------------------
-function checkLogin() {
-    const u = localStorage.getItem("loggedUser");
-    if (!u) location.href = ""./login.html"";
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png">
+    <span>Juragan Buah</span>
+  </div>
+  <nav class="nav">
+    <a href="./dashboard.html">Dashboard</a>
+    <a href="./items.html" class="active">Master Item</a>
+    <a href="./buyers.html">Pembeli</a>
+    <a href="./sales.html">Kasir</a>
+    <a href="./report-stock.html">Stok</a>
+    <button id="logoutBtn" class="btn btn-red btn-sm">Logout</button>
+  </nav>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="container">
+
+<h2>📦 Master Item</h2>
+
+<!-- Add Item -->
+<section class="card">
+  <h3>Tambah Item</h3>
+
+  <input id="name" placeholder="Nama Item">
+  <input id="barcode" placeholder="Barcode">
+  <input id="unit" placeholder="Satuan (kg, pcs, dll)">
+  <input id="price" type="number" placeholder="Harga Jual">
+  <input id="cost" type="number" placeholder="Harga Modal">
+
+  <input id="image" type="file" accept="image/*">
+
+  <button id="addBtn" class="btn btn-green">Tambah</button>
+</section>
+
+<!-- Item Table -->
+<section class="card">
+  <h3>Daftar Item</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Gambar</th>
+        <th>Nama</th>
+        <th>Barcode</th>
+        <th>Stok</th>
+        <th>Harga</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="itemBody"></tbody>
+  </table>
+</section>
+
+</main>
+
+<!-- ===== SCRIPT ===== -->
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+
+<script>
+/* ===============================
+   MASTER ITEM LOGIC
+================================ */
+
+let items = DataStore.getItems();
+const body = document.getElementById("itemBody");
+
+/* render */
+function render() {
+  body.innerHTML = "";
+  items.forEach((i, idx) => {
+    body.innerHTML += `
+      <tr>
+        <td>${i.image ? `<img src="${i.image}" class="thumb">` : "-"}</td>
+        <td>${i.name}</td>
+        <td>${i.barcode}</td>
+        <td>${i.stock || 0}</td>
+        <td>Rp${i.price}</td>
+        <td><button onclick="removeItem(${idx})">🗑</button></td>
+      </tr>`;
+  });
 }
-checkLogin();
+render();
 
-// -------------------------------------------------------------
-// RENDER TABEL
-// -------------------------------------------------------------
-function loadItems() {
-    let tbody = document.getElementById("itemsTable");
-    tbody.innerHTML = "";
+/* add */
+document.getElementById("addBtn").onclick = () => {
+  const name = document.getElementById("name").value;
+  const barcode = document.getElementById("barcode").value;
+  const unit = document.getElementById("unit").value;
+  const price = +document.getElementById("price").value;
+  const cost = +document.getElementById("cost").value;
+  const file = document.getElementById("image").files[0];
 
-    items.forEach((item, i) => {
-        let tr = document.createElement("tr");
+  if (!name || !price) return alert("Lengkapi data");
 
-        tr.innerHTML = `
-            <td>${item.code}</td>
-            <td>${item.name}</td>
-            <td>${formatRupiah(item.price)}</td>
-            <td>${item.unit}</td>
-            <td>
-                <button class="btn-small btn-edit" onclick="openEditItem(${i})">Edit</button>
-                <button class="btn-small btn-del" onclick="deleteItem(${i})">Hapus</button>
-            </td>
-        `;
-
-        tbody.appendChild(tr);
+  const saveItem = (img="") => {
+    items.push({
+      id: "I" + Date.now(),
+      name, barcode, unit,
+      price, cost,
+      stock: 0,
+      image: img
     });
-}
+    DataStore.saveItems(items);
+    render();
+  };
 
-document.addEventListener("DOMContentLoaded", loadItems);
+  if (file) {
+    const r = new FileReader();
+    r.onload = e => saveItem(e.target.result);
+    r.readAsDataURL(file);
+  } else saveItem();
+};
 
-// -------------------------------------------------------------
-// MODAL HANDLER
-// -------------------------------------------------------------
-function showModal(html) {
-    document.getElementById("modalContainer").innerHTML = `
-        <div class="modal-bg">
-            <div class="modal-box">
-                ${html}
-            </div>
-        </div>
-    `;
-}
+/* delete */
+window.removeItem = (i) => {
+  if (!confirm("Hapus item?")) return;
+  items.splice(i, 1);
+  DataStore.saveItems(items);
+  render();
+};
 
-function closeModal() {
-    document.getElementById("modalContainer").innerHTML = "";
-}
+/* logout */
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.removeItem("user");
+  location.href = "./login.html";
+};
+</script>
 
-// -------------------------------------------------------------
-// TAMBAH ITEM
-// -------------------------------------------------------------
-function openAddItem() {
-    showModal(`
-        <h3>Tambah Item</h3>
-        <div class="modal-input">
-            <label>Kode</label>
-            <input id="cKode">
-        </div>
-        <div class="modal-input">
-            <label>Nama Item</label>
-            <input id="cNama">
-        </div>
-        <div class="modal-input">
-            <label>Harga</label>
-            <input id="cHarga" type="number">
-        </div>
-        <div class="modal-input">
-            <label>Satuan</label>
-            <input id="cUnit">
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal()">Batal</button>
-            <button class="btn-save" onclick="saveNewItem()">Simpan</button>
-        </div>
-    `);
-}
-
-function saveNewItem() {
-    let code = document.getElementById("cKode").value;
-    let name = document.getElementById("cNama").value;
-    let price = parseInt(document.getElementById("cHarga").value);
-    let unit = document.getElementById("cUnit").value;
-
-    if (!code || !name || !price || !unit) {
-        alert("Semua field harus diisi.");
-        return;
-    }
-
-    items.push({ code, name, price, unit });
-    localStorage.setItem("items", JSON.stringify(items));
-
-    closeModal();
-    loadItems();
-}
-
-// -------------------------------------------------------------
-// EDIT ITEM
-// -------------------------------------------------------------
-function openEditItem(i) {
-    let it = items[i];
-
-    showModal(`
-        <h3>Edit Item</h3>
-        <div class="modal-input">
-            <label>Kode</label>
-            <input id="eKode" value="${it.code}">
-        </div>
-        <div class="modal-input">
-            <label>Nama Item</label>
-            <input id="eNama" value="${it.name}">
-        </div>
-        <div class="modal-input">
-            <label>Harga</label>
-            <input id="eHarga" type="number" value="${it.price}">
-        </div>
-        <div class="modal-input">
-            <label>Satuan</label>
-            <input id="eUnit" value="${it.unit}">
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal()">Batal</button>
-            <button class="btn-save" onclick="saveEditItem(${i})">Update</button>
-        </div>
-    `);
-}
-
-function saveEditItem(i) {
-    items[i].code  = document.getElementById("eKode").value;
-    items[i].name  = document.getElementById("eNama").value;
-    items[i].price = parseInt(document.getElementById("eHarga").value);
-    items[i].unit  = document.getElementById("eUnit").value;
-
-    localStorage.setItem("items", JSON.stringify(items));
-
-    closeModal();
-    loadItems();
-}
-
-// -------------------------------------------------------------
-// HAPUS ITEM
-// -------------------------------------------------------------
-function deleteItem(i) {
-    if (!confirm("Hapus item ini?")) return;
-
-    items.splice(i, 1);
-    localStorage.setItem("items", JSON.stringify(items));
-
-    loadItems();
-}
-
+</body>
+</html>
