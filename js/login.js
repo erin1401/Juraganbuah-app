@@ -1,42 +1,27 @@
-/* ============================================================
-   JURAGAN BUAH — login.js FINAL LEVEL 4
-   Fix utama:
-   ✔ Tidak reload sendirip
-   ✔ Tidak infinite redirect
-   ✔ Path dashboard benar
-   ✔ Validasi user benar
-   ✔ Error message tampil
-   ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("loginBtn");
-  const errorMsg = document.getElementById("errorMsg");
+  const error = document.getElementById("errorMsg");
 
   btn.addEventListener("click", () => {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const u = document.getElementById("username").value.trim();
+    const p = document.getElementById("password").value.trim();
 
-    if (!username || !password) {
-      errorMsg.innerText = "❌ Lengkapi username & password";
+    if (!u || !p) {
+      error.innerText = "Lengkapi username & password";
       return;
     }
 
-    const users = DataStore.getUsers();
-    const user = users.find(
-      u => u.username === username && u.password === password
-    );
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const found = users.find(x => x.username === u && x.password === p);
 
-    if (!user) {
-      errorMsg.innerText = "❌ Username atau password salah";
+    if (!found) {
+      error.innerText = "Login gagal";
       return;
     }
 
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(found));
 
-    // 🔥 REDIRECT AMAN HP
-    window.location.href = "dashboard.html";
+    // 🔥 PATH ABSOLUTE — AMAN HP
+    window.location.href = "../pages/dashboard.html";
   });
 });
-
-
-
-
