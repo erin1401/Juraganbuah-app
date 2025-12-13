@@ -1,6 +1,15 @@
+/* ================================
+   AUTH MODULE — FINAL FIX TOTAL
+   GITHUB PAGES SAFE
+================================ */
+
 const Auth = {
   getUser() {
-    return JSON.parse(localStorage.getItem("authUser"));
+    try {
+      return JSON.parse(localStorage.getItem("authUser"));
+    } catch {
+      return null;
+    }
   },
 
   login(username, password) {
@@ -21,22 +30,19 @@ const Auth = {
 
   logout() {
     localStorage.removeItem("authUser");
-    window.location.href = "../pages/login.html";
+    window.location.href = "login.html";
   },
 
   protect() {
     if (!this.getUser()) {
-      window.location.replace("../pages/login.html");
+      window.location.href = "login.html";
     }
   }
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const page = location.pathname.split("/").pop();
-  if (page !== "login.html" && page !== "index.html") {
-    Auth.protect();
-  }
-});
+// ❌ TIDAK ADA auto protect di sini
+// ❌ Tidak DOMContentLoaded
+// ❌ Tidak cek pathname
 
 function logout() {
   Auth.logout();
