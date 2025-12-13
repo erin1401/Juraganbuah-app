@@ -1,257 +1,125 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Pembeli — Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Data Pembeli | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../css/styles.css">
-
-<style>
-  body {
-    margin:0;
-    background:#f4f5f7;
-    font-family:Inter, sans-serif;
-    display:flex;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width:240px;
-    background:#0E4F24;
-    color:white;
-    min-height:100vh;
-    padding:20px 0;
-    position:fixed;
-    left:0;
-    top:0;
-  }
-
-  .sidebar .logo-box {
-    text-align:center;
-    margin-bottom:20px;
-  }
-
-  .sidebar img {
-    width:80px;
-  }
-
-  .sidebar a {
-    display:block;
-    padding:12px 24px;
-    color:white;
-    text-decoration:none;
-  }
-  .sidebar a:hover {
-    background:#145f33;
-  }
-
-  /* CONTENT */
-  .content {
-    margin-left:240px;
-    padding:20px;
-    width:calc(100% - 240px);
-  }
-
-  h1 { margin-top:0; }
-
-  table {
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-  }
-
-  th, td {
-    padding:12px;
-    border-bottom:1px solid #ddd;
-  }
-
-  th {
-    background:#0E4F24;
-    color:white;
-    text-align:left;
-  }
-
-  tr:hover {
-    background:#f4f4f4;
-  }
-
-  .btn {
-    padding:10px 16px;
-    border-radius:8px;
-    border:none;
-    cursor:pointer;
-  }
-
-  .btn-green { background:#0E4F24; color:white; }
-  .btn-yellow { background:#ffc800; color:black; }
-  .btn-red { background:#d32f2f; color:white; }
-
-  /* MODAL */
-  .modal {
-    position:fixed;
-    left:0; top:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.4);
-    display:none;
-    justify-content:center;
-    align-items:center;
-  }
-
-  .modal-content {
-    background:white;
-    width:90%;
-    max-width:420px;
-    padding:20px;
-    border-radius:16px;
-  }
-
-  .form-row { margin-top:14px; }
-  label { display:block; margin-bottom:6px; }
-
-  input {
-    width:100%;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-  }
-</style>
-
+<script src="../js/utils.js"></script>
+<script src="../js/data.js"></script>
 </head>
+
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="logo-box">
-    <img src="../assets/logo.svg" onerror="this.style.display='none'">
+<header class="topbar">
+  <div class="brand">
+    <img src="../assets/logo.png" class="logo">
+    <span>Juragan Buah</span>
   </div>
+  <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+</header>
 
-  <a href="dashboard.html">📊 Dashboard</a>
-  <a href="items.html">🍎 Master Item</a>
-  <a href="buyers.html">🧑 Pembeli</a>
-  <a href="stock-in.html">📥 Item Masuk</a>
-  <a href="stock-out.html">📤 Item Keluar</a>
-  <a href="opname.html">📦 Stok Opname</a>
-  <a href="sales.html">🛒 Penjualan</a>
-  <a href="report-sales.html">📑 Laporan Penjualan</a>
-  <a href="report-stock.html">📦 Laporan Persediaan</a>
-  <a href="report-profit.html">💰 Laba Rugi</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
+<main class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>👥 Data Pembeli</h2>
+      <button class="btn btn-green" onclick="openModal()">+ Tambah Pembeli</button>
+    </div>
 
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Telepon</th>
+            <th>Alamat</th>
+            <th width="120">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="buyerTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
 
-<!-- CONTENT -->
-<div class="content">
-
-  <h1>Pembeli</h1>
-
-  <button class="btn btn-green" onclick="openAdd()">+ Tambah Pembeli</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Nama Pembeli</th>
-        <th>Telepon</th>
-        <th>Alamat</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="buyerTable"></tbody>
-  </table>
-
-</div>
-
-
-<!-- MODAL FORM -->
-<div class="modal" id="modalBuyer">
+<!-- MODAL -->
+<div class="modal" id="buyerModal">
   <div class="modal-content">
     <h3 id="modalTitle">Tambah Pembeli</h3>
 
-    <div class="form-row">
-      <label>Nama Pembeli</label>
-      <input type="text" id="buyerName">
+    <input type="hidden" id="buyerId">
+
+    <label>Nama</label>
+    <input id="buyerName" placeholder="Nama pembeli">
+
+    <label>No. Telepon</label>
+    <input id="buyerPhone" placeholder="08xxxx">
+
+    <label>Alamat</label>
+    <textarea id="buyerAddress" placeholder="Alamat"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="saveBuyer()">💾 Simpan</button>
+      <button class="btn btn-red" onclick="closeModal()">Batal</button>
     </div>
-
-    <div class="form-row">
-      <label>No. Telepon</label>
-      <input type="text" id="buyerPhone">
-    </div>
-
-    <div class="form-row">
-      <label>Alamat</label>
-      <input type="text" id="buyerAddress">
-    </div>
-
-    <br>
-
-    <button class="btn btn-green" onclick="saveBuyer()">Simpan</button>
-    <button class="btn" onclick="closeModal()">Batal</button>
-
   </div>
 </div>
 
-
-<!-- JS -->
-<script src="../js/utils.js"></script>
-<script src="../js/data.js"></script>
-
 <script>
-let editId = null;
-
+/* =========================
+   LOAD DATA
+========================= */
 function loadBuyers() {
-  const buyers = DataStore.getBuyers();
   const tbody = document.getElementById("buyerTable");
   tbody.innerHTML = "";
 
-  buyers.forEach(b => {
+  DataStore.getBuyers().forEach(b => {
     tbody.innerHTML += `
       <tr>
         <td>${b.name}</td>
-        <td>${b.phone}</td>
-        <td>${b.address}</td>
+        <td>${b.phone || "-"}</td>
+        <td>${b.address || "-"}</td>
         <td>
-          <button class="btn btn-yellow" onclick="editBuyer('${b.id}')">Edit</button>
-          <button class="btn btn-red" onclick="deleteBuyer('${b.id}')">Hapus</button>
+          <button class="btn btn-small" onclick="editBuyer('${b.id}')">✏️</button>
+          <button class="btn btn-small btn-red" onclick="deleteBuyer('${b.id}')">🗑</button>
         </td>
       </tr>
     `;
   });
 }
 
-function openAdd() {
-  editId = null;
-  document.getElementById("modalTitle").innerText = "Tambah Pembeli";
-  document.getElementById("buyerName").value = "";
-  document.getElementById("buyerPhone").value = "";
-  document.getElementById("buyerAddress").value = "";
-  document.getElementById("modalBuyer").style.display = "flex";
+/* =========================
+   MODAL
+========================= */
+function openModal() {
+  document.getElementById("buyerModal").style.display = "flex";
 }
 
-function editBuyer(id) {
-  const b = DataStore.getBuyers().find(x => x.id === id);
-  if (!b) return;
-
-  editId = id;
-  document.getElementById("modalTitle").innerText = "Edit Pembeli";
-  document.getElementById("buyerName").value = b.name;
-  document.getElementById("buyerPhone").value = b.phone;
-  document.getElementById("buyerAddress").value = b.address;
-  document.getElementById("modalBuyer").style.display = "flex";
+function closeModal() {
+  document.getElementById("buyerModal").style.display = "none";
+  buyerId.value = "";
+  buyerName.value = "";
+  buyerPhone.value = "";
+  buyerAddress.value = "";
 }
 
+/* =========================
+   CRUD
+========================= */
 function saveBuyer() {
-  const name = document.getElementById("buyerName").value.trim();
-  const phone = document.getElementById("buyerPhone").value.trim();
-  const address = document.getElementById("buyerAddress").value.trim();
+  const id = buyerId.value;
+  const name = buyerName.value.trim();
+  const phone = buyerPhone.value.trim();
+  const address = buyerAddress.value.trim();
 
-  if (!name) return alert("Nama pembeli wajib diisi!");
+  if (!name) {
+    alert("Nama pembeli wajib diisi");
+    return;
+  }
 
-  if (editId) {
-    DataStore.updateBuyer(editId, { name, phone, address });
+  if (id) {
+    DataStore.updateBuyer(id, { name, phone, address });
   } else {
     DataStore.addBuyer({ name, phone, address });
   }
@@ -260,20 +128,23 @@ function saveBuyer() {
   loadBuyers();
 }
 
+function editBuyer(id) {
+  const buyer = DataStore.getBuyers().find(b => b.id === id);
+  if (!buyer) return;
+
+  buyerId.value = buyer.id;
+  buyerName.value = buyer.name;
+  buyerPhone.value = buyer.phone || "";
+  buyerAddress.value = buyer.address || "";
+
+  openModal();
+}
+
 function deleteBuyer(id) {
   if (confirm("Hapus pembeli ini?")) {
     DataStore.deleteBuyer(id);
     loadBuyers();
   }
-}
-
-function closeModal() {
-  document.getElementById("modalBuyer").style.display = "none";
-}
-
-function logout() {
-  localStorage.removeItem("loginUser");
-  window.location.href = "login.html";
 }
 
 document.addEventListener("DOMContentLoaded", loadBuyers);
