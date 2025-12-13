@@ -1,275 +1,171 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Master Item | Juragan Buah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Master Item — Juragan Buah</title>
-
-<link rel="stylesheet" href="../css/styles.css">
-
-<style>
-  body {
-    margin:0;
-    background:#f4f5f7;
-    font-family:Inter, sans-serif;
-    display:flex;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width:240px;
-    background:#0E4F24;
-    color:white;
-    min-height:100vh;
-    padding:20px 0;
-    position:fixed;
-    left:0;
-    top:0;
-  }
-
-  .sidebar .logo-box {
-    text-align:center;
-    margin-bottom:20px;
-  }
-  .sidebar img {
-    width:80px;
-  }
-  .sidebar a {
-    display:block;
-    padding:12px 24px;
-    color:white;
-    text-decoration:none;
-  }
-  .sidebar a:hover {
-    background:#145f33;
-  }
-
-  /* CONTENT */
-  .content {
-    margin-left:240px;
-    padding:20px;
-    width:calc(100% - 240px);
-  }
-
-  h1 { margin-top:0; }
-
-  /* TABEL */
-  table {
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-  }
-  th, td {
-    padding:12px;
-    border-bottom:1px solid #ddd;
-  }
-  th {
-    background:#0E4F24;
-    color:white;
-    text-align:left;
-  }
-
-  tr:hover {
-    background:#f4f4f4;
-  }
-
-  /* TOMBOL */
-  .btn {
-    padding:10px 16px;
-    border-radius:8px;
-    border:none;
-    cursor:pointer;
-  }
-
-  .btn-green {
-    background:#0E4F24;
-    color:white;
-  }
-
-  .btn-yellow {
-    background:#ffc800;
-    color:black;
-  }
-
-  .btn-red {
-    background:#d32f2f;
-    color:white;
-  }
-
-  /* MODAL */
-  .modal {
-    position:fixed;
-    left:0; top:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.4);
-    display:none;
-    justify-content:center;
-    align-items:center;
-  }
-  .modal-content {
-    background:white;
-    width:90%;
-    max-width:420px;
-    padding:20px;
-    border-radius:16px;
-    animation:fade 0.2s ease;
-  }
-  @keyframes fade {
-    from { opacity:0; transform:scale(.95); }
-    to   { opacity:1; }
-  }
-
-  .form-row {
-    margin-top:14px;
-  }
-  label { display:block; margin-bottom:6px; }
-  input {
-    width:100%;
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:8px;
-  }
-</style>
-
+  <link rel="stylesheet" href="../css/styles.css">
+  <script src="../js/utils.js"></script>
+  <script src="../js/data.js"></script>
 </head>
+
 <body>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="brand">
+      <img src="../assets/logo.png" class="logo">
+      <span>Juragan Buah</span>
+    </div>
+    <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+  </header>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="logo-box">
-    <img src="../assets/logo.svg" onerror="this.style.display='none'">
-  </div>
+  <!-- CONTENT -->
+  <main class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>🍎 Master Item</h2>
+        <button class="btn btn-green" onclick="openModal()">+ Tambah Item</button>
+      </div>
 
-  <a href="dashboard.html">📊 Dashboard</a>
-  <a href="items.html">🍎 Master Item</a>
-  <a href="buyers.html">🧑 Pembeli</a>
-  <a href="stock-in.html">📥 Item Masuk</a>
-  <a href="stock-out.html">📤 Item Keluar</a>
-  <a href="opname.html">📦 Stok Opname</a>
-  <a href="sales.html">🛒 Penjualan</a>
-  <a href="report-sales.html">📑 Laporan Penjualan</a>
-  <a href="report-stock.html">📦 Laporan Persediaan</a>
-  <a href="report-profit.html">💰 Laba Rugi</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Gambar</th>
+              <th>Nama</th>
+              <th>Barcode</th>
+              <th>Harga</th>
+              <th>Stok</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="itemTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 
-<!-- CONTENT -->
-<div class="content">
+  <!-- MODAL -->
+  <div class="modal" id="itemModal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Tambah Item</h3>
 
-  <h1>Master Item</h1>
+      <input type="hidden" id="itemId">
 
-  <button class="btn btn-green" onclick="openAdd()">+ Tambah Item</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Nama Item</th>
-        <th>Harga</th>
-        <th>Satuan</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="itemTable"></tbody>
-  </table>
-
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modalItem">
-  <div class="modal-content">
-    <h3 id="modalTitle">Tambah Item</h3>
-
-    <div class="form-row">
       <label>Nama Item</label>
-      <input type="text" id="itemName">
-    </div>
+      <input id="itemName">
 
-    <div class="form-row">
-      <label>Harga (Rp)</label>
+      <label>Harga Jual</label>
       <input type="number" id="itemPrice">
+
+      <label>Stok Awal</label>
+      <input type="number" id="itemStock">
+
+      <label>Barcode</label>
+      <input id="itemBarcode" placeholder="Opsional">
+
+      <label>Gambar Produk</label>
+      <input type="file" id="itemImage" accept="image/*">
+
+      <label>Satuan Dasar (contoh: pcs / g)</label>
+      <input id="itemUnitBase" value="pcs">
+
+      <label>Konversi Satuan</label>
+      <textarea id="itemUnitConv" placeholder="kg=1000"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn btn-green" onclick="saveItem()">💾 Simpan</button>
+        <button class="btn btn-red" onclick="closeModal()">Batal</button>
+      </div>
     </div>
-
-    <div class="form-row">
-      <label>Satuan</label>
-      <input type="text" id="itemUnit">
-    </div>
-
-    <br>
-
-    <button class="btn btn-green" onclick="saveItem()">Simpan</button>
-    <button class="btn" onclick="closeModal()">Batal</button>
-
   </div>
-</div>
-
-
-<!-- SCRIPT -->
-<script src="../js/utils.js"></script>
-<script src="../js/data.js"></script>
 
 <script>
-let editId = null;
-
+/* =========================
+   LOAD DATA
+========================= */
 function loadItems() {
-  const list = DataStore.getItems();
   const tbody = document.getElementById("itemTable");
   tbody.innerHTML = "";
 
-  list.forEach(item => {
+  DataStore.getItems().forEach(item => {
     tbody.innerHTML += `
       <tr>
-        <td>${item.name}</td>
-        <td>${formatRupiah(item.price)}</td>
-        <td>${item.unit}</td>
         <td>
-          <button class="btn btn-yellow" onclick="editItem('${item.id}')">Edit</button>
-          <button class="btn btn-red" onclick="deleteItem('${item.id}')">Hapus</button>
+          ${item.image ? `<img src="${item.image}" class="thumb">` : "-"}
         </td>
-      </tr>
-    `;
+        <td>${item.name}</td>
+        <td>${item.barcode || "-"}</td>
+        <td>${formatRupiah(item.price)}</td>
+        <td>${item.stock}</td>
+        <td>
+          <button class="btn btn-small" onclick="editItem('${item.id}')">✏️</button>
+          <button class="btn btn-small btn-red" onclick="deleteItem('${item.id}')">🗑</button>
+        </td>
+      </tr>`;
   });
 }
 
-function openAdd() {
-  editId = null;
-  document.getElementById("modalTitle").innerText = "Tambah Item";
-  document.getElementById("itemName").value = "";
-  document.getElementById("itemPrice").value = "";
-  document.getElementById("itemUnit").value = "";
-  document.getElementById("modalItem").style.display = "flex";
+/* =========================
+   MODAL
+========================= */
+function openModal() {
+  document.getElementById("itemModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("itemModal").style.display = "none";
+  document.querySelectorAll("#itemModal input, textarea").forEach(i => i.value = "");
+  document.getElementById("itemUnitBase").value = "pcs";
+}
+
+/* =========================
+   CRUD
+========================= */
+async function saveItem() {
+  const id = itemId.value;
+  const name = itemName.value.trim();
+  const price = Number(itemPrice.value);
+  const stock = Number(itemStock.value);
+  const barcode = itemBarcode.value.trim();
+  const unitBase = itemUnitBase.value.trim();
+
+  const conv = itemUnitConv.value.split("\n").map(l => {
+    const [u, f] = l.split("=");
+    if (!u || !f) return null;
+    return { unit: u.trim(), factor: Number(f) };
+  }).filter(Boolean);
+
+  let imageData = null;
+  if (itemImage.files[0]) {
+    imageData = await readFileAsDataURL(itemImage.files[0]);
+  }
+
+  if (id) {
+    DataStore.updateItem(id, { name, price, stock, barcode, image: imageData, unitBase, unitConversions: conv });
+  } else {
+    DataStore.addItem({ name, price, stock, barcode, image: imageData, unitBase, unitConversions: conv });
+  }
+
+  closeModal();
+  loadItems();
 }
 
 function editItem(id) {
   const item = DataStore.getItems().find(i => i.id === id);
   if (!item) return;
 
-  editId = id;
-  document.getElementById("modalTitle").innerText = "Edit Item";
-  document.getElementById("itemName").value = item.name;
-  document.getElementById("itemPrice").value = item.price;
-  document.getElementById("itemUnit").value = item.unit;
-  document.getElementById("modalItem").style.display = "flex";
-}
+  itemId.value = item.id;
+  itemName.value = item.name;
+  itemPrice.value = item.price;
+  itemStock.value = item.stock;
+  itemBarcode.value = item.barcode || "";
+  itemUnitBase.value = item.unitBase || "pcs";
+  itemUnitConv.value = (item.unitConversions || [])
+    .map(u => `${u.unit}=${u.factor}`).join("\n");
 
-function saveItem() {
-  const name = document.getElementById("itemName").value.trim();
-  const price = Number(document.getElementById("itemPrice").value || 0);
-  const unit = document.getElementById("itemUnit").value.trim();
-
-  if (!name) return alert("Nama item wajib diisi");
-
-  if (editId) {
-    DataStore.updateItem(editId, { name, price, unit });
-  } else {
-    DataStore.addItem({ name, price, unit });
-  }
-
-  closeModal();
-  loadItems();
+  openModal();
 }
 
 function deleteItem(id) {
@@ -277,15 +173,6 @@ function deleteItem(id) {
     DataStore.deleteItem(id);
     loadItems();
   }
-}
-
-function closeModal() {
-  document.getElementById("modalItem").style.display = "none";
-}
-
-function logout() {
-  localStorage.removeItem("loginUser");
-  window.location.href = "login.html";
 }
 
 document.addEventListener("DOMContentLoaded", loadItems);
