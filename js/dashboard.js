@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!user) {
     // 🔥 PATH ABSOLUTE
-    window.location.href = "../pages/login.html";
+    window.location.href = "../pages/dashboard.html";
     return;
   }
 });
@@ -90,9 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
             localStorage.removeItem("jb_logged_user");
-            window.location.href = "login.html";
+            window.location.href = ".../pages/login.html";
         });
     }
 
 });
+
 
