@@ -1,15 +1,6 @@
-/* =================================
-   AUTH MODULE — LEVEL 6 FINAL
-   STABLE DESKTOP & MOBILE
-================================= */
-
 const Auth = {
   getUser() {
-    try {
-      return JSON.parse(localStorage.getItem("authUser"));
-    } catch {
-      return null;
-    }
+    return JSON.parse(localStorage.getItem("authUser"));
   },
 
   login(username, password) {
@@ -34,14 +25,12 @@ const Auth = {
   },
 
   protect() {
-    const user = this.getUser();
-    if (!user) {
+    if (!this.getUser()) {
       window.location.replace("../pages/login.html");
     }
   }
 };
 
-/* AUTO PROTECT (TIDAK AGRESIF) */
 document.addEventListener("DOMContentLoaded", () => {
   const page = location.pathname.split("/").pop();
   if (page !== "login.html" && page !== "index.html") {
