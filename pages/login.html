@@ -2,97 +2,32 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<title>Login | Juragan Buah</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login • Juragan Buah</title>
 
 <link rel="stylesheet" href="../css/styles.css">
-
-<style>
-    body {
-        margin:0;
-        background:#f4f6f7;
-        font-family:Inter,sans-serif;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-        padding:20px;
-    }
-
-    .login-box {
-        width:100%;
-        max-width:360px;
-        background:#fff;
-        padding:25px;
-        border-radius:12px;
-        box-shadow:0 4px 20px rgba(0,0,0,0.1);
-        text-align:center;
-    }
-
-    .login-box img {
-        width:75px;
-        margin-bottom:10px;
-    }
-
-    h2 {
-        margin:0;
-        margin-bottom:20px;
-        font-size:22px;
-        font-weight:700;
-        color:#2d3436;
-    }
-
-    input {
-        width:100%;
-        padding:12px;
-        margin-bottom:12px;
-        border:1px solid #ddd;
-        border-radius:8px;
-        font-size:15px;
-    }
-
-    button {
-        width:100%;
-        padding:12px;
-        background:#27ae60;
-        border:none;
-        color:white;
-        font-size:16px;
-        border-radius:8px;
-        cursor:pointer;
-        margin-top:8px;
-    }
-
-    #errorMsg {
-        display:none;
-        margin-top:10px;
-        background:#e74c3c;
-        color:white;
-        padding:10px;
-        border-radius:6px;
-        font-size:14px;
-    }
-</style>
-
 </head>
-<body>
 
-<div class="login-box">
+<body class="center-page">
 
-    <img src="../assets/logo.svg">
-    <h2>Login Juragan Buah</h2>
+<div class="login-card">
+  <img src="../assets/logo.png" class="logo-big">
+  <h2>Login Juragan Buah</h2>
 
-    <form id="loginForm">
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button type="submit">Masuk</button>
-    </form>
+  <!-- ❗ TIDAK ADA action -->
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
 
-    <div id="errorMsg"></div>
+    <!-- ❗ TYPE HARUS button -->
+    <button type="submit" class="btn btn-green btn-big">
+      🔐 Login
+    </button>
+  </form>
+
+  <p id="errorMsg" style="color:red;margin-top:10px"></p>
 </div>
 
-<!-- WAJIB: path JS BENAR -->
-<script src="../js/utils.js"></script>
 <script src="../js/data.js"></script>
 <script src="../js/login.js"></script>
 
