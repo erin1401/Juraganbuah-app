@@ -1,360 +1,207 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Penjualan — Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Kasir | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../css/styles.css">
-
-<style>
-  body { margin:0; display:flex; background:#f6f7f9; font-family:Inter, sans-serif; }
-
-  /* SIDEBAR */
-  .sidebar {
-    width:240px; background:#0E4F24; color:#fff;
-    padding-top:20px; height:100vh; position:fixed; left:0; top:0;
-  }
-  .sidebar a { display:block; padding:14px 24px; color:white; text-decoration:none; }
-  .sidebar a:hover { background:#145f33; }
-  .sidebar .logo-box { text-align:center; margin-bottom:20px; }
-  .sidebar img { width:80px; }
-
-  /* CONTENT */
-  .content {
-    margin-left:240px; padding:20px;
-    width:calc(100% - 240px);
-  }
-
-  h1 { margin-top:0; }
-
-  .kasir-box {
-    background:white; padding:16px; border-radius:14px;
-    display:grid; grid-template-columns:1fr 320px; gap:20px;
-  }
-
-  @media(max-width:800px){
-    .kasir-box { grid-template-columns:1fr; }
-  }
-
-  .item-list-table, .cart-table {
-    width:100%; border-collapse:collapse;
-    background:white; border-radius:10px; overflow:hidden;
-  }
-
-  th { background:#0E4F24; color:white; padding:10px; }
-  td { padding:10px; border-bottom:1px solid #eee; }
-
-  tr:hover { background:#f4f4f4; }
-
-  .btn { padding:10px 14px; border:none; border-radius:8px; cursor:pointer; }
-  .btn-green { background:#0E4F24; color:white; }
-  .btn-red { background:#d32f2f; color:white; }
-  .btn-blue { background:#007bff; color:white; }
-
-  input, select { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; }
-
-  .struk-area { display:none; }
-</style>
-
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="logo-box"><img src="../assets/logo.svg" onerror="this.style.display='none'"></div>
-
-  <a href="dashboard.html">📊 Dashboard</a>
-  <a href="items.html">🍎 Master Item</a>
-  <a href="buyers.html">🧑 Pembeli</a>
-  <a href="stock-in.html">📥 Item Masuk</a>
-  <a href="stock-out.html">📤 Item Keluar</a>
-  <a href="opname.html">📦 Stok Opname</a>
-  <a href="sales.html"><b>🛒 Penjualan</b></a>
-  <a href="report-sales.html">📑 Laporan Penjualan</a>
-  <a href="report-stock.html">📦 Laporan Persediaan</a>
-  <a href="report-profit.html">💰 Laba Rugi</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-  <h1>Penjualan (Kasir)</h1>
-
-  <div class="kasir-box">
-
-    <!-- LIST ITEM -->
-    <div>
-      <h3>Pilih Item</h3>
-
-      <table class="item-list-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Harga</th>
-            <th>Stok</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="itemList"></tbody>
-      </table>
-    </div>
-
-    <!-- CART -->
-    <div>
-      <h3>Keranjang</h3>
-
-      <table class="cart-table">
-        <thead>
-          <tr><th>Nama</th><th>Qty</th><th>Subtotal</th><th></th></tr>
-        </thead>
-        <tbody id="cartTable"></tbody>
-      </table>
-
-      <hr>
-
-      <label>Pembeli</label>
-      <select id="buyerSelect"></select>
-
-      <label style="margin-top:10px;">Metode Pembayaran</label>
-      <select id="payMethod" onchange="updatePaymentUI()">
-        <option value="cash">Tunai</option>
-        <option value="transfer">Transfer Bank</option>
-        <option value="qris">QRIS</option>
-      </select>
-
-      <div style="margin-top:10px;">
-        <label>Total (Rp)</label>
-        <input id="totalPay" readonly>
-      </div>
-
-      <div id="cashArea" style="margin-top:10px;">
-        <label>Bayar (Tunai)</label>
-        <input type="number" id="cashInput" min="0" oninput="calcChange()">
-
-        <label style="margin-top:10px;">Kembalian</label>
-        <input id="changeOutput" readonly>
-      </div>
-
-      <button class="btn btn-green" style="margin-top:14px; width:100%;" onclick="checkout()">Selesaikan</button>
-
-      <button class="btn btn-blue" style="margin-top:8px; width:100%;" onclick="printStruk()">🧾 Print Struk</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- STRUK (Hanya muncul saat print) -->
-<iframe id="printFrame" style="display:none;"></iframe>
-
-<!-- SCRIPT -->
 <script src="../js/utils.js"></script>
 <script src="../js/data.js"></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="../assets/logo.png" class="logo">
+    <span>Juragan Buah — Kasir</span>
+  </div>
+  <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+</header>
+
+<main class="container kasir-layout">
+
+<!-- ================= LEFT ================= -->
+<section class="kasir-left card">
+  <h3>🛒 Tambah Produk</h3>
+
+  <label>Scan Barcode</label>
+  <input id="barcodeInput" placeholder="Scan barcode">
+
+  <label>Pilih Produk</label>
+  <select id="itemSelect"></select>
+
+  <label>Qty</label>
+  <input type="number" id="qtyInput" value="1" min="1">
+
+  <button class="btn btn-green" onclick="addToCart()">+ Tambah</button>
+
+  <hr>
+
+  <h4>Keranjang</h4>
+  <table class="cart-table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Total</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="cartTable"></tbody>
+  </table>
+</section>
+
+<!-- ================= RIGHT ================= -->
+<section class="kasir-right card">
+  <h3>💳 Pembayaran</h3>
+
+  <label>Pembeli</label>
+  <select id="buyerSelect"></select>
+
+  <label>Metode Pembayaran</label>
+  <select id="paymentMethod">
+    <option value="Tunai">Tunai</option>
+    <option value="Transfer">Transfer</option>
+    <option value="QRIS">QRIS</option>
+  </select>
+
+  <label>Total</label>
+  <input id="totalDisplay" readonly>
+
+  <label>Bayar</label>
+  <input type="number" id="payInput">
+
+  <label>Kembalian</label>
+  <input id="changeDisplay" readonly>
+
+  <button class="btn btn-green btn-big" onclick="processPayment()">✔ Bayar</button>
+</section>
+
+</main>
+
+<!-- ================= STRUK ================= -->
+<div id="receipt" class="receipt">
+  <h3>🧾 Juragan Buah</h3>
+  <p id="receiptInfo"></p>
+  <table id="receiptTable"></table>
+  <p id="receiptTotal"></p>
+</div>
 
 <script>
 let cart = [];
 
-// LOAD ITEMS
-function loadItems() {
-  const items = DataStore.getItems();
-  const tbody = document.getElementById("itemList");
-
-  tbody.innerHTML = "";
-
-  items.forEach(i => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${i.name}</td>
-        <td>${formatRupiah(i.price || 0)}</td>
-        <td>${i.stock || 0}</td>
-        <td><button class="btn btn-green" onclick="addToCart('${i.id}')">+</button></td>
-      </tr>
-    `;
+/* ================= INIT ================= */
+function init() {
+  const itemSel = itemSelect;
+  DataStore.getItems().forEach(i => {
+    if (i.stock > 0) {
+      itemSel.innerHTML += `<option value="${i.id}">${i.name} (${i.stock})</option>`;
+    }
   });
-}
 
-// LOAD BUYERS
-function loadBuyers() {
-  const buyers = DataStore.getBuyers();
-  const sel = document.getElementById("buyerSelect");
-
-  sel.innerHTML = `<option value="">Umum</option>`;
-
-  buyers.forEach(b => {
-    sel.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+  buyerSelect.innerHTML = "";
+  DataStore.getBuyers().forEach(b => {
+    buyerSelect.innerHTML += `<option value="${b.name}">${b.name}</option>`;
   });
+
+  totalDisplay.value = "Rp 0";
 }
+init();
 
-// ADD TO CART
-function addToCart(itemId) {
-  const items = DataStore.getItems();
-  const item = items.find(i => i.id === itemId);
+/* ================= BARCODE ================= */
+barcodeInput.addEventListener("change", () => {
+  const code = barcodeInput.value.trim();
+  const item = DataStore.getItems().find(i => i.barcode === code);
+  if (item) itemSelect.value = item.id;
+});
 
-  if (!item || item.stock <= 0) return alert("Stok habis!");
+/* ================= CART ================= */
+function addToCart() {
+  const itemId = itemSelect.value;
+  const qty = Number(qtyInput.value);
+  if (!itemId || qty <= 0) return;
 
-  let exist = cart.find(c => c.id === itemId);
+  const item = DataStore.getItems().find(i => i.id === itemId);
+  if (qty > item.stock) return alert("Stok tidak cukup");
 
-  if (exist) {
-    if (exist.qty + 1 > item.stock) return alert("Melebihi stok!");
-    exist.qty++;
-  } else {
-    cart.push({ id:itemId, name:item.name, price:item.price, qty:1 });
-  }
+  const existing = cart.find(c => c.id === itemId);
+  if (existing) existing.qty += qty;
+  else cart.push({ id:itemId, name:item.name, price:item.price, qty });
 
   renderCart();
 }
 
-// RENDER CART
 function renderCart() {
-  const tbody = document.getElementById("cartTable");
-  tbody.innerHTML = "";
+  cartTable.innerHTML = "";
+  let total = 0;
 
-  cart.forEach(c => {
-    let subtotal = c.qty * c.price;
+  cart.forEach((c, i) => {
+    const sub = c.qty * c.price;
+    total += sub;
 
-    tbody.innerHTML += `
+    cartTable.innerHTML += `
       <tr>
         <td>${c.name}</td>
-        <td><input type="number" value="${c.qty}" min="1" max="999"
-            onchange="updateQty('${c.id}', this.value)"></td>
-        <td>${formatRupiah(subtotal)}</td>
-        <td><button class="btn btn-red" onclick="removeCart('${c.id}')">X</button></td>
-      </tr>
-    `;
+        <td>${c.qty}</td>
+        <td>${formatRupiah(sub)}</td>
+        <td><button onclick="removeCart(${i})">❌</button></td>
+      </tr>`;
   });
 
-  calcTotal();
+  totalDisplay.value = formatRupiah(total);
 }
 
-// UPDATE QTY
-function updateQty(id, qty) {
-  qty = Number(qty);
-  const item = DataStore.getItems().find(i => i.id === id);
-  if (qty > item.stock) return alert("Melebihi stok!");
-
-  const row = cart.find(c => c.id === id);
-  row.qty = qty;
-
+function removeCart(i) {
+  cart.splice(i,1);
   renderCart();
 }
 
-// REMOVE CART
-function removeCart(id) {
-  cart = cart.filter(c => c.id !== id);
-  renderCart();
-}
+/* ================= PAYMENT ================= */
+payInput.addEventListener("input", () => {
+  const pay = Number(payInput.value);
+  const total = cart.reduce((a,c)=>a+c.qty*c.price,0);
+  changeDisplay.value = formatRupiah(pay - total);
+});
 
-// HITUNG TOTAL
-function calcTotal() {
-  const total = cart.reduce((a,b) => a + b.qty * b.price, 0);
-  document.getElementById("totalPay").value = total;
-  calcChange();
-}
+function processPayment() {
+  if (cart.length === 0) return alert("Keranjang kosong");
 
-// UPDATE UI PEMBAYARAN
-function updatePaymentUI() {
-  const method = document.getElementById("payMethod").value;
-  const cashArea = document.getElementById("cashArea");
+  const total = cart.reduce((a,c)=>a+c.qty*c.price,0);
+  const pay = Number(payInput.value);
+  if (pay < total) return alert("Pembayaran kurang");
 
-  cashArea.style.display = (method === "cash") ? "block" : "none";
-}
-
-// HITUNG KEMBALIAN
-function calcChange() {
-  const method = document.getElementById("payMethod").value;
-  if (method !== "cash") {
-    document.getElementById("changeOutput").value = "";
-    return;
-  }
-
-  const total = Number(document.getElementById("totalPay").value);
-  const bayar = Number(document.getElementById("cashInput").value);
-  const kembali = bayar - total;
-
-  document.getElementById("changeOutput").value = kembali >= 0 ? kembali : 0;
-}
-
-// CHECKOUT
-function checkout() {
-  if (cart.length === 0) return alert("Keranjang kosong!");
-
-  const total = Number(document.getElementById("totalPay").value);
-  const method = document.getElementById("payMethod").value;
-
-  if (method === "cash") {
-    const bayar = Number(document.getElementById("cashInput").value);
-    if (bayar < total) return alert("Bayar kurang!");
-  }
-
-  // Kurangi stok
   const items = DataStore.getItems();
   cart.forEach(c => {
     const it = items.find(i => i.id === c.id);
-    if (it) it.stock -= c.qty;
+    it.stock -= c.qty;
   });
   DataStore.saveItems(items);
 
-  // Simpan sales
-  const saleData = {
-    buyerId: document.getElementById("buyerSelect").value || "",
-    items: cart,
-    total: total,
-    method: method,
-    date: new Date().toISOString().slice(0,10)
-  };
+  DataStore.saveSales([...DataStore.getSales(), {
+    date: new Date().toLocaleString(),
+    buyer: buyerSelect.value,
+    method: paymentMethod.value,
+    total,
+    items: cart
+  }]);
 
-  DataStore.addSale(saleData);
-
-  alert("Transaksi berhasil!");
-
+  printReceipt(total);
   cart = [];
   renderCart();
-  loadItems();
 }
 
-// PRINT STRUK
-function printStruk() {
-  if (cart.length === 0) return alert("Keranjang kosong!");
-
-  const frame = document.getElementById("printFrame").contentWindow;
-  const total = document.getElementById("totalPay").value;
-
-  let html = `
-    <html><body>
-    <h2>JURAGAN BUAH</h2>
-    <hr>
-  `;
-
-  cart.forEach(c => {
-    html += `<p>${c.name} x ${c.qty} = ${formatRupiah(c.qty * c.price)}</p>`;
-  });
-
-  html += `
-    <hr>
-    <h3>Total: ${formatRupiah(total)}</h3>
-    </body></html>
-  `;
-
-  frame.document.open();
-  frame.document.write(html);
-  frame.document.close();
-  frame.print();
+/* ================= RECEIPT ================= */
+function printReceipt(total) {
+  receipt.style.display = "block";
+  receiptInfo.innerText = `Pembeli: ${buyerSelect.value}\nMetode: ${paymentMethod.value}`;
+  receiptTable.innerHTML = cart.map(c =>
+    `<tr><td>${c.name}</td><td>${c.qty}</td><td>${formatRupiah(c.qty*c.price)}</td></tr>`
+  ).join("");
+  receiptTotal.innerHTML = `<b>Total: ${formatRupiah(total)}</b>`;
+  window.print();
 }
-
-// LOGOUT
-function logout() {
-  localStorage.removeItem("currentUser");
-  window.location.href = "login.html";
-}
-
-// INIT
-document.addEventListener("DOMContentLoaded", () => {
-  loadItems();
-  loadBuyers();
-  renderCart();
-  updatePaymentUI();
-});
 </script>
 
 </body>
