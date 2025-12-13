@@ -2,180 +2,134 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
   <title>Master Item | Juragan Buah</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="../css/styles.css">
-  <script src="../js/utils.js"></script>
   <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/barcode.js"></script>
 </head>
 
 <body>
-  <!-- HEADER -->
-  <header class="topbar">
-    <div class="brand">
-      <img src="../assets/logo.png" class="logo">
-      <span>Juragan Buah</span>
-    </div>
-    <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
-  </header>
 
-  <!-- CONTENT -->
-  <main class="container">
-    <div class="card">
-      <div class="card-header">
-        <h2>🍎 Master Item</h2>
-        <button class="btn btn-green" onclick="openModal()">+ Tambah Item</button>
-      </div>
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png">
+    <strong>Juragan Buah</strong>
+  </div>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="items.html" class="active">Master Item</a>
+    <a href="sales.html">Penjualan</a>
+    <a href="report-stock.html">Laporan Stok</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Gambar</th>
-              <th>Nama</th>
-              <th>Barcode</th>
-              <th>Harga</th>
-              <th>Stok</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="itemTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </main>
+<!-- ================= CONTENT ================= -->
+<div class="container">
 
-  <!-- MODAL -->
-  <div class="modal" id="itemModal">
-    <div class="modal-content">
-      <h3 id="modalTitle">Tambah Item</h3>
+  <!-- ADD ITEM -->
+  <div class="card">
+    <h3>Tambah Item</h3>
 
-      <input type="hidden" id="itemId">
+    <input id="name" placeholder="Nama Item">
+    <input id="barcode" placeholder="Barcode">
+    <input id="unit" placeholder="Satuan (kg / pcs)">
+    <input id="price" type="number" placeholder="Harga Jual">
+    <input id="cost" type="number" placeholder="Harga Modal">
+    <input id="stock" type="number" placeholder="Stok Awal">
 
-      <label>Nama Item</label>
-      <input id="itemName">
+    <input type="file" id="image" accept="image/*">
 
-      <label>Harga Jual</label>
-      <input type="number" id="itemPrice">
-
-      <label>Stok Awal</label>
-      <input type="number" id="itemStock">
-
-      <label>Barcode</label>
-      <input id="itemBarcode" placeholder="Opsional">
-
-      <label>Gambar Produk</label>
-      <input type="file" id="itemImage" accept="image/*">
-
-      <label>Satuan Dasar (contoh: pcs / g)</label>
-      <input id="itemUnitBase" value="pcs">
-
-      <label>Konversi Satuan</label>
-      <textarea id="itemUnitConv" placeholder="kg=1000"></textarea>
-
-      <div class="modal-actions">
-        <button class="btn btn-green" onclick="saveItem()">💾 Simpan</button>
-        <button class="btn btn-red" onclick="closeModal()">Batal</button>
-      </div>
-    </div>
+    <button type="button" class="btn btn-green" id="saveBtn">
+      Simpan Item
+    </button>
   </div>
 
-<script>
-/* =========================
-   LOAD DATA
-========================= */
-function loadItems() {
-  const tbody = document.getElementById("itemTable");
-  tbody.innerHTML = "";
+  <!-- ITEM LIST -->
+  <div class="card">
+    <h3>Daftar Item</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Gambar</th>
+          <th>Nama</th>
+          <th>Barcode</th>
+          <th>Stok</th>
+          <th>Harga</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="itemBody"></tbody>
+    </table>
+  </div>
 
-  DataStore.getItems().forEach(item => {
-    tbody.innerHTML += `
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+const body = document.getElementById("itemBody");
+
+function loadItems() {
+  body.innerHTML = "";
+  const items = DataStore.getItems();
+
+  if (items.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" align="center">Belum ada item</td></tr>`;
+    return;
+  }
+
+  items.forEach((i, idx) => {
+    body.innerHTML += `
       <tr>
+        <td>${i.image ? `<img src="${i.image}" class="thumb">` : "-"}</td>
+        <td>${i.name}</td>
+        <td>${i.barcode || "-"}</td>
+        <td>${i.stock}</td>
+        <td>Rp ${i.price}</td>
         <td>
-          ${item.image ? `<img src="${item.image}" class="thumb">` : "-"}
+          <button type="button" class="btn btn-red btn-sm" onclick="removeItem(${idx})">Hapus</button>
         </td>
-        <td>${item.name}</td>
-        <td>${item.barcode || "-"}</td>
-        <td>${formatRupiah(item.price)}</td>
-        <td>${item.stock}</td>
-        <td>
-          <button class="btn btn-small" onclick="editItem('${item.id}')">✏️</button>
-          <button class="btn btn-small btn-red" onclick="deleteItem('${item.id}')">🗑</button>
-        </td>
-      </tr>`;
+      </tr>
+    `;
   });
 }
 
-/* =========================
-   MODAL
-========================= */
-function openModal() {
-  document.getElementById("itemModal").style.display = "flex";
-}
-
-function closeModal() {
-  document.getElementById("itemModal").style.display = "none";
-  document.querySelectorAll("#itemModal input, textarea").forEach(i => i.value = "");
-  document.getElementById("itemUnitBase").value = "pcs";
-}
-
-/* =========================
-   CRUD
-========================= */
-async function saveItem() {
-  const id = itemId.value;
-  const name = itemName.value.trim();
-  const price = Number(itemPrice.value);
-  const stock = Number(itemStock.value);
-  const barcode = itemBarcode.value.trim();
-  const unitBase = itemUnitBase.value.trim();
-
-  const conv = itemUnitConv.value.split("\n").map(l => {
-    const [u, f] = l.split("=");
-    if (!u || !f) return null;
-    return { unit: u.trim(), factor: Number(f) };
-  }).filter(Boolean);
-
-  let imageData = null;
-  if (itemImage.files[0]) {
-    imageData = await readFileAsDataURL(itemImage.files[0]);
-  }
-
-  if (id) {
-    DataStore.updateItem(id, { name, price, stock, barcode, image: imageData, unitBase, unitConversions: conv });
-  } else {
-    DataStore.addItem({ name, price, stock, barcode, image: imageData, unitBase, unitConversions: conv });
-  }
-
-  closeModal();
+function removeItem(index) {
+  const items = DataStore.getItems();
+  items.splice(index, 1);
+  DataStore.saveItems(items);
   loadItems();
 }
 
-function editItem(id) {
-  const item = DataStore.getItems().find(i => i.id === id);
-  if (!item) return;
+document.getElementById("saveBtn").onclick = () => {
+  const reader = new FileReader();
+  const file = document.getElementById("image").files[0];
 
-  itemId.value = item.id;
-  itemName.value = item.name;
-  itemPrice.value = item.price;
-  itemStock.value = item.stock;
-  itemBarcode.value = item.barcode || "";
-  itemUnitBase.value = item.unitBase || "pcs";
-  itemUnitConv.value = (item.unitConversions || [])
-    .map(u => `${u.unit}=${u.factor}`).join("\n");
-
-  openModal();
-}
-
-function deleteItem(id) {
-  if (confirm("Hapus item ini?")) {
-    DataStore.deleteItem(id);
+  reader.onload = () => {
+    const items = DataStore.getItems();
+    items.push({
+      id: "I" + Date.now(),
+      name: name.value,
+      barcode: barcode.value,
+      unit: unit.value,
+      price: +price.value,
+      cost: +cost.value,
+      stock: +stock.value,
+      image: reader.result || ""
+    });
+    DataStore.saveItems(items);
     loadItems();
-  }
-}
+  };
 
-document.addEventListener("DOMContentLoaded", loadItems);
+  if (file) reader.readAsDataURL(file);
+  else reader.onload();
+};
+
+loadItems();
 </script>
 
 </body>
