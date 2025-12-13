@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!user) {
     // 🔥 PATH ABSOLUTE
-    window.location.href = "../pages/dashboard.html";
+    window.location.href = "../pages/login.html";
     return;
   }
 });
@@ -95,5 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
 
 
