@@ -2,176 +2,63 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Item Masuk | Juragan Buah</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Item Masuk</title>
 
 <link rel="stylesheet" href="../css/styles.css">
-<script src="../js/utils.js"></script>
 <script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
 </head>
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <img src="../assets/logo.png" class="logo">
-    <span>Juragan Buah</span>
+<div class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png">
+    <strong>Item Masuk</strong>
   </div>
-  <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
-</header>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="stock-in.html" class="active">Item Masuk</a>
+    <a href="items.html">Item</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
 
-<main class="container">
-  <div class="card">
-    <div class="card-header">
-      <h2>📦 Item Masuk</h2>
-      <button class="btn btn-green" onclick="openModal()">+ Tambah</button>
-    </div>
+<div class="container">
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Catatan</th>
-            <th>Bukti</th>
-          </tr>
-        </thead>
-        <tbody id="stockInTable"></tbody>
-      </table>
-    </div>
-  </div>
-</main>
+<div class="card">
+  <h3>Tambah Stok</h3>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h3>Tambah Item Masuk</h3>
+  <select id="item"></select>
+  <input type="number" id="qty" placeholder="Jumlah">
+  <input type="file" id="photo">
 
-    <label>Scan / Input Barcode</label>
-    <input id="barcodeInput" placeholder="Scan barcode">
+  <button type="button" class="btn btn-green" onclick="addStock()">Simpan</button>
+</div>
 
-    <label>Pilih Item</label>
-    <select id="itemSelect"></select>
-
-    <label>Jumlah Masuk</label>
-    <input type="number" id="qtyInput" min="1">
-
-    <label>Catatan</label>
-    <textarea id="noteInput"></textarea>
-
-    <label>Upload Bukti (opsional)</label>
-    <input type="file" id="photoInput" accept="image/*">
-
-    <div class="modal-actions">
-      <button class="btn btn-green" onclick="saveStockIn()">Simpan</button>
-      <button class="btn btn-red" onclick="closeModal()">Batal</button>
-    </div>
-  </div>
 </div>
 
 <script>
-/* ===============================
-   INIT
-================================ */
-function loadItems() {
-  const sel = document.getElementById("itemSelect");
-  sel.innerHTML = "";
-  DataStore.getItems().forEach(i => {
-    const opt = document.createElement("option");
-    opt.value = i.id;
-    opt.textContent = i.name;
-    sel.appendChild(opt);
-  });
-}
+const items = DataStore.getItems();
+const select = document.getElementById("item");
 
-function loadTable() {
-  const tbody = document.getElementById("stockInTable");
-  tbody.innerHTML = "";
-
-  DataStore.getStockIn().forEach(s => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${s.date}</td>
-        <td>${s.itemName}</td>
-        <td>${s.qty}</td>
-        <td>${s.note || "-"}</td>
-        <td>${s.photo ? `<img src="${s.photo}" class="thumb">` : "-"}</td>
-      </tr>
-    `;
-  });
-}
-
-/* ===============================
-   MODAL
-================================ */
-function openModal() {
-  document.getElementById("modal").style.display = "flex";
-  loadItems();
-}
-
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-  barcodeInput.value = "";
-  qtyInput.value = "";
-  noteInput.value = "";
-  photoInput.value = "";
-}
-
-/* ===============================
-   BARCODE AUTO SELECT
-================================ */
-barcodeInput.addEventListener("change", () => {
-  const code = barcodeInput.value.trim();
-  if (!code) return;
-
-  const item = DataStore.getItems().find(i => i.barcode === code);
-  if (item) itemSelect.value = item.id;
+items.forEach(i => {
+  select.innerHTML += `<option value="${i.id}">${i.name}</option>`;
 });
 
-/* ===============================
-   SAVE STOCK IN
-================================ */
-async function saveStockIn() {
-  const itemId = itemSelect.value;
-  const qty = Number(qtyInput.value);
-  if (!itemId || qty <= 0) {
-    alert("Item dan qty wajib diisi");
-    return;
-  }
+function addStock() {
+  const id = select.value;
+  const qty = +document.getElementById("qty").value;
+  if (!qty) return alert("Qty wajib");
 
   const items = DataStore.getItems();
-  const item = items.find(i => i.id === itemId);
-
-  let photo = null;
-  if (photoInput.files[0]) {
-    photo = await readFileAsDataURL(photoInput.files[0]);
-  }
-
-  DataStore.addStockIn({
-    date: new Date().toLocaleDateString(),
-    itemId,
-    itemName: item.name,
-    qty,
-    note: noteInput.value,
-    photo
-  });
-
-  // update stok
+  const item = items.find(i => i.id === id);
   item.stock += qty;
+
   DataStore.saveItems(items);
-
-  closeModal();
-  loadTable();
+  alert("Stok ditambahkan");
 }
-
-/* ===============================
-   START
-================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  loadTable();
-});
 </script>
 
 </body>
