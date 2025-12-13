@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Kasir | Juragan Buah</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Kasir POS | Juragan Buah</title>
 
-  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/data.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/barcode.js"></script>
 </head>
 
 <body>
@@ -30,18 +31,27 @@
 <!-- ================= CONTENT ================= -->
 <div class="container">
 
-  <!-- ADD ITEM -->
+  <!-- BARCODE INPUT -->
+  <div class="card">
+    <h3>Scan / Input Barcode</h3>
+    <input id="barcodeInput" placeholder="Masukkan barcode lalu Enter">
+    <button type="button" class="btn btn-blue" id="scanBtn">Scan Kamera</button>
+
+    <video id="camera" style="width:100%;display:none;margin-top:10px;"></video>
+  </div>
+
+  <!-- ADD ITEM MANUAL -->
   <div class="card">
     <h3>Tambah Produk</h3>
     <select id="itemSelect"></select>
-    <input type="number" id="qty" placeholder="Qty" value="1">
-    <button id="addItemBtn" type="button" class="btn btn-green">Tambah</button>
+    <input type="number" id="qty" value="1" placeholder="Qty">
+    <button type="button" class="btn btn-green" id="addBtn">Tambah</button>
   </div>
 
   <!-- CART -->
   <div class="card">
     <h3>Keranjang</h3>
-    <table class="table" id="cartTable">
+    <table class="table">
       <thead>
         <tr>
           <th>Item</th>
@@ -51,7 +61,7 @@
           <th></th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="cartBody"></tbody>
     </table>
     <h3>Total: Rp <span id="grandTotal">0</span></h3>
   </div>
@@ -59,22 +69,23 @@
   <!-- PAYMENT -->
   <div class="card">
     <h3>Pembayaran</h3>
+
     <select id="paymentMethod">
       <option value="Cash">Cash</option>
       <option value="Transfer">Transfer</option>
       <option value="QRIS">QRIS</option>
     </select>
 
-    <div id="qrisBox" style="display:none; text-align:center">
+    <div id="qrisBox" style="display:none;text-align:center">
       <img src="../assets/qris.png" style="max-width:200px">
       <p>Scan QRIS</p>
     </div>
 
-    <input type="number" id="paid" placeholder="Uang Dibayar">
+    <input type="number" id="paid" placeholder="Uang dibayar">
     <p>Kembalian: Rp <span id="change">0</span></p>
 
-    <button id="payBtn" type="button" class="btn btn-green btn-big">Simpan Transaksi</button>
-    <button id="printBtn" type="button" class="btn btn-blue btn-big">Print Struk</button>
+    <button type="button" class="btn btn-green btn-big" id="saveSale">Simpan Transaksi</button>
+    <button type="button" class="btn btn-blue btn-big" id="printBtn">Print Struk</button>
   </div>
 
 </div>
@@ -82,38 +93,57 @@
 <!-- ================= SCRIPT ================= -->
 <script>
 let cart = [];
-
 const items = DataStore.getItems();
 const itemSelect = document.getElementById("itemSelect");
-const cartBody = document.querySelector("#cartTable tbody");
+const cartBody = document.getElementById("cartBody");
 
 items.forEach(i => {
   itemSelect.innerHTML += `<option value="${i.id}">${i.name} - Rp ${i.price}</option>`;
 });
 
-document.getElementById("addItemBtn").onclick = () => {
+/* ADD MANUAL */
+document.getElementById("addBtn").onclick = () => {
   const item = items.find(i => i.id === itemSelect.value);
-  const qty = parseInt(document.getElementById("qty").value);
-
-  if (!item || qty <= 0) return;
-
-  cart.push({
-    name: item.name,
-    price: item.price,
-    qty
-  });
-
-  renderCart();
+  const qty = parseInt(qtyInput.value || 1);
+  if (!item) return;
+  addToCart(item, qty);
 };
+
+/* BARCODE INPUT */
+document.getElementById("barcodeInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const item = BarcodeModule.findItemByBarcode(e.target.value);
+    if (item) addToCart(item, 1);
+    e.target.value = "";
+  }
+});
+
+/* CAMERA SCAN */
+document.getElementById("scanBtn").onclick = () => {
+  const video = document.getElementById("camera");
+  video.style.display = "block";
+
+  BarcodeModule.startCamera(video, code => {
+    const item = BarcodeModule.findItemByBarcode(code);
+    if (item) addToCart(item, 1);
+  });
+};
+
+/* CART LOGIC */
+function addToCart(item, qty) {
+  const found = cart.find(c => c.id === item.id);
+  if (found) found.qty += qty;
+  else cart.push({ id: item.id, name: item.name, price: item.price, qty });
+  renderCart();
+}
 
 function renderCart() {
   cartBody.innerHTML = "";
   let total = 0;
 
-  cart.forEach((c, index) => {
+  cart.forEach((c, i) => {
     const sub = c.qty * c.price;
     total += sub;
-
     cartBody.innerHTML += `
       <tr>
         <td>${c.name}</td>
@@ -121,9 +151,10 @@ function renderCart() {
         <td>${c.price}</td>
         <td>${sub}</td>
         <td>
-          <button type="button" class="btn btn-red btn-sm" onclick="removeItem(${index})">X</button>
+          <button type="button" class="btn btn-red btn-sm" onclick="removeItem(${i})">X</button>
         </td>
-      </tr>`;
+      </tr>
+    `;
   });
 
   document.getElementById("grandTotal").innerText = total;
@@ -134,32 +165,37 @@ function removeItem(i) {
   renderCart();
 }
 
+/* PAYMENT */
 document.getElementById("paymentMethod").onchange = e => {
   document.getElementById("qrisBox").style.display =
     e.target.value === "QRIS" ? "block" : "none";
 };
 
 document.getElementById("paid").oninput = () => {
-  const paid = parseInt(document.getElementById("paid").value) || 0;
-  const total = parseInt(document.getElementById("grandTotal").innerText);
+  const paid = +paidInput.value || 0;
+  const total = +grandTotal.innerText;
   document.getElementById("change").innerText = paid - total;
 };
 
-document.getElementById("payBtn").onclick = () => {
-  if (cart.length === 0) return alert("Keranjang kosong");
+/* SAVE */
+document.getElementById("saveSale").onclick = () => {
+  if (!cart.length) return alert("Keranjang kosong");
 
   const sales = DataStore.getSales();
   sales.push({
     date: new Date().toISOString(),
     items: cart,
-    total: document.getElementById("grandTotal").innerText,
-    payment: document.getElementById("paymentMethod").value
+    total: +grandTotal.innerText,
+    payment: paymentMethod.value
   });
   DataStore.saveSales(sales);
 
   alert("Transaksi tersimpan");
+  cart = [];
+  renderCart();
 };
 
+/* PRINT SAFE */
 document.getElementById("printBtn").onclick = () => {
   setTimeout(() => window.print(), 300);
 };
