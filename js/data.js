@@ -98,9 +98,5 @@ const DataStore = {
 
 // ================= AUTH GUARD (OPTIONAL) =================
 // Pakai ini di dashboard & page lain jika mau
-function requireLogin() {
-  const user = localStorage.getItem("user");
-  if (!user) {
-    window.location.href = "../pages/login.html";
-  }
-}
+
+
