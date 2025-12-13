@@ -1,121 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Laporan Laba Rugi — Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Laporan Laba Rugi | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../css/styles.css">
+<script src="../js/utils.js"></script>
+<script src="../js/data.js"></script>
 
 <style>
-  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
-  .layout { display:flex; min-height:100vh; }
-
-  .content { flex:1; padding:22px; }
-
-  .box {
-    background:white; padding:22px; border-radius:14px;
-    box-shadow:0 0 12px rgba(0,0,0,0.06);
-  }
-
-  .filter-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
-  input[type="date"] { padding:10px; border-radius:10px; border:1px solid #ccc; }
-
-  .btn {
-    padding:10px 16px; background:#0E4F24; color:white;
-    border:0; border-radius:10px; font-weight:700; cursor:pointer;
-  }
-
-  table { width:100%; border-collapse:collapse; margin-top:20px; }
-  th, td { padding:10px; border-bottom:1px solid #eee; font-size:14px; }
-  th { background:#fafafa; }
+.summary {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+.box {
+  background:#f5f7f5;
+  padding:16px;
+  border-radius:10px;
+}
+.filter {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
 </style>
-
 </head>
+
 <body>
 
-<div class="layout">
+<header class="topbar">
+  <div class="brand">
+    <img src="../assets/logo.png" class="logo">
+    <span>Juragan Buah</span>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-light" onclick="window.print()">🖨 Print</button>
+    <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+  </div>
+</header>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="brand">
-      <img src="assets/logo.svg">
-      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+<main class="container">
+  <div class="card">
+    <h2>💰 Laporan Laba Rugi</h2>
+
+    <!-- FILTER -->
+    <div class="filter">
+      <div>
+        <label>Dari</label>
+        <input type="date" id="fromDate">
+      </div>
+      <div>
+        <label>Sampai</label>
+        <input type="date" id="toDate">
+      </div>
+      <button class="btn btn-green" onclick="calculate()">Terapkan</button>
     </div>
 
-    <nav class="menu">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="items.html">Master Item</a>
-      <a href="buyers.html">Pembeli</a>
-      <a href="stock-in.html">Item Masuk</a>
-      <a href="stock-out.html">Item Keluar</a>
-      <a href="opname.html">Stok Opname</a>
-      <a href="sales.html">Penjualan</a>
-      <a href="report-sales.html">Laporan Penjualan</a>
-      <a href="report-stock.html">Laporan Persediaan</a>
-      <a class="active" href="report-profit.html">Laba Rugi</a>
-    </nav>
-
-    <button class="logout-btn" onclick="logout()">Keluar</button>
-  </aside>
-
-
-  <!-- CONTENT -->
-  <main class="content">
-    <h2>Laporan Laba Rugi</h2>
-
-    <div class="box">
-
-      <!-- FILTER -->
-      <div class="filter-row">
-        <div>
-          Dari:
-          <input type="date" id="profitStart">
-        </div>
-        <div>
-          Sampai:
-          <input type="date" id="profitEnd">
-        </div>
-
-        <button class="btn" onclick="filterProfit()">Terapkan</button>
-        <button class="btn" onclick="printProfit()" style="background:#145a9a">Cetak PDF</button>
+    <!-- SUMMARY -->
+    <div class="summary">
+      <div class="box">
+        <div>Omzet</div>
+        <b id="omzet">Rp 0</b>
       </div>
+      <div class="box">
+        <div>HPP</div>
+        <b id="hpp">Rp 0</b>
+      </div>
+      <div class="box">
+        <div>Laba Kotor</div>
+        <b id="laba">Rp 0</b>
+      </div>
+    </div>
 
-      <!-- ANGKA RINGKASAN -->
-      <h3>Total Penjualan: <span id="profitSales" style="color:#0E4F24">Rp 0</span></h3>
-      <h3>Total Modal (HPP): <span id="profitCost" style="color:#b32a00">Rp 0</span></h3>
-      <h3>Laba Kotor: <span id="profitGross" style="color:#1a6fdb">Rp 0</span></h3>
-      <h3>Laba Bersih: <span id="profitNet" style="color:#0E4F24;font-weight:bold">Rp 0</span></h3>
-
-      <!-- TABEL DETAIL -->
+    <!-- DETAIL -->
+    <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>No</th>
             <th>Tanggal</th>
             <th>Item</th>
             <th>Qty</th>
-            <th>Harga Jual</th>
-            <th>Harga Modal</th>
-            <th>Subtotal Modal</th>
-            <th>Total Jual</th>
+            <th>Omzet</th>
+            <th>HPP</th>
           </tr>
         </thead>
         <tbody id="profitTable"></tbody>
       </table>
-
     </div>
 
-  </main>
+  </div>
+</main>
 
-</div>
+<script>
+function calculate() {
+  const sales = DataStore.getSales();
+  const items = DataStore.getItems();
 
-<!-- Print Frame -->
-<iframe id="printFrame" style="display:none;"></iframe>
+  const from = fromDate.value ? new Date(fromDate.value) : null;
+  const to = toDate.value ? new Date(toDate.value) : null;
 
-<script src="../js/utils.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/dashboard.js"></script>
+  let omzetTotal = 0;
+  let hppTotal = 0;
+  profitTable.innerHTML = "";
+
+  sales.forEach(s => {
+    const d = new Date(s.date);
+    if (from && d < from) return;
+    if (to && d > new Date(to.setHours(23,59,59))) return;
+
+    (s.items || []).forEach(it => {
+      const item = items.find(i => i.id === it.id);
+      const hpp = (item?.cost || 0) * it.qty;
+      const omzet = it.price * it.qty;
+
+      omzetTotal += omzet;
+      hppTotal += hpp;
+
+      profitTable.innerHTML += `
+        <tr>
+          <td>${s.date}</td>
+          <td>${it.name}</td>
+          <td>${it.qty}</td>
+          <td>${formatRupiah(omzet)}</td>
+          <td>${formatRupiah(hpp)}</td>
+        </tr>`;
+    });
+  });
+
+  omzet.innerText = formatRupiah(omzetTotal);
+  hpp.innerText = formatRupiah(hppTotal);
+  laba.innerText = formatRupiah(omzetTotal - hppTotal);
+}
+
+document.addEventListener("DOMContentLoaded", calculate);
+</script>
 
 </body>
 </html>
