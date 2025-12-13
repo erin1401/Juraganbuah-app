@@ -1,149 +1,106 @@
-/* ============================================================
-   JURAGAN BUAH — data.js FINAL LEVEL 4
-   ============================================================ */
+/* ===============================
+   JURAGAN BUAH - DATA STORE FINAL
+   HP & DESKTOP SAFE
+================================ */
 
+// ================= INIT USERS =================
+(function initUsers() {
+  const users = JSON.parse(localStorage.getItem("users"));
+  if (!users || users.length === 0) {
+    localStorage.setItem("users", JSON.stringify([
+      { id: 1, username: "admin", password: "admin", role: "admin" },
+      { id: 2, username: "kasir", password: "kasir", role: "kasir" }
+    ]));
+  }
+})();
+
+// ================= INIT DATA =================
+function initIfEmpty(key, value) {
+  if (!localStorage.getItem(key)) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+}
+
+initIfEmpty("items", [
+  {
+    id: "I001",
+    name: "Apel Merah",
+    barcode: "111111",
+    unit: "kg",
+    price: 20000,
+    cost: 15000,
+    stock: 20,
+    image: ""
+  }
+]);
+
+initIfEmpty("buyers", [
+  { id: "B001", name: "Umum" }
+]);
+
+initIfEmpty("sales", []);
+initIfEmpty("stockIn", []);
+initIfEmpty("stockOut", []);
+
+// ================= DATA STORE =================
 const DataStore = {
-    // ----------------------------------------------------------
-    // ========== USERS (untuk LOGIN) ===========================
-    // ----------------------------------------------------------
-    getUsers() {
-        let users = JSON.parse(localStorage.getItem("jb_users"));
-        if (!users) {
-            users = [
-                {
-                    id: 1,
-                    username: "admin",
-                    password: "123",
-                    role: "admin",
-                    name: "Administrator"
-                },
-                {
-                    id: 2,
-                    username: "kasir",
-                    password: "123",
-                    role: "kasir",
-                    name: "Kasir Toko"
-                }
-            ];
-            localStorage.setItem("jb_users", JSON.stringify(users));
-        }
-        return users;
-    },
 
-    loginUser(username, password) {
-        const users = this.getUsers();
-        return users.find(
-            u => u.username === username && u.password === password
-        );
-    },
+  /* -------- USERS -------- */
+  getUsers() {
+    return JSON.parse(localStorage.getItem("users")) || [];
+  },
 
-    // ----------------------------------------------------------
-    // ========== ITEMS (MASTER BARANG) =========================
-    // ----------------------------------------------------------
-    getItems() {
-        let items = JSON.parse(localStorage.getItem("jb_items"));
-        if (!items) {
-            items = [
-                { id: 1, name: "Apel", price: 20000, stock: 50 },
-                { id: 2, name: "Jeruk", price: 15000, stock: 40 },
-                { id: 3, name: "Pisang", price: 12000, stock: 70 }
-            ];
-            localStorage.setItem("jb_items", JSON.stringify(items));
-        }
-        return items;
-    },
+  /* -------- ITEMS -------- */
+  getItems() {
+    return JSON.parse(localStorage.getItem("items")) || [];
+  },
 
-    saveItems(items) {
-        localStorage.setItem("jb_items", JSON.stringify(items));
-    },
+  saveItems(data) {
+    localStorage.setItem("items", JSON.stringify(data));
+  },
 
-    // ----------------------------------------------------------
-    // ========== BUYERS (PEMBELI) ==============================
-    // ----------------------------------------------------------
-    getBuyers() {
-        let buyers = JSON.parse(localStorage.getItem("jb_buyers"));
-        if (!buyers) {
-            buyers = [
-                { id: 1, name: "Umum", phone: "-", address: "-" },
-                { id: 2, name: "Siti", phone: "0812345", address: "Jakarta" },
-                { id: 3, name: "Budi", phone: "0819876", address: "Bandung" }
-            ];
-            localStorage.setItem("jb_buyers", JSON.stringify(buyers));
-        }
-        return buyers;
-    },
+  /* -------- BUYERS -------- */
+  getBuyers() {
+    return JSON.parse(localStorage.getItem("buyers")) || [];
+  },
 
-    saveBuyers(data) {
-        localStorage.setItem("jb_buyers", JSON.stringify(data));
-    },
+  saveBuyers(data) {
+    localStorage.setItem("buyers", JSON.stringify(data));
+  },
 
-    // ----------------------------------------------------------
-    // ========== STOCK IN  =====================================
-    // ----------------------------------------------------------
-    getStockIn() {
-        let data = JSON.parse(localStorage.getItem("jb_stock_in"));
-        if (!data) {
-            data = [];
-            localStorage.setItem("jb_stock_in", JSON.stringify(data));
-        }
-        return data;
-    },
+  /* -------- SALES -------- */
+  getSales() {
+    return JSON.parse(localStorage.getItem("sales")) || [];
+  },
 
-    saveStockIn(data) {
-        localStorage.setItem("jb_stock_in", JSON.stringify(data));
-    },
+  saveSales(data) {
+    localStorage.setItem("sales", JSON.stringify(data));
+  },
 
-    // ----------------------------------------------------------
-    // ========== STOCK OUT  ====================================
-    // ----------------------------------------------------------
-    getStockOut() {
-        let data = JSON.parse(localStorage.getItem("jb_stock_out"));
-        if (!data) {
-            data = [];
-            localStorage.setItem("jb_stock_out", JSON.stringify(data));
-        }
-        return data;
-    },
+  /* -------- STOCK IN -------- */
+  getStockIn() {
+    return JSON.parse(localStorage.getItem("stockIn")) || [];
+  },
 
-    saveStockOut(data) {
-        localStorage.setItem("jb_stock_out", JSON.stringify(data));
-    },
+  saveStockIn(data) {
+    localStorage.setItem("stockIn", JSON.stringify(data));
+  },
 
-    // ----------------------------------------------------------
-    // ========== SALES (SUPER KASIR) ===========================
-    // ----------------------------------------------------------
-    getSales() {
-        let sales = JSON.parse(localStorage.getItem("jb_sales"));
-        if (!sales) {
-            sales = [];
-            localStorage.setItem("jb_sales", JSON.stringify(sales));
-        }
-        return sales;
-    },
+  /* -------- STOCK OUT -------- */
+  getStockOut() {
+    return JSON.parse(localStorage.getItem("stockOut")) || [];
+  },
 
-    saveSales(data) {
-        localStorage.setItem("jb_sales", JSON.stringify(data));
-    },
-
-    // ----------------------------------------------------------
-    // ========== LAPORAN: LABA RUGI ============================
-    // ----------------------------------------------------------
-    getProfitReport() {
-        const sales = this.getSales();
-        const stockOut = this.getStockOut();
-
-        const totalSales = sales.reduce((a, b) => a + b.total, 0);
-        const totalCOGS = stockOut.reduce((a, b) => a + b.cost, 0);
-
-        return {
-            totalSales,
-            totalCOGS,
-            profit: totalSales - totalCOGS
-        };
-    }
+  saveStockOut(data) {
+    localStorage.setItem("stockOut", JSON.stringify(data));
+  }
 };
 
-// =============================================================
-//  EXPORT (untuk halaman HTML memakai <script> biasa)
-// =============================================================
-window.DataStore = DataStore;
+// ================= AUTH GUARD (OPTIONAL) =================
+// Pakai ini di dashboard & page lain jika mau
+function requireLogin() {
+  const user = localStorage.getItem("user");
+  if (!user) {
+    window.location.href = "../pages/login.html";
+  }
+}
