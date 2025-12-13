@@ -6,74 +6,37 @@
 <title>Dashboard | Juragan Buah</title>
 
 <link rel="stylesheet" href="../css/styles.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
-<script src="../js/chart.js"></script>
 </head>
 
 <body>
 
+<script>
+/* PROTECT MANUAL (AMAN) */
+if (!Auth.getUser()) {
+  window.location.href = "login.html";
+}
+</script>
+
 <div class="topbar">
-  <div class="logo">
-    <img src="../assets/logo.png">
-    <strong>Juragan Buah</strong>
-  </div>
-  <nav>
-    <a href="dashboard.html" class="active">Dashboard</a>
-    <a href="items.html">Item</a>
-    <a href="sales.html">Penjualan</a>
-    <a href="report-sales.html">Laporan</a>
-    <a href="#" onclick="logout()">Logout</a>
-  </nav>
+  <img src="../assets/logo.png" height="40">
+  <strong>Dashboard</strong>
+  <button onclick="Auth.logout()">Logout</button>
 </div>
 
 <div class="container">
-
-<!-- SUMMARY -->
-<div class="grid-3">
   <div class="card">
-    <h4>Total Penjualan</h4>
-    <h2 id="totalSales">Rp 0</h2>
+    <h3>Total Penjualan</h3>
+    <h1 id="total">Rp 0</h1>
   </div>
-  <div class="card">
-    <h4>Total Transaksi</h4>
-    <h2 id="trx">0</h2>
-  </div>
-  <div class="card">
-    <h4>Total Item</h4>
-    <h2 id="itemCount">0</h2>
-  </div>
-</div>
-
-<!-- CHART -->
-<div class="grid-2">
-  <div class="card">
-    <h3>Grafik Penjualan</h3>
-    <canvas id="salesChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h3>Item Terlaris</h3>
-    <canvas id="itemChart"></canvas>
-  </div>
-</div>
-
 </div>
 
 <script>
 const sales = DataStore.getSales();
-const items = DataStore.getItems();
-
-document.getElementById("trx").innerText = sales.length;
-document.getElementById("itemCount").innerText = items.length;
-
-const total = sales.reduce((a,b)=>a+b.total,0);
-document.getElementById("totalSales").innerText =
+const total = sales.reduce((sum, s) => sum + (s.total || 0), 0);
+document.getElementById("total").innerText =
   "Rp " + total.toLocaleString("id-ID");
-
-renderCharts();
 </script>
 
 </body>
