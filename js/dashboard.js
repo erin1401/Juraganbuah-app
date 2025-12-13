@@ -7,15 +7,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // =======================================================
     // CEK LOGIN
     // =======================================================
-    codocument.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
   const user = localStorage.getItem("user");
 
   if (!user) {
-    // 🔥 PATH ABSOLUTE
-    document.addEventListener("DOMContentLoaded", () => {
-  if (!localStorage.getItem("user")) {
-    window.location.href = "../pages/login.html";
+    // 🔥 BALIK KE LOGIN DENGAN PATH BENAR
+    window.location.replace("./login.html");
+    return;
   }
+
+  // optional: tampilkan nama user
+  try {
+    const u = JSON.parse(user);
+    const el = document.getElementById("currentUser");
+    if (el) el.innerText = u.username;
+  } catch (e) {}
 });
 
     // =======================================================
@@ -96,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
 
 
 
