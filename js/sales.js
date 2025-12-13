@@ -1,231 +1,188 @@
-/* ============================================================
-   sales.js — Juragan Buah
-   Level 4 — Kasir Modern
-============================================================ */
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kasir Penjualan | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png" alt="Juragan Buah">
+    <span>Juragan Buah</span>
+  </div>
+
+  <nav class="nav">
+    <a href="./dashboard.html">Dashboard</a>
+    <a href="./items.html">Master Item</a>
+    <a href="./buyers.html">Pembeli</a>
+    <a href="./sales.html" class="active">Kasir</a>
+    <a href="./report-sales.html">Laporan</a>
+    <button id="logoutBtn" class="btn btn-red btn-sm">Logout</button>
+  </nav>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="container">
+
+<h2>🧾 Kasir Penjualan</h2>
+
+<!-- Scan / pilih item -->
+<section class="card">
+  <h3>Tambah Produk</h3>
+
+  <input id="barcodeInput" placeholder="Scan / Input Barcode">
+  
+  <select id="itemSelect"></select>
+
+  <input id="qtyInput" type="number" min="1" value="1">
+
+  <button id="addItemBtn" class="btn btn-green">Tambah</button>
+</section>
+
+<!-- Cart -->
+<section class="card">
+  <h3>Daftar Belanja</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Harga</th>
+        <th>Total</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="cartBody"></tbody>
+  </table>
+</section>
+
+<!-- Payment -->
+<section class="card">
+  <h3>Pembayaran</h3>
+
+  <select id="buyerSelect"></select>
+
+  <select id="paymentMethod">
+    <option value="cash">Tunai</option>
+    <option value="transfer">Transfer</option>
+    <option value="qris">QRIS</option>
+  </select>
+
+  <input id="paidInput" type="number" placeholder="Jumlah Bayar">
+
+  <p><strong>Total:</strong> Rp <span id="grandTotal">0</span></p>
+  <p><strong>Kembalian:</strong> Rp <span id="change">0</span></p>
+
+  <button id="payBtn" class="btn btn-green btn-big">Bayar & Simpan</button>
+  <button onclick="window.print()" class="btn btn-blue">Print</button>
+</section>
+
+</main>
+
+<!-- ===== SCRIPT (URUTAN WAJIB) ===== -->
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+
+<script>
+/* ===============================
+   SALES LOGIC (INLINE - STABIL)
+================================ */
+
+const items = DataStore.getItems();
+const buyers = DataStore.getBuyers();
 let cart = [];
 
-/* --------------------------
-   LOAD ITEMS & BUYERS
----------------------------*/
-window.onload = () => {
-  loadItems();
-  loadBuyers();
-  updateCartUI();
-  updateTotal();
-};
-
-/* --------------------------
-   Load Items
----------------------------*/
-function loadItems() {
-  const sel = document.getElementById("saleItem");
-  sel.innerHTML = "";
-
-  items.forEach(it => {
-    sel.innerHTML += `
-      <option value="${it.id}">
-        ${it.name} — Rp ${it.price.toLocaleString()}
-      </option>
-    `;
-  });
-}
-
-/* --------------------------
-   Load Pembeli
----------------------------*/
-function loadBuyers() {
-  const sel = document.getElementById("buyerSelect");
-  sel.innerHTML = `<option value="">Pilih Pembeli</option>`;
-
-  buyers.forEach(b => {
-    sel.innerHTML += `<option value="${b.id}">${b.name}</option>`;
-  });
-}
-
-/* --------------------------
-   Tambah ke Keranjang
----------------------------*/
-function addToCart() {
-  const itemId = document.getElementById("saleItem").value;
-  const qty = parseInt(document.getElementById("saleQty").value);
-
-  if (!itemId || !qty || qty <= 0) {
-    showAlert("Masukkan jumlah item!", "error");
-    return;
-  }
-
-  const item = items.find(i => i.id == itemId);
-
-  const exist = cart.find(c => c.id == itemId);
-  if (exist) exist.qty += qty;
-  else cart.push({ id: itemId, name: item.name, price: item.price, qty });
-
-  updateCartUI();
-  updateTotal();
-}
-
-/* --------------------------
-   SCAN BARCODE
----------------------------*/
-document.getElementById("barcodeInput").addEventListener("keypress", e => {
-  if (e.key === "Enter") {
-    const code = e.target.value.trim();
-    scanBarcode(code);
-    e.target.value = "";
-  }
+/* init dropdown */
+const itemSelect = document.getElementById("itemSelect");
+items.forEach(i => {
+  itemSelect.innerHTML += `<option value="${i.id}">${i.name} - Rp${i.price}</option>`;
 });
 
-function scanBarcode(code) {
-  const item = items.find(i => i.barcode == code);
+const buyerSelect = document.getElementById("buyerSelect");
+buyers.forEach(b => {
+  buyerSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+});
 
-  if (!item) {
-    showAlert("Barcode tidak ditemukan!", "error");
-    return;
-  }
+/* add item */
+document.getElementById("addItemBtn").onclick = () => {
+  const id = itemSelect.value;
+  const qty = parseInt(document.getElementById("qtyInput").value);
+  const item = items.find(x => x.id === id);
+  if (!item) return;
 
-  const exist = cart.find(c => c.id == item.id);
-  if (exist) exist.qty++;
-  else cart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
+  cart.push({
+    id: item.id,
+    name: item.name,
+    qty,
+    price: item.price
+  });
 
-  updateCartUI();
-  updateTotal();
-}
+  renderCart();
+};
 
-/* --------------------------
-   Render Keranjang
----------------------------*/
-function updateCartUI() {
-  const tbody = document.getElementById("cartTable");
-  tbody.innerHTML = "";
+function renderCart() {
+  const body = document.getElementById("cartBody");
+  body.innerHTML = "";
+  let total = 0;
 
   cart.forEach((c, i) => {
-    tbody.innerHTML += `
+    const t = c.qty * c.price;
+    total += t;
+    body.innerHTML += `
       <tr>
         <td>${c.name}</td>
         <td>${c.qty}</td>
-        <td>Rp ${ (c.qty * c.price).toLocaleString() }</td>
-        <td>
-          <button class="btn-del" onclick="removeItem(${i})">Hapus</button>
-        </td>
-      </tr>
-    `;
+        <td>Rp${c.price}</td>
+        <td>Rp${t}</td>
+        <td><button onclick="removeItem(${i})">❌</button></td>
+      </tr>`;
   });
+
+  document.getElementById("grandTotal").innerText = total;
 }
 
-function removeItem(index) {
-  cart.splice(index, 1);
-  updateCartUI();
-  updateTotal();
-}
+window.removeItem = (i) => {
+  cart.splice(i, 1);
+  renderCart();
+};
 
-/* --------------------------
-   TOTAL
----------------------------*/
-function updateTotal() {
-  const total = cart.reduce((a,b)=> a + (b.qty * b.price), 0);
-  document.getElementById("totalDisplay").innerText = "Rp " + total.toLocaleString();
+/* payment */
+document.getElementById("paidInput").oninput = () => {
+  const paid = parseInt(event.target.value) || 0;
+  const total = parseInt(document.getElementById("grandTotal").innerText);
+  document.getElementById("change").innerText = paid - total;
+};
 
-  const bayar = parseInt(document.getElementById("payInput").value || 0);
-  const kembali = bayar - total;
+document.getElementById("payBtn").onclick = () => {
+  if (cart.length === 0) return alert("Keranjang kosong");
 
-  document.getElementById("changeDisplay").innerText =
-    "Rp " + (kembali > 0 ? kembali.toLocaleString() : "0");
-}
-
-/* Auto update kembalian */
-document.getElementById("payInput").addEventListener("input", updateTotal);
-
-/* --------------------------
-   Selesaikan Transaksi
----------------------------*/
-function finishSale() {
-  if (cart.length === 0) {
-    showAlert("Keranjang kosong!", "error");
-    return;
-  }
-
-  const buyerId = document.getElementById("buyerSelect").value;
-  const method = document.getElementById("paymentMethod").value;
-  const bayar = parseInt(document.getElementById("payInput").value || 0);
-  const total = cart.reduce((a,b)=> a + (b.qty * b.price), 0);
-
-  if (!buyerId) {
-    showAlert("Pilih pembeli!", "error");
-    return;
-  }
-  if (bayar < total && method === "tunai") {
-    showAlert("Pembayaran kurang!", "error");
-    return;
-  }
-
-  const idNota = "TRX" + Date.now();
-
-  // Simpan transaksi
+  const sales = DataStore.getSales();
   sales.push({
-    id: idNota,
-    buyerId,
+    id: "S" + Date.now(),
+    date: new Date().toISOString(),
+    buyer: buyerSelect.value,
     items: cart,
-    total,
-    bayar,
-    metode: method,
-    tanggal: new Date().toLocaleString("id-ID")
-  });
-  saveData();
-
-  // Kurangi stok
-  cart.forEach(c => {
-    const it = items.find(i => i.id == c.id);
-    if (it) it.stock -= c.qty;
-  });
-  saveData();
-
-  // Cetak struk
-  printReceipt(idNota);
-
-  showAlert("Transaksi berhasil!", "success");
-
-  // Reset UI
-  cart = [];
-  updateCartUI();
-  updateTotal();
-  document.getElementById("payInput").value = "";
-}
-
-/* --------------------------
-   CETAK STRUK
----------------------------*/
-function printReceipt(idNota) {
-  const trx = sales.find(s => s.id == idNota);
-  const frame = document.getElementById("printFrame").contentWindow;
-
-  let html = `
-    <h3>Juragan Buah</h3>
-    <p>Nota: ${trx.id}</p>
-    <p>Tanggal: ${trx.tanggal}</p>
-    <hr>
-    <table style="width:100%;font-size:14px;">
-  `;
-
-  trx.items.forEach(i=>{
-    html += `
-      <tr>
-        <td>${i.name} (${i.qty}x)</td>
-        <td style="text-align:right">Rp ${(i.qty*i.price).toLocaleString()}</td>
-      </tr>
-    `;
+    total: document.getElementById("grandTotal").innerText,
+    payment: document.getElementById("paymentMethod").value
   });
 
-  html += `
-    </table>
-    <hr>
-    <p>Total: <b>Rp ${trx.total.toLocaleString()}</b></p>
-    <p>Metode: ${trx.metode.toUpperCase()}</p>
-    <p>Bayar: Rp ${trx.bayar.toLocaleString()}</p>
-    <p>Kembali: Rp ${(trx.bayar - trx.total).toLocaleString()}</p>
-    <script>window.print()<\/script>
-  `;
+  DataStore.saveSales(sales);
+  alert("Penjualan tersimpan");
+  location.reload();
+};
 
-  frame.document.body.innerHTML = html;
-}
+/* logout */
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.removeItem("user");
+  window.location.href = "./login.html";
+};
+</script>
 
+</body>
+</html>
