@@ -10,7 +10,7 @@ console.log("Items JS Loaded ✔");
 // -------------------------------------------------------------
 function checkLogin() {
     const u = localStorage.getItem("loggedUser");
-    if (!u) location.href = "login.html";
+    if (!u) location.href = ""./login.html"";
 }
 checkLogin();
 
@@ -161,3 +161,4 @@ function deleteItem(i) {
 
     loadItems();
 }
+
