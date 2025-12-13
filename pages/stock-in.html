@@ -1,303 +1,177 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Item Masuk — Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Item Masuk | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../css/styles.css">
-
-<style>
-  body {
-    margin:0;
-    background:#f4f5f7;
-    font-family:Inter, sans-serif;
-    display:flex;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width:240px;
-    background:#0E4F24;
-    color:white;
-    min-height:100vh;
-    padding:20px 0;
-    position:fixed;
-    left:0;
-    top:0;
-  }
-
-  .sidebar .logo-box {
-    text-align:center;
-    margin-bottom:20px;
-  }
-
-  .sidebar img {
-    width:80px;
-  }
-
-  .sidebar a {
-    display:block;
-    padding:12px 24px;
-    color:white;
-    text-decoration:none;
-  }
-
-  .sidebar a:hover {
-    background:#145f33;
-  }
-
-  /* CONTENT */
-  .content {
-    margin-left:240px;
-    padding:20px;
-    width:calc(100% - 240px);
-  }
-
-  h1 { margin-top:0; }
-
-  table {
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-    margin-top:10px;
-  }
-
-  th, td {
-    padding:12px;
-    border-bottom:1px solid #ddd;
-  }
-
-  th {
-    background:#0E4F24;
-    color:white;
-  }
-
-  tr:hover { background:#f4f4f4; }
-
-  .btn {
-    padding:10px 16px;
-    border-radius:8px;
-    border:none;
-    cursor:pointer;
-  }
-
-  .btn-green { background:#0E4F24; color:white; }
-  .btn-yellow { background:#ffc800; color:black; }
-  .btn-red { background:#d32f2f; color:white; }
-
-  /* MODAL */
-  .modal {
-    position:fixed;
-    left:0; top:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.4);
-    display:none;
-    justify-content:center;
-    align-items:center;
-  }
-
-  .modal-content {
-    background:white;
-    width:90%;
-    max-width:420px;
-    padding:20px;
-    border-radius:16px;
-  }
-
-  .form-row {
-    margin-top:14px;
-  }
-
-  label {
-    display:block;
-    margin-bottom:6px;
-  }
-
-  input, select {
-    width:100%;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-  }
-</style>
-
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="logo-box">
-    <img src="../assets/logo.svg" onerror="this.style.display='none'">
-  </div>
-
-  <a href="dashboard.html">📊 Dashboard</a>
-  <a href="items.html">🍎 Master Item</a>
-  <a href="buyers.html">🧑 Pembeli</a>
-  <a href="stock-in.html">📥 Item Masuk</a>
-  <a href="stock-out.html">📤 Item Keluar</a>
-  <a href="opname.html">📦 Stok Opname</a>
-  <a href="sales.html">🛒 Penjualan</a>
-  <a href="report-sales.html">📑 Laporan Penjualan</a>
-  <a href="report-stock.html">📦 Laporan Persediaan</a>
-  <a href="report-profit.html">💰 Laba Rugi</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-
-  <h1>Item Masuk</h1>
-
-  <button class="btn btn-green" onclick="openAdd()">+ Tambah Item Masuk</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Nama Item</th>
-        <th>Jumlah</th>
-        <th>Harga Masuk</th>
-        <th>Tanggal</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="stockInTable"></tbody>
-  </table>
-
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modalStockIn">
-  <div class="modal-content">
-    <h3 id="modalTitle">Tambah Item Masuk</h3>
-
-    <div class="form-row">
-      <label>Nama Item</label>
-      <select id="itemSelect"></select>
-    </div>
-
-    <div class="form-row">
-      <label>Jumlah</label>
-      <input type="number" id="qtyInput" min="1">
-    </div>
-
-    <div class="form-row">
-      <label>Harga Masuk (Rp)</label>
-      <input type="number" id="priceInput" min="0">
-    </div>
-
-    <br>
-
-    <button class="btn btn-green" onclick="saveStockIn()">Simpan</button>
-    <button class="btn" onclick="closeModal()">Batal</button>
-
-  </div>
-</div>
-
-<!-- SCRIPT -->
 <script src="../js/utils.js"></script>
 <script src="../js/data.js"></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="../assets/logo.png" class="logo">
+    <span>Juragan Buah</span>
+  </div>
+  <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+</header>
+
+<main class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>📦 Item Masuk</h2>
+      <button class="btn btn-green" onclick="openModal()">+ Tambah</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Catatan</th>
+            <th>Bukti</th>
+          </tr>
+        </thead>
+        <tbody id="stockInTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Tambah Item Masuk</h3>
+
+    <label>Scan / Input Barcode</label>
+    <input id="barcodeInput" placeholder="Scan barcode">
+
+    <label>Pilih Item</label>
+    <select id="itemSelect"></select>
+
+    <label>Jumlah Masuk</label>
+    <input type="number" id="qtyInput" min="1">
+
+    <label>Catatan</label>
+    <textarea id="noteInput"></textarea>
+
+    <label>Upload Bukti (opsional)</label>
+    <input type="file" id="photoInput" accept="image/*">
+
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="saveStockIn()">Simpan</button>
+      <button class="btn btn-red" onclick="closeModal()">Batal</button>
+    </div>
+  </div>
+</div>
 
 <script>
-let editId = null;
+/* ===============================
+   INIT
+================================ */
+function loadItems() {
+  const sel = document.getElementById("itemSelect");
+  sel.innerHTML = "";
+  DataStore.getItems().forEach(i => {
+    const opt = document.createElement("option");
+    opt.value = i.id;
+    opt.textContent = i.name;
+    sel.appendChild(opt);
+  });
+}
 
-function loadStockIn() {
-  const list = DataStore.getStockIn();
+function loadTable() {
   const tbody = document.getElementById("stockInTable");
-
   tbody.innerHTML = "";
 
-  list.forEach(s => {
+  DataStore.getStockIn().forEach(s => {
     tbody.innerHTML += `
       <tr>
-        <td>${getItemName(s.itemId)}</td>
-        <td>${s.qty}</td>
-        <td>${formatRupiah(s.price)}</td>
         <td>${s.date}</td>
-        <td>
-          <button class="btn btn-yellow" onclick="editStock('${s.id}')">Edit</button>
-          <button class="btn btn-red" onclick="deleteStock('${s.id}')">Hapus</button>
-        </td>
+        <td>${s.itemName}</td>
+        <td>${s.qty}</td>
+        <td>${s.note || "-"}</td>
+        <td>${s.photo ? `<img src="${s.photo}" class="thumb">` : "-"}</td>
       </tr>
     `;
   });
 }
 
-function getItemName(id) {
-  const item = DataStore.getItems().find(a => a.id === id);
-  return item ? item.name : "-";
-}
-
-function loadItemSelect() {
-  const items = DataStore.getItems();
-  const select = document.getElementById("itemSelect");
-
-  select.innerHTML = items.map(i => `<option value="${i.id}">${i.name}</option>`).join("");
-}
-
-function openAdd() {
-  editId = null;
-  loadItemSelect();
-  document.getElementById("modalTitle").innerText = "Tambah Item Masuk";
-  document.getElementById("qtyInput").value = "";
-  document.getElementById("priceInput").value = "";
-  document.getElementById("modalStockIn").style.display = "flex";
-}
-
-function editStock(id) {
-  editId = id;
-  const s = DataStore.getStockIn().find(x => x.id === id);
-
-  loadItemSelect();
-
-  document.getElementById("modalTitle").innerText = "Edit Item Masuk";
-  document.getElementById("itemSelect").value = s.itemId;
-  document.getElementById("qtyInput").value = s.qty;
-  document.getElementById("priceInput").value = s.price;
-
-  document.getElementById("modalStockIn").style.display = "flex";
-}
-
-function saveStockIn() {
-  const itemId = document.getElementById("itemSelect").value;
-  const qty    = Number(document.getElementById("qtyInput").value);
-  const price  = Number(document.getElementById("priceInput").value);
-  const date   = new Date().toISOString().slice(0, 10);
-
-  if (!itemId || qty <= 0) return alert("Isi data dengan benar!");
-
-  const data = { itemId, qty, price, date };
-
-  if (editId) {
-    DataStore.updateStockIn(editId, data);
-  } else {
-    DataStore.addStockIn(data);
-  }
-
-  closeModal();
-  loadStockIn();
-}
-
-function deleteStock(id) {
-  if (confirm("Hapus data ini?")) {
-    DataStore.deleteStockIn(id);
-    loadStockIn();
-  }
+/* ===============================
+   MODAL
+================================ */
+function openModal() {
+  document.getElementById("modal").style.display = "flex";
+  loadItems();
 }
 
 function closeModal() {
-  document.getElementById("modalStockIn").style.display = "none";
+  document.getElementById("modal").style.display = "none";
+  barcodeInput.value = "";
+  qtyInput.value = "";
+  noteInput.value = "";
+  photoInput.value = "";
 }
 
-function logout() {
-  localStorage.removeItem("loginUser");
-  window.location.href = "login.html";
+/* ===============================
+   BARCODE AUTO SELECT
+================================ */
+barcodeInput.addEventListener("change", () => {
+  const code = barcodeInput.value.trim();
+  if (!code) return;
+
+  const item = DataStore.getItems().find(i => i.barcode === code);
+  if (item) itemSelect.value = item.id;
+});
+
+/* ===============================
+   SAVE STOCK IN
+================================ */
+async function saveStockIn() {
+  const itemId = itemSelect.value;
+  const qty = Number(qtyInput.value);
+  if (!itemId || qty <= 0) {
+    alert("Item dan qty wajib diisi");
+    return;
+  }
+
+  const items = DataStore.getItems();
+  const item = items.find(i => i.id === itemId);
+
+  let photo = null;
+  if (photoInput.files[0]) {
+    photo = await readFileAsDataURL(photoInput.files[0]);
+  }
+
+  DataStore.addStockIn({
+    date: new Date().toLocaleDateString(),
+    itemId,
+    itemName: item.name,
+    qty,
+    note: noteInput.value,
+    photo
+  });
+
+  // update stok
+  item.stock += qty;
+  DataStore.saveItems(items);
+
+  closeModal();
+  loadTable();
 }
 
-document.addEventListener("DOMContentLoaded", loadStockIn);
+/* ===============================
+   START
+================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  loadTable();
+});
 </script>
 
 </body>
