@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Export & Backup</title>
+
+<link rel="stylesheet" href="../css/styles.css">
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png">
+    <strong>Export & Backup</strong>
+  </div>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="export.html" class="active">Export</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<div class="card">
+  <h3>Export Data</h3>
+  <button class="btn btn-green" onclick="exportData('items')">Export Item</button>
+  <button class="btn btn-green" onclick="exportData('sales')">Export Penjualan</button>
+  <button class="btn btn-green" onclick="exportData('users')">Export User</button>
+</div>
+
+<div class="card">
+  <h3>Import / Restore</h3>
+  <input type="file" id="file">
+  <select id="type">
+    <option value="items">Item</option>
+    <option value="sales">Penjualan</option>
+    <option value="users">User</option>
+  </select>
+  <button class="btn btn-blue" onclick="importData()">Import</button>
+</div>
+
+</div>
+
+<script>
+function exportData(type) {
+  const data = JSON.stringify(localStorage.getItem(type));
+  const blob = new Blob([data], { type: "text/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = type + ".json";
+  a.click();
+}
+
+function importData() {
+  const file = document.getElementById("file").files[0];
+  const type = document.getElementById("type").value;
+  if (!file) return alert("Pilih file");
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    localStorage.setItem(type, JSON.parse(e.target.result));
+    alert("Data berhasil di-restore");
+  };
+  reader.readAsText(file);
+}
+</script>
+
+</body>
+</html>
