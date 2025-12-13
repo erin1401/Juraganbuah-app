@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="id">
 <head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1abc9c">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Juragan Buah — Selamat Datang</title>
@@ -173,9 +175,16 @@
     </aside>
 
   </main>
-
+  
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+  
 </body>
 </html>
+
 
 
 
