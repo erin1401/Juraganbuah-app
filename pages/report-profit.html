@@ -1,142 +1,66 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Laporan Laba Rugi | Juragan Buah</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Laporan Laba Rugi | Juragan Buah</title>
 
-<link rel="stylesheet" href="../css/styles.css">
-<script src="../js/utils.js"></script>
-<script src="../js/data.js"></script>
-
-<style>
-.summary {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:15px;
-  margin-bottom:20px;
-}
-.box {
-  background:#f5f7f5;
-  padding:16px;
-  border-radius:10px;
-}
-.filter {
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:15px;
-}
-</style>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
 </head>
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <img src="../assets/logo.png" class="logo">
-    <span>Juragan Buah</span>
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png" alt="Juragan Buah">
+    <strong>Juragan Buah</strong>
   </div>
-  <div style="display:flex;gap:10px">
-    <button class="btn btn-light" onclick="window.print()">🖨 Print</button>
-    <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
-  </div>
-</header>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-sales.html">Penjualan</a>
+    <a href="report-stock.html">Persediaan</a>
+    <a href="report-profit.html" class="active">Laba Rugi</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
 
-<main class="container">
+<!-- ================= CONTENT ================= -->
+<div class="container">
+
   <div class="card">
-    <h2>💰 Laporan Laba Rugi</h2>
-
-    <!-- FILTER -->
-    <div class="filter">
-      <div>
-        <label>Dari</label>
-        <input type="date" id="fromDate">
-      </div>
-      <div>
-        <label>Sampai</label>
-        <input type="date" id="toDate">
-      </div>
-      <button class="btn btn-green" onclick="calculate()">Terapkan</button>
-    </div>
-
-    <!-- SUMMARY -->
-    <div class="summary">
-      <div class="box">
-        <div>Omzet</div>
-        <b id="omzet">Rp 0</b>
-      </div>
-      <div class="box">
-        <div>HPP</div>
-        <b id="hpp">Rp 0</b>
-      </div>
-      <div class="box">
-        <div>Laba Kotor</div>
-        <b id="laba">Rp 0</b>
-      </div>
-    </div>
-
-    <!-- DETAIL -->
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Omzet</th>
-            <th>HPP</th>
-          </tr>
-        </thead>
-        <tbody id="profitTable"></tbody>
-      </table>
-    </div>
-
+    <h2>Laporan Laba Rugi</h2>
+    <button type="button" class="btn btn-blue" onclick="window.print()">Print</button>
   </div>
-</main>
 
+  <div class="card">
+    <table class="table">
+      <tr>
+        <th>Total Penjualan</th>
+        <td id="revenue"></td>
+      </tr>
+      <tr>
+        <th>Total HPP</th>
+        <td id="cost"></td>
+      </tr>
+      <tr>
+        <th>Laba Bersih</th>
+        <td id="profit"></td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ================= SCRIPT ================= -->
 <script>
-function calculate() {
-  const sales = DataStore.getSales();
-  const items = DataStore.getItems();
+const result = calculateProfit();
 
-  const from = fromDate.value ? new Date(fromDate.value) : null;
-  const to = toDate.value ? new Date(toDate.value) : null;
-
-  let omzetTotal = 0;
-  let hppTotal = 0;
-  profitTable.innerHTML = "";
-
-  sales.forEach(s => {
-    const d = new Date(s.date);
-    if (from && d < from) return;
-    if (to && d > new Date(to.setHours(23,59,59))) return;
-
-    (s.items || []).forEach(it => {
-      const item = items.find(i => i.id === it.id);
-      const hpp = (item?.cost || 0) * it.qty;
-      const omzet = it.price * it.qty;
-
-      omzetTotal += omzet;
-      hppTotal += hpp;
-
-      profitTable.innerHTML += `
-        <tr>
-          <td>${s.date}</td>
-          <td>${it.name}</td>
-          <td>${it.qty}</td>
-          <td>${formatRupiah(omzet)}</td>
-          <td>${formatRupiah(hpp)}</td>
-        </tr>`;
-    });
-  });
-
-  omzet.innerText = formatRupiah(omzetTotal);
-  hpp.innerText = formatRupiah(hppTotal);
-  laba.innerText = formatRupiah(omzetTotal - hppTotal);
-}
-
-document.addEventListener("DOMContentLoaded", calculate);
+document.getElementById("revenue").innerText = "Rp " + result.revenue;
+document.getElementById("cost").innerText = "Rp " + result.cost;
+document.getElementById("profit").innerText = "Rp " + result.profit;
 </script>
 
 </body>
