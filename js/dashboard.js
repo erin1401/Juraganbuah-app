@@ -7,17 +7,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // =======================================================
     // CEK LOGIN
     // =======================================================
-    const user = JSON.parse(localStorage.getItem("jb_logged_user"));
+    codocument.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("user");
 
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
-
-    // Tampilkan nama user
-    const userNameBox = document.getElementById("userName");
-    if (userNameBox) userNameBox.innerText = user.name;
-
+  if (!user) {
+    // 🔥 PATH ABSOLUTE
+    window.location.href = "../pages/login.html";
+    return;
+  }
+});
 
     // =======================================================
     // LOAD DATA
@@ -97,3 +95,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
