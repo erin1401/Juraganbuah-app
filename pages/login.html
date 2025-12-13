@@ -1,32 +1,27 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<title>Login | Juragan Buah</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<form id="loginForm">
+  <input id="username" placeholder="Username" autocomplete="username">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
 
-<link rel="stylesheet" href="../css/styles.css">
-</head>
-
-<body class="center-page">
-
-<div class="login-card">
-  <img src="../assets/logo.png" class="logo-big">
-  <h2>Login Juragan Buah</h2>
-
-  <!-- ❌ TANPA FORM -->
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-
-  <button id="loginBtn" type="button" class="btn btn-green btn-big">
-    Login
+  <button type="button" id="loginBtn" class="btn btn-green">
+    Masuk
   </button>
+</form>
 
-  <p id="errorMsg" style="color:red"></p>
-</div>
+<script src="../js/auth.js"></script>
+<script>
+document.getElementById("loginBtn").onclick = () => {
+  const u = username.value.trim();
+  const p = password.value.trim();
 
-<script src="../js/data.js"></script>
-<script src="../js/login.js"></script>
+  if (!u || !p) {
+    alert("Username & password wajib diisi");
+    return;
+  }
 
-</body>
-</html>
+  if (Auth.login(u, p)) {
+    location.href = "dashboard.html";
+  } else {
+    alert("Login gagal");
+  }
+};
+</script>
