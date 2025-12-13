@@ -1,70 +1,19 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | Juragan Buah</title>
-
-<link rel="stylesheet" href="../css/styles.css">
-<script src="../js/data.js"></script>
-<script src="../js/auth.js"></script>
-</head>
-
 <body class="login-page">
 
-<div class="login-box">
-  <img src="../assets/logo.png" class="login-logo">
+<div class="login-wrapper">
+  <div class="login-card">
 
-  <h2>Login</h2>
+    <img src="../assets/logo.png" class="login-logo">
+    <h2>Juragan Buah POS</h2>
+    <p class="muted">Silakan login untuk melanjutkan</p>
 
-  <!-- PENTING: form TIDAK submit -->
-  <form id="loginForm" onsubmit="return false">
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
 
-    <input
-      type="text"
-      id="username"
-      placeholder="Username"
-      autocomplete="username"
-      required
-    >
+    <button id="loginBtn" class="btn btn-green">Masuk</button>
+    <p id="msg"></p>
 
-    <input
-      type="password"
-      id="password"
-      placeholder="Password"
-      autocomplete="current-password"
-      required
-    >
-
-    <!-- PENTING: type=button -->
-    <button type="button" id="loginBtn" class="btn btn-green">
-      Masuk
-    </button>
-
-  </form>
-
-  <p id="error" style="color:red"></p>
+  </div>
 </div>
 
-<script src="../js/auth.js"></script>
-<script>
-document.getElementById("loginBtn").onclick = function () {
-  const u = username.value.trim();
-  const p = password.value.trim();
-
-  if (!u || !p) {
-    alert("Lengkapi username & password");
-    return;
-  }
-
-  if (Auth.login(u, p)) {
-    window.location.href = "dashboard.html";
-  } else {
-    alert("Login gagal");
-  }
-};
-</script>
-
 </body>
-</html>
-
