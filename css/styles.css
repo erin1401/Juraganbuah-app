@@ -79,15 +79,17 @@ body {
   border: 1px solid #ccc;
 }
 
-/* ================= HEADER ================= */
+/* ===== HEADER PRO ===== */
 .topbar {
-  background: #1faa59;
+  position: sticky;
+  top: 0;
+  background: #0f766e;
   color: #fff;
-  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  padding: 12px 20px;
+  z-index: 100;
 }
 
 .topbar .logo {
@@ -96,53 +98,45 @@ body {
   gap: 10px;
 }
 
-.topbar img {
+.topbar .logo img {
   height: 36px;
 }
 
 .topbar nav {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .topbar nav a {
-  color: #fff;
+  color: #e5f9f5;
   text-decoration: none;
-  padding: 6px 8px;
-  border-radius: 4px;
+  font-weight: 500;
 }
 
-.topbar nav a.active,
-.topbar nav a:hover {
-  background: rgba(255,255,255,0.2);
+.topbar nav a.active {
+  border-bottom: 2px solid #fff;
 }
 
-/* ================= LAYOUT ================= */
-.container {
-  padding: 16px;
+.topbar .user {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-h2, h3 {
-  margin-top: 0;
-}
-
-/* ================= CARD ================= */
-.card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-}
-
-.card input,
-.card select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+.topbar button {
+  background: #ef4444;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .topbar nav {
+    display: none;
+  }
 }
 
 /* ================= TABLE ================= */
@@ -214,3 +208,4 @@ h2, h3 {
     font-size: 15px;
   }
 }
+
