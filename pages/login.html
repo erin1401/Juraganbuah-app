@@ -46,26 +46,25 @@
   <p id="error" style="color:red"></p>
 </div>
 
+<script src="../js/auth.js"></script>
 <script>
-document.getElementById("loginBtn").addEventListener("click", function () {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+document.getElementById("loginBtn").onclick = function () {
+  const u = username.value.trim();
+  const p = password.value.trim();
 
-  if (!username || !password) {
-    document.getElementById("error").innerText = "Lengkapi username & password";
+  if (!u || !p) {
+    alert("Lengkapi username & password");
     return;
   }
 
-  const success = Auth.login(username, password);
-
-  if (success) {
-    // PENTING: pakai replace agar tidak balik login
-    window.location.replace("dashboard.html");
+  if (Auth.login(u, p)) {
+    window.location.href = "dashboard.html";
   } else {
-    document.getElementById("error").innerText = "Login gagal";
+    alert("Login gagal");
   }
-});
+};
 </script>
 
 </body>
 </html>
+
