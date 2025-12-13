@@ -33,8 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("user", JSON.stringify(user));
 
     // 🔥 REDIRECT AMAN HP
-    window.location.href = "dashboard.html";
+    window.location.href = ".../pages/dashboard.html";
   });
 });
+
 
 
