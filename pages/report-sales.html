@@ -1,128 +1,134 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Laporan Penjualan — Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Laporan Penjualan | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../css/styles.css">
+<script src="../js/utils.js"></script>
+<script src="../js/data.js"></script>
 
 <style>
-  body { margin:0; background:#f4f6f7; font-family:Inter,sans-serif; }
-  .layout { display:flex; min-height:100vh; }
-
-  /* CONTENT */
-  .content {
-    flex:1; padding:22px;
-  }
-
-  .box {
-    background:white; padding:22px; border-radius:14px;
-    box-shadow:0 0 12px rgba(0,0,0,0.06);
-  }
-
-  table { width:100%; border-collapse:collapse; margin-top:18px; }
-  th, td { padding:10px; border-bottom:1px solid #eee; font-size:14px; }
-  th { background:#fafafa; }
-
-  .filter-row {
-    display:flex; gap:12px; flex-wrap:wrap;
-  }
-
-  input[type="date"] {
-    padding:10px; border-radius:10px; border:1px solid #ccc;
-  }
-
-  .btn {
-    padding:10px 16px; border:0; border-radius:10px; cursor:pointer;
-    background:#0E4F24; color:white; font-weight:700;
-  }
-
-  @media(max-width:820px){
-    .filter-row { flex-direction:column; }
-  }
+  .filter { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px; }
+  .summary { display:flex; gap:15px; flex-wrap:wrap; margin-bottom:15px; }
+  .box { background:#f7f7f7; padding:12px 16px; border-radius:8px; }
+  .print-btn { margin-left:auto; }
 </style>
-
 </head>
+
 <body>
 
-<div class="layout">
+<header class="topbar">
+  <div class="brand">
+    <img src="../assets/logo.png" class="logo">
+    <span>Juragan Buah</span>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-light print-btn" onclick="window.print()">🖨 Print</button>
+    <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+  </div>
+</header>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="brand">
-      <img src="assets/logo.svg">
-      <div style="font-size:18px;font-weight:700;">Juragan Buah</div>
+<main class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>📊 Laporan Penjualan</h2>
     </div>
 
-    <nav class="menu">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="items.html">Master Item</a>
-      <a href="buyers.html">Pembeli</a>
-      <a href="stock-in.html">Item Masuk</a>
-      <a href="stock-out.html">Item Keluar</a>
-      <a href="opname.html">Stok Opname</a>
-      <a href="sales.html">Penjualan</a>
-      <a href="report-sales.html" class="active">Laporan Penjualan</a>
-      <a href="report-stock.html">Laporan Persediaan</a>
-      <a href="report-profit.html">Laba Rugi</a>
-    </nav>
-
-    <button class="logout-btn" onclick="logout()">Keluar</button>
-  </aside>
-
-  <!-- CONTENT -->
-  <main class="content">
-
-    <h2>Laporan Penjualan</h2>
-
-    <div class="box">
-
-      <div class="filter-row">
-        <div>
-          Dari:  
-          <input type="date" id="dateStart">
-        </div>
-
-        <div>
-          Sampai:  
-          <input type="date" id="dateEnd">
-        </div>
-
-        <button class="btn" onclick="filterSales()">Terapkan Filter</button>
-        <button class="btn" onclick="printReport()" style="background:#145a9a;">Cetak PDF</button>
+    <!-- FILTER -->
+    <div class="filter">
+      <div>
+        <label>Dari Tanggal</label>
+        <input type="date" id="fromDate">
       </div>
+      <div>
+        <label>Sampai Tanggal</label>
+        <input type="date" id="toDate">
+      </div>
+      <button class="btn btn-green" onclick="applyFilter()">Terapkan</button>
+    </div>
 
+    <!-- SUMMARY -->
+    <div class="summary">
+      <div class="box">
+        <div>Total Transaksi</div>
+        <b id="sumCount">0</b>
+      </div>
+      <div class="box">
+        <div>Total Omzet</div>
+        <b id="sumTotal">Rp 0</b>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>No</th>
             <th>Tanggal</th>
             <th>Pembeli</th>
-            <th>Total</th>
             <th>Metode</th>
+            <th>Item</th>
+            <th>Total</th>
           </tr>
         </thead>
-        <tbody id="reportSalesTable"></tbody>
+        <tbody id="salesTable"></tbody>
       </table>
-
-      <h3 style="margin-top:20px;">
-        Total Periode:  
-        <span id="totalPeriod" style="color:#0E4F24;">Rp 0</span>
-      </h3>
-
     </div>
 
-  </main>
+  </div>
+</main>
 
-</div>
+<script>
+let allSales = DataStore.getSales();
 
-<!-- Hidden print frame -->
-<iframe id="printFrame" style="display:none;"></iframe>
+function renderTable(data) {
+  const tbody = document.getElementById("salesTable");
+  tbody.innerHTML = "";
 
-<script src="../js/utils.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/dashboard.js"></script>
+  let totalOmzet = 0;
+
+  data.forEach(s => {
+    totalOmzet += s.total;
+
+    const itemsHtml = (s.items || []).map(i =>
+      `${i.name} (${i.qty})`
+    ).join(", ");
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.date}</td>
+        <td>${s.buyer || "-"}</td>
+        <td>${s.method || "-"}</td>
+        <td>${itemsHtml}</td>
+        <td>${formatRupiah(s.total)}</td>
+      </tr>
+    `;
+  });
+
+  sumCount.innerText = data.length;
+  sumTotal.innerText = formatRupiah(totalOmzet);
+}
+
+function applyFilter() {
+  const from = fromDate.value ? new Date(fromDate.value) : null;
+  const to = toDate.value ? new Date(toDate.value) : null;
+
+  const filtered = allSales.filter(s => {
+    const d = new Date(s.date);
+    if (from && d < from) return false;
+    if (to && d > new Date(to.setHours(23,59,59))) return false;
+    return true;
+  });
+
+  renderTable(filtered);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderTable(allSales);
+});
+</script>
 
 </body>
 </html>
