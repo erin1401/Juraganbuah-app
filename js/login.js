@@ -1,7 +1,7 @@
 /* ============================================================
    JURAGAN BUAH — login.js FINAL LEVEL 4
    Fix utama:
-   ✔ Tidak reload sendiri
+   ✔ Tidak reload sendirip
    ✔ Tidak infinite redirect
    ✔ Path dashboard benar
    ✔ Validasi user benar
@@ -33,9 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("user", JSON.stringify(user));
 
     // 🔥 REDIRECT AMAN HP
-    window.location.href = ".../pages/dashboard.html";
+    window.location.href = "dashboard.html";
   });
 });
+
 
 
 
