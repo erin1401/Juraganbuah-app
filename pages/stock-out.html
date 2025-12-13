@@ -1,347 +1,187 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Item Keluar — Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Item Keluar | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../css/styles.css">
-
-<style>
-  body {
-    margin:0;
-    background:#f4f5f7;
-    font-family:Inter, sans-serif;
-    display:flex;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width:240px;
-    background:#0E4F24;
-    color:white;
-    min-height:100vh;
-    padding:20px 0;
-    position:fixed;
-    left:0;
-    top:0;
-  }
-
-  .sidebar .logo-box { text-align:center; margin-bottom:20px; }
-  .sidebar img { width:80px; }
-  .sidebar a { display:block; padding:12px 24px; color:white; text-decoration:none; }
-  .sidebar a:hover { background:#145f33; }
-
-  /* CONTENT */
-  .content {
-    margin-left:240px;
-    padding:20px;
-    width:calc(100% - 240px);
-  }
-
-  h1 { margin-top:0; }
-
-  table {
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-    margin-top:10px;
-  }
-
-  th, td {
-    padding:12px;
-    border-bottom:1px solid #ddd;
-  }
-
-  th {
-    background:#0E4F24;
-    color:white;
-    text-align:left;
-  }
-
-  tr:hover { background:#f4f4f4; }
-
-  .btn { padding:8px 12px; border-radius:8px; border:0; cursor:pointer; }
-  .btn-green { background:#0E4F24; color:white; }
-  .btn-yellow { background:#ffc800; color:black; }
-  .btn-red { background:#d32f2f; color:white; }
-
-  /* MODAL */
-  .modal {
-    position:fixed;
-    left:0; top:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.4);
-    display:none;
-    justify-content:center;
-    align-items:center;
-  }
-
-  .modal-content {
-    background:white;
-    width:92%;
-    max-width:480px;
-    padding:18px;
-    border-radius:12px;
-  }
-
-  .form-row { margin-top:12px; }
-  label { display:block; margin-bottom:6px; }
-  input, select, textarea {
-    width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;
-  }
-
-  @media(max-width:720px){
-    .sidebar { position:relative; width:100%; height:auto; }
-    .content { margin-left:0; width:100%; padding:12px; }
-  }
-</style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="logo-box">
-    <img src="../assets/logo.svg" alt="logo" onerror="this.style.display='none'">
-  </div>
-
-  <a href="dashboard.html">📊 Dashboard</a>
-  <a href="items.html">🍎 Master Item</a>
-  <a href="buyers.html">🧑 Pembeli</a>
-  <a href="stock-in.html">📥 Item Masuk</a>
-  <a href="stock-out.html" class="active">📤 Item Keluar</a>
-  <a href="opname.html">📦 Stok Opname</a>
-  <a href="sales.html">🛒 Penjualan</a>
-  <a href="report-sales.html">📑 Laporan Penjualan</a>
-  <a href="report-stock.html">📦 Laporan Persediaan</a>
-  <a href="report-profit.html">💰 Laba Rugi</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-  <h1>Item Keluar</h1>
-
-  <button class="btn btn-green" onclick="openAdd()">+ Tambah Item Keluar</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Nama Item</th>
-        <th>Jumlah Keluar</th>
-        <th>Keterangan</th>
-        <th>Tanggal</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="stockOutTable"></tbody>
-  </table>
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modalOut">
-  <div class="modal-content">
-    <h3 id="modalTitle">Tambah Item Keluar</h3>
-
-    <div class="form-row">
-      <label>Pilih Item</label>
-      <select id="itemSelect"></select>
-    </div>
-
-    <div class="form-row">
-      <label>Jumlah Keluar</label>
-      <input type="number" id="qtyOut" min="1">
-    </div>
-
-    <div class="form-row">
-      <label>Keterangan</label>
-      <input type="text" id="noteOut" placeholder="Mis. Rusak / Retur / Pemakaian">
-    </div>
-
-    <div style="margin-top:14px; display:flex; gap:8px;">
-      <button class="btn btn-green" onclick="saveOut()">Simpan</button>
-      <button class="btn" onclick="closeModal()">Batal</button>
-    </div>
-  </div>
-</div>
-
-<!-- SCRIPTS -->
 <script src="../js/utils.js"></script>
 <script src="../js/data.js"></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="../assets/logo.png" class="logo">
+    <span>Juragan Buah</span>
+  </div>
+  <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
+</header>
+
+<main class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>📤 Item Keluar</h2>
+      <button class="btn btn-green" onclick="openModal()">+ Tambah</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Alasan</th>
+            <th>Bukti</th>
+          </tr>
+        </thead>
+        <tbody id="stockOutTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Tambah Item Keluar</h3>
+
+    <label>Scan / Input Barcode</label>
+    <input id="barcodeInput" placeholder="Scan barcode">
+
+    <label>Pilih Item</label>
+    <select id="itemSelect"></select>
+
+    <label>Jumlah Keluar</label>
+    <input type="number" id="qtyInput" min="1">
+
+    <label>Alasan</label>
+    <select id="reasonInput">
+      <option value="Rusak">Rusak</option>
+      <option value="Retur">Retur</option>
+      <option value="Penyesuaian">Penyesuaian</option>
+    </select>
+
+    <label>Upload Bukti (opsional)</label>
+    <input type="file" id="photoInput" accept="image/*">
+
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="saveStockOut()">Simpan</button>
+      <button class="btn btn-red" onclick="closeModal()">Batal</button>
+    </div>
+  </div>
+</div>
 
 <script>
-/* ============================================================
-   STOCK-OUT PAGE — logic inline supaya mudah pasang di GH Pages
-   Menggunakan DataStore.getStockOut(), DataStore.saveStockOut(arr)
-   dan DataStore.getItems(), DataStore.saveItems(arr)
-   ============================================================ */
-
-let editingId = null;
-
-function uid() {
-  // gunakan util jika tersedia
-  if (typeof randomID === "function") return String(randomID());
-  return String(Date.now() + Math.floor(Math.random()*9999));
+/* ===============================
+   INIT
+================================ */
+function loadItems() {
+  const sel = document.getElementById("itemSelect");
+  sel.innerHTML = "";
+  DataStore.getItems().forEach(i => {
+    const opt = document.createElement("option");
+    opt.value = i.id;
+    opt.textContent = `${i.name} (Stok: ${i.stock})`;
+    sel.appendChild(opt);
+  });
 }
 
-function loadStockOutTable() {
-  const list = (DataStore.getStockOut && DataStore.getStockOut()) || [];
+function loadTable() {
   const tbody = document.getElementById("stockOutTable");
   tbody.innerHTML = "";
 
-  list.forEach(record => {
-    const item = (DataStore.getItems && DataStore.getItems().find(i => i.id === record.itemId)) || null;
-    const name = item ? item.name : record.itemId;
+  DataStore.getStockOut().forEach(s => {
     tbody.innerHTML += `
       <tr>
-        <td>${name}</td>
-        <td>${record.qty}</td>
-        <td>${record.note || '-'}</td>
-        <td>${record.date}</td>
-        <td>
-          <button class="btn btn-yellow" onclick="openEdit('${record.id}')">Edit</button>
-          <button class="btn btn-red" onclick="removeOut('${record.id}')">Hapus</button>
-        </td>
+        <td>${s.date}</td>
+        <td>${s.itemName}</td>
+        <td>${s.qty}</td>
+        <td>${s.reason}</td>
+        <td>${s.photo ? `<img src="${s.photo}" class="thumb">` : "-"}</td>
       </tr>
     `;
   });
 }
 
-function loadItemOptions() {
-  const items = (DataStore.getItems && DataStore.getItems()) || [];
-  const sel = document.getElementById("itemSelect");
-  sel.innerHTML = items.map(i => `<option value="${i.id}">${i.name} (stok: ${i.stock || 0})</option>`).join("");
-}
-
-function openAdd() {
-  editingId = null;
-  loadItemOptions();
-  document.getElementById("modalTitle").innerText = "Tambah Item Keluar";
-  document.getElementById("qtyOut").value = "";
-  document.getElementById("noteOut").value = "";
-  document.getElementById("modalOut").style.display = "flex";
-}
-
-function openEdit(id) {
-  const list = (DataStore.getStockOut && DataStore.getStockOut()) || [];
-  const rec = list.find(r => r.id === id);
-  if (!rec) return alert("Data tidak ditemukan");
-
-  editingId = id;
-  loadItemOptions();
-  document.getElementById("modalTitle").innerText = "Edit Item Keluar";
-  document.getElementById("itemSelect").value = rec.itemId;
-  document.getElementById("qtyOut").value = rec.qty;
-  document.getElementById("noteOut").value = rec.note || "";
-  document.getElementById("modalOut").style.display = "flex";
-}
-
-function saveOut() {
-  const itemId = document.getElementById("itemSelect").value;
-  const qty = Number(document.getElementById("qtyOut").value || 0);
-  const note = document.getElementById("noteOut").value.trim();
-  const date = new Date().toISOString().slice(0,10);
-
-  if (!itemId) return alert("Pilih item terlebih dahulu");
-  if (!qty || qty <= 0) return alert("Jumlah keluar harus lebih dari 0");
-
-  const items = (DataStore.getItems && DataStore.getItems()) || [];
-  const item = items.find(i => i.id === itemId);
-  if (!item) return alert("Item master tidak ditemukan");
-
-  // jika edit: kita harus mengembalikan stok lama dulu lalu kurangi stok baru
-  let stockOutList = (DataStore.getStockOut && DataStore.getStockOut()) || [];
-
-  if (editingId) {
-    const existing = stockOutList.find(s => s.id === editingId);
-    if (!existing) return alert("Data edit tidak ditemukan");
-
-    // kembalikan stok dari existing.qty
-    item.stock = (item.stock || 0) + Number(existing.qty);
-
-    // lalu set new qty dan kurangi stok
-    if (qty > item.stock) {
-      // setelah restore stok, cek lagi
-      if (qty > item.stock) {
-        return alert("Jumlah keluar melebihi stok tersedia setelah penyesuaian");
-      }
-    }
-
-    item.stock = item.stock - qty;
-
-    // update record
-    existing.itemId = itemId;
-    existing.qty = qty;
-    existing.note = note;
-    existing.date = date;
-
-  } else {
-    // tambah baru: cek stok cukup
-    if (qty > (item.stock || 0)) {
-      return alert("Jumlah keluar melebihi stok tersedia");
-    }
-
-    // kurangi stok
-    item.stock = (item.stock || 0) - qty;
-
-    const rec = { id: uid(), itemId, qty, note, date };
-    stockOutList.push(rec);
-  }
-
-  // simpan perubahan items & stockOutList
-  try {
-    if (DataStore.saveItems) DataStore.saveItems(items);
-    else localStorage.setItem("items", JSON.stringify(items));
-  } catch(e){ console.warn("gagal simpan items", e); }
-
-  try {
-    if (DataStore.saveStockOut) DataStore.saveStockOut(stockOutList);
-    else localStorage.setItem("stockOut", JSON.stringify(stockOutList));
-  } catch(e){ console.warn("gagal simpan stockOut", e); }
-
-  closeModal();
-  loadStockOutTable();
-}
-
-function removeOut(id) {
-  if (!confirm("Hapus entri ini?")) return;
-
-  let stockOutList = (DataStore.getStockOut && DataStore.getStockOut()) || [];
-  const idx = stockOutList.findIndex(s => s.id === id);
-  if (idx === -1) return;
-
-  const rec = stockOutList[idx];
-
-  // kembalikan stok ke item
-  const items = (DataStore.getItems && DataStore.getItems()) || [];
-  const it = items.find(i => i.id === rec.itemId);
-  if (it) {
-    it.stock = (it.stock || 0) + Number(rec.qty);
-    try { if (DataStore.saveItems) DataStore.saveItems(items); else localStorage.setItem("items", JSON.stringify(items)); } catch(e){}
-  }
-
-  stockOutList.splice(idx, 1);
-  try { if (DataStore.saveStockOut) DataStore.saveStockOut(stockOutList); else localStorage.setItem("stockOut", JSON.stringify(stockOutList)); } catch(e){}
-
-  loadStockOutTable();
+/* ===============================
+   MODAL
+================================ */
+function openModal() {
+  document.getElementById("modal").style.display = "flex";
+  loadItems();
 }
 
 function closeModal() {
-  document.getElementById("modalOut").style.display = "none";
-  editingId = null;
+  document.getElementById("modal").style.display = "none";
+  barcodeInput.value = "";
+  qtyInput.value = "";
+  photoInput.value = "";
 }
 
-function logout() {
-  localStorage.removeItem("currentUser");
-  window.location.href = "login.html";
+/* ===============================
+   BARCODE AUTO SELECT
+================================ */
+barcodeInput.addEventListener("change", () => {
+  const code = barcodeInput.value.trim();
+  if (!code) return;
+
+  const item = DataStore.getItems().find(i => i.barcode === code);
+  if (item) itemSelect.value = item.id;
+});
+
+/* ===============================
+   SAVE STOCK OUT
+================================ */
+async function saveStockOut() {
+  const itemId = itemSelect.value;
+  const qty = Number(qtyInput.value);
+  const reason = reasonInput.value;
+
+  if (!itemId || qty <= 0) {
+    alert("Item dan qty wajib diisi");
+    return;
+  }
+
+  const items = DataStore.getItems();
+  const item = items.find(i => i.id === itemId);
+
+  if (qty > item.stock) {
+    alert("Stok tidak mencukupi");
+    return;
+  }
+
+  let photo = null;
+  if (photoInput.files[0]) {
+    photo = await readFileAsDataURL(photoInput.files[0]);
+  }
+
+  DataStore.addStockOut({
+    date: new Date().toLocaleDateString(),
+    itemId,
+    itemName: item.name,
+    qty,
+    reason,
+    photo,
+    cost: item.price * qty
+  });
+
+  // update stok
+  item.stock -= qty;
+  DataStore.saveItems(items);
+
+  closeModal();
+  loadTable();
 }
 
-/* init */
-document.addEventListener("DOMContentLoaded", function(){
-  loadStockOutTable();
+/* ===============================
+   START
+================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  loadTable();
 });
 </script>
 
