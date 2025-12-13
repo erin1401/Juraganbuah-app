@@ -7,35 +7,29 @@
    ✔ Validasi user benar
    ✔ Error message tampil
    ============================================================ */
-
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("loginForm");
-    const err = document.getElementById("errorMsg");
+  const form = document.getElementById("loginForm");
+  const errorMsg = document.getElementById("errorMsg");
 
-    if (!form) {
-        console.error("FORM LOGIN TIDAK DITEMUKAN!");
-        return;
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); // 🔥 INI KUNCI ANTI REFRESH
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const users = DataStore.getUsers();
+    const user = users.find(
+      u => u.username === username && u.password === password
+    );
+
+    if (!user) {
+      errorMsg.innerText = "❌ Username atau password salah";
+      return;
     }
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault(); // HENTIKAN RELOAD
+    localStorage.setItem("user", JSON.stringify(user));
 
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-
-        // AMBIL USER DARI DATASTORE
-        const user = DataStore.loginUser(username, password);
-
-        if (!user) {
-            err.style.display = "block";
-            err.innerText = "Username atau password salah!";
-            return;
-        }
-
-        // SIMPAN USER YANG LOGIN
-        localStorage.setItem("jb_logged_user", JSON.stringify(user));
-
-        // REDIRECT BENAR KE DASHBOARD
-        window.location.href = "dashboard.html";
-    });
+    // 🔥 Redirect STABIL (HP AMAN)
+    window.location.replace("dashboard.html");
+  });
 });
