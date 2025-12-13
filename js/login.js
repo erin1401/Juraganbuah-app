@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("user", JSON.stringify(user));
 
     // 🔥 Redirect STABIL (HP AMAN)
-    window.location.replace("dashboard.html");
+    window.location.replace("../pages/dashboard.html");
   });
 });
+
