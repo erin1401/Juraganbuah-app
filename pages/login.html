@@ -1,27 +1,71 @@
-<form id="loginForm">
-  <input id="username" placeholder="Username" autocomplete="username">
-  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Juragan Buah</title>
 
-  <button type="button" id="loginBtn" class="btn btn-green">
-    Masuk
-  </button>
-</form>
-
+<link rel="stylesheet" href="../css/styles.css">
+<script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
-<script>
-document.getElementById("loginBtn").onclick = () => {
-  const u = username.value.trim();
-  const p = password.value.trim();
+</head>
 
-  if (!u || !p) {
-    alert("Username & password wajib diisi");
+<body class="login-page">
+
+<div class="login-box">
+  <img src="../assets/logo.png" class="login-logo">
+
+  <h2>Login</h2>
+
+  <!-- PENTING: form TIDAK submit -->
+  <form id="loginForm" onsubmit="return false">
+
+    <input
+      type="text"
+      id="username"
+      placeholder="Username"
+      autocomplete="username"
+      required
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+      autocomplete="current-password"
+      required
+    >
+
+    <!-- PENTING: type=button -->
+    <button type="button" id="loginBtn" class="btn btn-green">
+      Masuk
+    </button>
+
+  </form>
+
+  <p id="error" style="color:red"></p>
+</div>
+
+<script>
+document.getElementById("loginBtn").addEventListener("click", function () {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!username || !password) {
+    document.getElementById("error").innerText = "Lengkapi username & password";
     return;
   }
 
-  if (Auth.login(u, p)) {
-    location.href = "dashboard.html";
+  const success = Auth.login(username, password);
+
+  if (success) {
+    // PENTING: pakai replace agar tidak balik login
+    window.location.replace("dashboard.html");
   } else {
-    alert("Login gagal");
+    document.getElementById("error").innerText = "Login gagal";
   }
-};
+});
 </script>
+
+</body>
+</html>
