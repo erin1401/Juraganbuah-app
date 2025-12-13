@@ -1,6 +1,7 @@
-/* ===============================
-   AUTH MODULE — FINAL STABLE
-================================ */
+/* =================================
+   AUTH MODULE — LEVEL 6 FINAL
+   STABLE DESKTOP & MOBILE
+================================= */
 
 const Auth = {
   getUser() {
@@ -29,26 +30,24 @@ const Auth = {
 
   logout() {
     localStorage.removeItem("authUser");
-    location.href = "../pages/login.html";
+    window.location.href = "../pages/login.html";
   },
 
-  requireAuth() {
+  protect() {
     const user = this.getUser();
     if (!user) {
-      location.replace("../pages/login.html");
+      window.location.replace("../pages/login.html");
     }
   }
 };
 
-/* AUTO PROTECT PAGE (KECUALI LOGIN) */
-if (
-  !location.pathname.endsWith("login.html") &&
-  !location.pathname.endsWith("index.html")
-) {
-  document.addEventListener("DOMContentLoaded", () => {
-    Auth.requireAuth();
-  });
-}
+/* AUTO PROTECT (TIDAK AGRESIF) */
+document.addEventListener("DOMContentLoaded", () => {
+  const page = location.pathname.split("/").pop();
+  if (page !== "login.html" && page !== "index.html") {
+    Auth.protect();
+  }
+});
 
 function logout() {
   Auth.logout();
