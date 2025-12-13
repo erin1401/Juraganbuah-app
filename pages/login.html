@@ -1,4 +1,4 @@
-8<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -11,30 +11,24 @@
 <body class="center-page">
 
 <div class="login-card">
-  <img src="assets/logo.png" class="logo-big">
+  <img src="../assets/logo.png" class="logo-big">
   <h2>Login Juragan Buah</h2>
 
-  <!-- ❗ TIDAK ADA action -->
-  <form id="loginForm">
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
+  <!-- ❌ TANPA FORM -->
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
 
-    <!-- ❗ TYPE HARUS button -->
-    <button type="submit" class="btn btn-green btn-big">
-      🔐 Login
-    </button>
-  </form>
+  <!-- 🔥 TYPE BUTTON -->
+  <button id="loginBtn" type="button" class="btn btn-green btn-big">
+    🔐 Login
+  </button>
 
   <p id="errorMsg" style="color:red;margin-top:10px"></p>
 </div>
 
-<script src="../js/utils.js"></script>
+<!-- ❗ SCRIPT DI PALING BAWAH -->
 <script src="../js/data.js"></script>
 <script src="../js/login.js"></script>
-  
+
 </body>
 </html>
-
-
-
-
