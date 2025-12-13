@@ -1,132 +1,77 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Laporan Penjualan | Juragan Buah</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Laporan Penjualan | Juragan Buah</title>
 
-<link rel="stylesheet" href="../css/styles.css">
-<script src="../js/utils.js"></script>
-<script src="../js/data.js"></script>
-
-<style>
-  .filter { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px; }
-  .summary { display:flex; gap:15px; flex-wrap:wrap; margin-bottom:15px; }
-  .box { background:#f7f7f7; padding:12px 16px; border-radius:8px; }
-  .print-btn { margin-left:auto; }
-</style>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
 </head>
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <img src="../assets/logo.png" class="logo">
-    <span>Juragan Buah</span>
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+  <div class="logo">
+    <img src="../assets/logo.png" alt="Juragan Buah">
+    <strong>Juragan Buah</strong>
   </div>
-  <div style="display:flex;gap:10px">
-    <button class="btn btn-light print-btn" onclick="window.print()">🖨 Print</button>
-    <a href="dashboard.html" class="btn btn-light">⬅ Dashboard</a>
-  </div>
-</header>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="sales.html">Penjualan</a>
+    <a href="report-sales.html" class="active">Laporan Penjualan</a>
+    <a href="report-stock.html">Laporan Stok</a>
+    <a href="report-profit.html">Laba Rugi</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
 
-<main class="container">
+<!-- ================= CONTENT ================= -->
+<div class="container">
+
   <div class="card">
-    <div class="card-header">
-      <h2>📊 Laporan Penjualan</h2>
-    </div>
-
-    <!-- FILTER -->
-    <div class="filter">
-      <div>
-        <label>Dari Tanggal</label>
-        <input type="date" id="fromDate">
-      </div>
-      <div>
-        <label>Sampai Tanggal</label>
-        <input type="date" id="toDate">
-      </div>
-      <button class="btn btn-green" onclick="applyFilter()">Terapkan</button>
-    </div>
-
-    <!-- SUMMARY -->
-    <div class="summary">
-      <div class="box">
-        <div>Total Transaksi</div>
-        <b id="sumCount">0</b>
-      </div>
-      <div class="box">
-        <div>Total Omzet</div>
-        <b id="sumTotal">Rp 0</b>
-      </div>
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>Pembeli</th>
-            <th>Metode</th>
-            <th>Item</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody id="salesTable"></tbody>
-      </table>
-    </div>
-
+    <h2>Laporan Penjualan</h2>
+    <button type="button" class="btn btn-blue" onclick="window.print()">Print</button>
   </div>
-</main>
 
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Item</th>
+          <th>Pembayaran</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="salesBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ================= SCRIPT ================= -->
 <script>
-let allSales = DataStore.getSales();
+const tbody = document.getElementById("salesBody");
+const sales = DataStore.getSales();
 
-function renderTable(data) {
-  const tbody = document.getElementById("salesTable");
-  tbody.innerHTML = "";
-
-  let totalOmzet = 0;
-
-  data.forEach(s => {
-    totalOmzet += s.total;
-
-    const itemsHtml = (s.items || []).map(i =>
-      `${i.name} (${i.qty})`
-    ).join(", ");
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${s.date}</td>
-        <td>${s.buyer || "-"}</td>
-        <td>${s.method || "-"}</td>
-        <td>${itemsHtml}</td>
-        <td>${formatRupiah(s.total)}</td>
-      </tr>
-    `;
-  });
-
-  sumCount.innerText = data.length;
-  sumTotal.innerText = formatRupiah(totalOmzet);
+if (sales.length === 0) {
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align:center">Belum ada penjualan</td></tr>`;
 }
 
-function applyFilter() {
-  const from = fromDate.value ? new Date(fromDate.value) : null;
-  const to = toDate.value ? new Date(toDate.value) : null;
+sales.forEach(s => {
+  const items = s.items.map(i => `${i.name} (${i.qty})`).join(", ");
 
-  const filtered = allSales.filter(s => {
-    const d = new Date(s.date);
-    if (from && d < from) return false;
-    if (to && d > new Date(to.setHours(23,59,59))) return false;
-    return true;
-  });
-
-  renderTable(filtered);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderTable(allSales);
+  tbody.innerHTML += `
+    <tr>
+      <td>${new Date(s.date).toLocaleString()}</td>
+      <td>${items}</td>
+      <td>${s.payment}</td>
+      <td>Rp ${s.total}</td>
+    </tr>
+  `;
 });
 </script>
 
