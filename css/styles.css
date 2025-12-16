@@ -1,75 +1,263 @@
-/* =================================================
-   JURAGAN BUAH - POS UI LEVEL 5
-   HP & DESKTOP RESPONSIVE
-================================================= */
-
+/* ======================================================
+   RESET & BASE
+====================================================== */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #f4f6f8;
-  color: #333;
+  background: #f3f4f6;
+  color: #111827;
 }
 
-/* ================= BUTTON ================= */
-.btn {
+/* ======================================================
+   APP LAYOUT
+====================================================== */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ======================================================
+   SIDEBAR (POS STYLE)
+====================================================== */
+.sidebar {
+  width: 240px;
+  background: linear-gradient(180deg, #064e3b, #065f46);
+  color: #ecfdf5;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  transition: width .25s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+/* HEADER */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  font-weight: 700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+
+.sidebar-header img {
+  width: 36px;
+  height: 36px;
+}
+
+.sidebar.collapsed .sidebar-header span {
+  display: none;
+}
+
+/* MENU */
+.menu {
+  list-style: none;
+  padding: 10px 0;
+  flex: 1;
+}
+
+.menu-title {
+  padding: 10px 18px;
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: .7;
+}
+
+.menu li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  color: #ecfdf5;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background .2s;
+}
+
+.menu li a:hover {
+  background: rgba(255,255,255,.12);
+}
+
+.menu li a.active {
+  background: rgba(255,255,255,.2);
+}
+
+.sidebar.collapsed .menu-title {
+  display: none;
+}
+
+.sidebar.collapsed .menu li a span {
+  display: none;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+.content {
+  flex: 1;
+  margin-left: 240px;
+  padding: 20px;
+  transition: margin-left .25s ease;
+}
+
+.sidebar.collapsed ~ .content {
+  margin-left: 70px;
+}
+
+/* ======================================================
+   CONTENT HEADER
+====================================================== */
+.content-header {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  margin-bottom: 20px;
+}
+
+#sidebarToggle {
+  background: #10b981;
   border: none;
+  color: #fff;
+  font-size: 18px;
+  padding: 6px 10px;
   border-radius: 6px;
-  padding: 10px 14px;
   cursor: pointer;
+}
+
+#currentUser {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ======================================================
+   DASHBOARD
+====================================================== */
+.dashboard .cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+.card h4 {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.card h2 {
+  font-size: 24px;
+}
+
+.card.green {
+  border-left: 6px solid #16a34a;
+}
+
+.card.blue {
+  border-left: 6px solid #2563eb;
+}
+
+.chart-card {
+  margin-top: 10px;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
   font-size: 14px;
 }
 
-.btn-big {
-  padding: 14px;
-  font-size: 16px;
-  width: 100%;
+th {
+  background: #f9fafb;
+  text-align: left;
 }
 
-.btn-sm {
-  padding: 6px 10px;
-  font-size: 13px;
+/* ======================================================
+   BUTTONS
+====================================================== */
+button {
+  cursor: pointer;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
 }
 
 .btn-green {
-  background: #1faa59;
-  color: #fff;
-}
-
-.btn-blue {
-  background: #3498db;
+  background: #16a34a;
   color: #fff;
 }
 
 .btn-red {
-  background: #e74c3c;
+  background: #dc2626;
   color: #fff;
 }
 
-.btn:active {
-  transform: scale(0.98);
+.btn-blue {
+  background: #2563eb;
+  color: #fff;
 }
 
-/* ================= LOGIN ================= */
-..login-page {
-  background: linear-gradient(135deg,#0f766e,#14b8a6);
+/* ======================================================
+   LOGIN PAGE
+====================================================== */
+.login-page {
   min-height: 100vh;
+  background: linear-gradient(135deg, #065f46, #10b981);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.login-wrapper {
+  width: 100%;
+  max-width: 380px;
+}
+
 .login-card {
   background: #fff;
-  padding: 32px;
-  width: 100%;
-  max-width: 360px;
-  border-radius: 12px;
+  padding: 30px;
+  border-radius: 14px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
 }
 
 .login-logo {
@@ -77,10 +265,22 @@ body {
   margin-bottom: 10px;
 }
 
+.login-card h2 {
+  margin-bottom: 6px;
+}
+
+.login-card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 14px;
+}
+
 .login-card input {
   width: 100%;
   padding: 12px;
-  margin: 8px 0;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
 }
 
 .login-card button {
@@ -88,135 +288,22 @@ body {
   margin-top: 10px;
 }
 
-
-/* ===== HEADER PRO ===== */
-.topbar {
-  position: sticky;
-  top: 0;
-  background: #0f766e;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  z-index: 100;
-}
-
-.topbar .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.topbar .logo img {
-  height: 36px;
-}
-
-.topbar nav {
-  display: flex;
-  gap: 16px;
-}
-
-.topbar nav a {
-  color: #e5f9f5;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.topbar nav a.active {
-  border-bottom: 2px solid #fff;
-}
-
-.topbar .user {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.topbar button {
-  background: #ef4444;
-  border: none;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* ===== MOBILE ===== */
+/* ======================================================
+   MOBILE
+====================================================== */
 @media (max-width: 768px) {
-  .topbar nav {
-    display: none;
-  }
-}
-
-/* ================= TABLE ================= */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.table th {
-  background: #1faa59;
-  color: #fff;
-  padding: 8px;
-}
-
-.table td {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-.table img.thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-/* ================= POS SPECIAL ================= */
-#grandTotal,
-#change {
-  font-size: 18px;
-  font-weight: bold;
-  color: #1faa59;
-}
-
-/* ================= PRINT ================= */
-@media print {
-  body {
-    background: #fff;
-  }
-  .topbar,
-  .btn,
-  nav {
-    display: none !important;
-  }
-  .card {
-    box-shadow: none;
-    border: none;
-  }
-}
-
-/* ================= MOBILE ================= */
-@media (max-width: 768px) {
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
+  .sidebar {
+    position: fixed;
+    left: -240px;
   }
 
-  .topbar nav {
-    width: 100%;
-    overflow-x: auto;
+  .sidebar.collapsed {
+    left: 0;
+    width: 240px;
   }
 
-  .table {
-    font-size: 13px;
-  }
-
-  .btn-big {
-    font-size: 15px;
+  .content {
+    margin-left: 0;
+    padding: 14px;
   }
 }
-
-
