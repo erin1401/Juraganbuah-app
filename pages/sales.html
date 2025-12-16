@@ -7,200 +7,199 @@
 
 <link rel="stylesheet" href="../css/styles.css">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <!-- CORE -->
 <script src="../js/auth.js"></script>
-<script src="../js/permissions.js"></script>
 <script src="../js/cloud.js"></script>
 <script src="../js/sidebar.js"></script>
 </head>
 
 <body>
-
-<script>
-Auth.requireLogin();
-Permissions.requireRole(["admin","kasir"]);
-</script>
+<script>Auth.requireLogin();</script>
 
 <div class="app">
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <img src="../assets/logo.png">
-      <span>Juragan Buah</span>
-    </div>
-    <ul class="menu">
-      <li><a href="dashboard.html">🏠 Dashboard</a></li>
-      <li><a class="active" href="sales.html">🧾 Kasir</a></li>
-      <li><a href="#" onclick="Auth.logout()">🚪 Logout</a></li>
-    </ul>
-  </aside>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="../assets/logo.png">
+    <span>Juragan Buah</span>
+  </div>
+  <ul class="menu">
+    <li><a href="dashboard.html">🏠 Dashboard</a></li>
+    <li><a class="active" href="sales.html">🧾 Kasir</a></li>
+    <li><a onclick="Auth.logout()">🚪 Logout</a></li>
+  </ul>
+</aside>
 
-  <!-- CONTENT -->
-  <main class="content">
+<!-- CONTENT -->
+<main class="content">
 
-    <header class="content-header">
-      <button id="sidebarToggle">☰</button>
-      <strong>Kasir</strong>
-      <span id="currentUser"></span>
-    </header>
+<header class="content-header">
+  <button id="sidebarToggle">☰</button>
+  <strong>SUPER KASIR</strong>
+</header>
 
-    <!-- ===== KASIR LAYOUT ===== -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+<!-- POS GRID -->
+<div style="display:grid;grid-template-columns:2fr 1.2fr;gap:16px">
 
-      <!-- PRODUK -->
-      <div class="card">
-        <h4>Daftar Produk</h4>
-        <table id="itemTable">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Harga</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+<!-- PRODUK -->
+<div class="card">
+  <h4>Produk</h4>
+  <input id="barcodeInput" placeholder="Scan / ketik barcode"
+    style="width:100%;padding:10px;margin-bottom:10px">
 
-      <!-- TRANSAKSI -->
-      <div class="card">
-        <h4>Transaksi</h4>
-
-        <div id="cart"></div>
-
-        <hr>
-
-        <p>Total: <strong id="total">Rp 0</strong></p>
-
-        <label>Metode Bayar</label>
-        <select id="payMethod">
-          <option value="Tunai">Tunai</option>
-          <option value="QRIS">QRIS</option>
-          <option value="Transfer">Transfer</option>
-        </select>
-
-        <label>Bayar</label>
-        <input id="payAmount" type="number" placeholder="0">
-
-        <p>Kembalian: <strong id="change">Rp 0</strong></p>
-
-        <button class="btn btn-green" onclick="checkout()">💾 Simpan & Cetak</button>
-      </div>
-
-    </div>
-  </main>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Harga</th><th></th></tr>
+    </thead>
+    <tbody id="productList"></tbody>
+  </table>
 </div>
 
-<!-- ================= SCRIPT ================= -->
+<!-- KERANJANG -->
+<div class="card">
+  <h4>Keranjang</h4>
+  <div id="cart"></div>
+
+  <hr>
+
+  <h2>Total: <span id="grandTotal">Rp 0</span></h2>
+
+  <label>Metode Bayar</label>
+  <select id="payMethod">
+    <option>Tunai</option>
+    <option>QRIS</option>
+    <option>Transfer</option>
+  </select>
+
+  <label>Bayar</label>
+  <input id="payAmount" type="number">
+
+  <p>Kembali: <strong id="change">Rp 0</strong></p>
+
+  <button class="btn btn-green" onclick="checkout()">💾 BAYAR & CETAK</button>
+</div>
+
+</div>
+</main>
+</div>
+
 <script>
 let items = [];
 let cart = [];
 
+/* LOAD PRODUK */
 CloudStore.getItems().then(data => {
   items = data;
-  renderItems();
+  renderProducts();
 });
 
-function renderItems() {
-  const tbody = document.querySelector("#itemTable tbody");
+/* RENDER PRODUK */
+function renderProducts() {
+  const tbody = document.getElementById("productList");
   tbody.innerHTML = "";
   items.forEach(i => {
     tbody.innerHTML += `
       <tr>
         <td>${i.name}</td>
-        <td>Rp ${i.price.toLocaleString("id-ID")}</td>
-        <td><button class="btn btn-blue" onclick="addToCart('${i.id}')">+</button></td>
-      </tr>
-    `;
+        <td>Rp ${i.price.toLocaleString()}</td>
+        <td>
+          <button class="btn btn-blue" onclick="addItem('${i.id}')">+</button>
+        </td>
+      </tr>`;
   });
 }
 
-function addToCart(id) {
+/* TAMBAH KE KERANJANG */
+function addItem(id) {
   const item = items.find(i => i.id === id);
-  const found = cart.find(c => c.id === id);
+  let row = cart.find(c => c.id === id);
 
-  if (found) {
-    found.qty++;
-  } else {
-    cart.push({ ...item, qty: 1 });
-  }
+  if (row) row.qty++;
+  else cart.push({ ...item, qty: 1 });
+
   renderCart();
 }
 
+/* RENDER KERANJANG */
 function renderCart() {
   const div = document.getElementById("cart");
   div.innerHTML = "";
   let total = 0;
 
-  cart.forEach(c => {
-    total += c.qty * c.price;
+  cart.forEach((c, i) => {
+    const sub = c.qty * c.price;
+    total += sub;
     div.innerHTML += `
-      <p>${c.name} x ${c.qty} = Rp ${(c.qty*c.price).toLocaleString("id-ID")}</p>
-    `;
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong>${c.name}</strong><br>
+          Rp ${c.price.toLocaleString()} x ${c.qty}
+        </div>
+        <div>
+          <button onclick="qty(${i},-1)">−</button>
+          <button onclick="qty(${i},1)">+</button>
+        </div>
+      </div>
+      <hr>`;
   });
 
-  document.getElementById("total").innerText =
-    "Rp " + total.toLocaleString("id-ID");
+  document.getElementById("grandTotal").innerText =
+    "Rp " + total.toLocaleString();
 
-  document.getElementById("payAmount").oninput = () => {
-    const bayar = Number(payAmount.value || 0);
-    document.getElementById("change").innerText =
-      "Rp " + (bayar - total).toLocaleString("id-ID");
+  payAmount.oninput = () => {
+    change.innerText =
+      "Rp " + (payAmount.value - total).toLocaleString();
   };
 }
 
-function checkout() {
-  if (cart.length === 0) {
-    alert("Keranjang kosong");
-    return;
-  }
-
-  const total = cart.reduce((s,c)=>s+c.qty*c.price,0);
-  const bayar = Number(payAmount.value || 0);
-  if (bayar < total && payMethod.value === "Tunai") {
-    alert("Uang kurang");
-    return;
-  }
-
-  const sale = {
-    items: cart,
-    total,
-    bayar,
-    metode: payMethod.value,
-    kasir: Auth.getUser().username
-  };
-
-  CloudStore.saveSale(sale);
-  printStruk(sale);
-  cart = [];
+/* QTY */
+function qty(i, d) {
+  cart[i].qty += d;
+  if (cart[i].qty <= 0) cart.splice(i, 1);
   renderCart();
 }
 
-function printStruk(sale) {
-  const w = window.open("", "PRINT", "width=300,height=600");
-  w.document.write(`
-    <pre style="font-size:12px">
-Juragan Buah
----------------------
-${sale.items.map(i=>`${i.name} x${i.qty} ${i.price*i.qty}`).join("\n")}
----------------------
-TOTAL : ${sale.total}
-BAYAR : ${sale.bayar}
-KEMBALI : ${sale.bayar-sale.total}
-${sale.metode}
----------------------
+/* BARCODE */
+barcodeInput.addEventListener("change", e => {
+  const code = e.target.value.trim();
+  const found = items.find(i => i.barcode === code);
+  if (found) addItem(found.id);
+  barcodeInput.value = "";
+});
+
+/* CHECKOUT */
+function checkout() {
+  if (!cart.length) return alert("Keranjang kosong");
+
+  const total = cart.reduce((s,c)=>s+c.qty*c.price,0);
+  CloudStore.saveSale({
+    items: cart,
+    total,
+    metode: payMethod.value,
+    kasir: Auth.getUser().username,
+    waktu: new Date()
+  });
+
+  printStruk(total);
+  cart=[];
+  renderCart();
+}
+
+/* STRUK */
+function printStruk(total) {
+  const w = window.open("", "", "width=280,height=600");
+  w.document.write(`<pre>
+JURAGAN BUAH
+------------------
+${cart.map(c=>`${c.name} x${c.qty}`).join("\n")}
+------------------
+TOTAL : ${total}
+${payMethod.value}
+------------------
 Terima kasih
-    </pre>
-  `);
-  w.document.close();
-  w.focus();
-  w.print();
-  w.close();
+</pre>`);
+  w.print(); w.close();
 }
 </script>
 
