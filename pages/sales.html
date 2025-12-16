@@ -43,18 +43,47 @@
 <div style="display:grid;grid-template-columns:2fr 1.2fr;gap:16px">
 
 <!-- PRODUK -->
-<div class="card">
-  <h4>Produk</h4>
-  <input id="barcodeInput" placeholder="Scan / ketik barcode"
-    style="width:100%;padding:10px;margin-bottom:10px">
+<script src="../js/barcode.js"></script>
 
-  <table>
-    <thead>
-      <tr><th>Item</th><th>Harga</th><th></th></tr>
-    </thead>
-    <tbody id="productList"></tbody>
-  </table>
-</div>
+<form onsubmit="saveItem(event)">
+  <input id="name" placeholder="Nama Item" required>
+  <input id="price" type="number" placeholder="Harga" required>
+
+  <input id="barcode" placeholder="Barcode" readonly>
+  <button type="button" onclick="genBarcode()">Generate Barcode</button>
+
+  <input id="image" type="file" accept="image/*">
+
+  <button class="btn btn-green">Simpan</button>
+</form>
+
+<script>
+function genBarcode() {
+  barcode.value = BarcodeUtil.generate();
+}
+
+function saveItem(e) {
+  e.preventDefault();
+
+  const reader = new FileReader();
+  const file = image.files[0];
+
+  reader.onload = () => {
+    CloudStore.saveItem({
+      name: name.value,
+      price: Number(price.value),
+      barcode: barcode.value,
+      image: reader.result,
+      stock: 0
+    });
+    alert("Item tersimpan");
+    e.target.reset();
+  };
+
+  if (file) reader.readAsDataURL(file);
+  else reader.onload();
+}
+</script>
 
 <!-- KERANJANG -->
 <div class="card">
@@ -217,4 +246,5 @@ Terima kasih
 
 </body>
 </html>
+
 
