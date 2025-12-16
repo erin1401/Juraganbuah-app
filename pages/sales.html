@@ -7,21 +7,24 @@
 
 <link rel="stylesheet" href="../css/styles.css">
 
-<!-- CORE -->
+<!-- CORE JS (URUTAN PENTING) -->
 <script src="../js/auth.js"></script>
-<script src="../js/cloud.js"></script>
+<script src="../js/data.js"></script>
 <script src="../js/sidebar.js"></script>
 </head>
 
 <body>
-<script>Auth.requireLogin();</script>
+
+<script>
+Auth.requireLogin();
+</script>
 
 <div class="app">
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-header">
-    <img src="../assets/logo.png">
+    <img src="../assets/logo.png" alt="logo">
     <span>Juragan Buah</span>
   </div>
   <ul class="menu">
@@ -37,177 +40,173 @@
 <header class="content-header">
   <button id="sidebarToggle">☰</button>
   <strong>SUPER KASIR</strong>
+  <span id="currentUser"></span>
 </header>
 
-<!-- POS GRID -->
-<div style="display:grid;grid-template-columns:2fr 1.2fr;gap:16px">
+<!-- POS LAYOUT -->
+<div class="pos-layout">
 
-<!-- PRODUK -->
-<script src="../js/barcode.js"></script>
+  <!-- PRODUK -->
+  <div class="card">
+    <h3>Produk</h3>
 
-<form onsubmit="saveItem(event)">
-  <input id="name" placeholder="Nama Item" required>
-  <input id="price" type="number" placeholder="Harga" required>
+    <input id="barcodeInput"
+      placeholder="Scan / ketik barcode"
+      style="width:100%;padding:10px;margin-bottom:10px">
 
-  <input id="barcode" placeholder="Barcode" readonly>
-  <button type="button" onclick="genBarcode()">Generate Barcode</button>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Harga</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="productList">
+        <tr><td colspan="3">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-  <input id="image" type="file" accept="image/*">
+  <!-- KERANJANG -->
+  <div class="card">
+    <h3>Keranjang</h3>
 
-  <button class="btn btn-green">Simpan</button>
-</form>
+    <div id="cartList">Keranjang kosong</div>
 
-<script>
-function genBarcode() {
-  barcode.value = BarcodeUtil.generate();
-}
+    <hr>
 
-function saveItem(e) {
-  e.preventDefault();
+    <h2>Total: <span id="grandTotal">Rp 0</span></h2>
 
-  const reader = new FileReader();
-  const file = image.files[0];
+    <label>Metode Bayar</label>
+    <select id="payMethod">
+      <option value="Tunai">Tunai</option>
+      <option value="QRIS">QRIS</option>
+      <option value="Transfer">Transfer</option>
+    </select>
 
-  reader.onload = () => {
-    CloudStore.saveItem({
-      name: name.value,
-      price: Number(price.value),
-      barcode: barcode.value,
-      image: reader.result,
-      stock: 0
-    });
-    alert("Item tersimpan");
-    e.target.reset();
-  };
+    <label>Bayar</label>
+    <input id="payAmount" type="number">
 
-  if (file) reader.readAsDataURL(file);
-  else reader.onload();
-}
-</script>
+    <p>Kembali: <strong id="change">Rp 0</strong></p>
 
-<!-- KERANJANG -->
-<div class="card">
-  <h4>Keranjang</h4>
-  <div id="cart"></div>
-
-  <hr>
-
-  <h2>Total: <span id="grandTotal">Rp 0</span></h2>
-
-  <label>Metode Bayar</label>
-  <select id="payMethod">
-    <option>Tunai</option>
-    <option>QRIS</option>
-    <option>Transfer</option>
-  </select>
-
-  <label>Bayar</label>
-  <input id="payAmount" type="number">
-
-  <p>Kembali: <strong id="change">Rp 0</strong></p>
-
-  <button class="btn btn-green" onclick="checkout()">💾 BAYAR & CETAK</button>
-</div>
+    <button class="btn btn-green" onclick="checkout()">
+      💾 BAYAR & CETAK
+    </button>
+  </div>
 
 </div>
 </main>
 </div>
 
+<!-- ================== SCRIPT ================== -->
 <script>
 let items = [];
 let cart = [];
 
-/* LOAD PRODUK */
-CloudStore.getItems().then(data => {
-  items = data;
-  renderProducts();
-});
+/* ===== LOAD MASTER ITEM ===== */
+function loadItems() {
+  const data = DataStore.getItems(); // dari data.js
+  items = data || [];
 
-/* RENDER PRODUK */
-function renderProducts() {
   const tbody = document.getElementById("productList");
   tbody.innerHTML = "";
+
+  if (!items.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="3">Belum ada master item</td></tr>`;
+    return;
+  }
+
   items.forEach(i => {
     tbody.innerHTML += `
       <tr>
         <td>${i.name}</td>
-        <td>Rp ${i.price.toLocaleString()}</td>
+        <td>Rp ${Number(i.price).toLocaleString("id-ID")}</td>
         <td>
-          <button class="btn btn-blue" onclick="addItem('${i.id}')">+</button>
+          <button class="btn btn-blue" onclick="addToCart('${i.id}')">+</button>
         </td>
-      </tr>`;
+      </tr>
+    `;
   });
 }
 
-/* TAMBAH KE KERANJANG */
-function addItem(id) {
+/* ===== TAMBAH KE KERANJANG ===== */
+function addToCart(id) {
   const item = items.find(i => i.id === id);
-  let row = cart.find(c => c.id === id);
+  if (!item) return alert("Item tidak ditemukan");
 
-  if (row) row.qty++;
+  const found = cart.find(c => c.id === id);
+  if (found) found.qty++;
   else cart.push({ ...item, qty: 1 });
 
   renderCart();
 }
 
-/* RENDER KERANJANG */
+/* ===== RENDER KERANJANG ===== */
 function renderCart() {
-  const div = document.getElementById("cart");
-  div.innerHTML = "";
+  const div = document.getElementById("cartList");
   let total = 0;
 
-  cart.forEach((c, i) => {
-    const sub = c.qty * c.price;
-    total += sub;
-    div.innerHTML += `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <strong>${c.name}</strong><br>
-          Rp ${c.price.toLocaleString()} x ${c.qty}
+  if (!cart.length) {
+    div.innerHTML = "Keranjang kosong";
+  } else {
+    div.innerHTML = "";
+    cart.forEach((c, i) => {
+      const sub = c.qty * c.price;
+      total += sub;
+      div.innerHTML += `
+        <div class="cart-row">
+          <div>
+            <strong>${c.name}</strong><br>
+            Rp ${c.price.toLocaleString("id-ID")} x ${c.qty}
+          </div>
+          <div>
+            <button onclick="changeQty(${i},-1)">−</button>
+            <button onclick="changeQty(${i},1)">+</button>
+          </div>
         </div>
-        <div>
-          <button onclick="qty(${i},-1)">−</button>
-          <button onclick="qty(${i},1)">+</button>
-        </div>
-      </div>
-      <hr>`;
-  });
+      `;
+    });
+  }
 
   document.getElementById("grandTotal").innerText =
-    "Rp " + total.toLocaleString();
+    "Rp " + total.toLocaleString("id-ID");
 
   payAmount.oninput = () => {
-    change.innerText =
-      "Rp " + (payAmount.value - total).toLocaleString();
+    const bayar = Number(payAmount.value || 0);
+    document.getElementById("change").innerText =
+      "Rp " + (bayar - total).toLocaleString("id-ID");
   };
 }
 
-/* QTY */
-function qty(i, d) {
-  cart[i].qty += d;
-  if (cart[i].qty <= 0) cart.splice(i, 1);
+/* ===== QTY ===== */
+function changeQty(i, delta) {
+  cart[i].qty += delta;
+  if (cart[i].qty <= 0) cart.splice(i,1);
   renderCart();
 }
 
-/* BARCODE */
+/* ===== BARCODE ===== */
 barcodeInput.addEventListener("change", e => {
   const code = e.target.value.trim();
   const found = items.find(i => i.barcode === code);
-  if (found) addItem(found.id);
-  barcodeInput.value = "";
+  if (found) addToCart(found.id);
+  e.target.value = "";
 });
 
-/* CHECKOUT */
-<script>
+/* ===== CHECKOUT ===== */
 function checkout() {
   if (!cart.length) return alert("Keranjang kosong");
 
   const total = cart.reduce((s,c)=>s+c.qty*c.price,0);
   const bayar = Number(payAmount.value||0);
-  if (bayar < total && payMethod.value==="Tunai")
+
+  if (payMethod.value==="Tunai" && bayar < total)
     return alert("Uang kurang");
 
   const sale = {
+    id: Date.now(),
     items: cart,
     total,
     bayar,
@@ -216,35 +215,37 @@ function checkout() {
     waktu: new Date().toISOString()
   };
 
-  CloudStore.saveSale(sale);
+  DataStore.saveSale(sale);
 
   localStorage.setItem("printSale", JSON.stringify(sale));
-
   window.open("invoice.html","_blank");
 
-  cart=[];
+  cart = [];
   renderCart();
 }
+
+/* INIT */
+document.getElementById("currentUser").innerText =
+  Auth.getUser().username;
+
+loadItems();
 </script>
 
-/* STRUK */
-function printStruk(total) {
-  const w = window.open("", "", "width=280,height=600");
-  w.document.write(`<pre>
-JURAGAN BUAH
-------------------
-${cart.map(c=>`${c.name} x${c.qty}`).join("\n")}
-------------------
-TOTAL : ${total}
-${payMethod.value}
-------------------
-Terima kasih
-</pre>`);
-  w.print(); w.close();
+<style>
+.pos-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
 }
-</script>
+.cart-row {
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+@media(max-width:768px){
+  .pos-layout{grid-template-columns:1fr}
+}
+</style>
 
 </body>
 </html>
-
-
