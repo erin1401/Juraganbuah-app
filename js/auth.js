@@ -1,19 +1,14 @@
-/* ================================
-   AUTH MODULE — FINAL FIX TOTAL
-   GITHUB PAGES SAFE
-================================ */
+/* =====================================
+   AUTH LEVEL 8 — ROLE BASED
+===================================== */
 
 const Auth = {
-  getUser() {
-    try {
-      return JSON.parse(localStorage.getItem("authUser"));
-    } catch {
-      return null;
-    }
-  },
-
   login(username, password) {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const users = JSON.parse(localStorage.getItem("users")) || [
+      { username: "admin", password: "admin", role: "admin" },
+      { username: "kasir", password: "kasir", role: "kasir" }
+    ];
+
     const user = users.find(
       u => u.username === username && u.password === password
     );
@@ -28,22 +23,18 @@ const Auth = {
     return true;
   },
 
-  logout() {
-    localStorage.removeItem("authUser");
-    window.location.href = "login.html";
+  getUser() {
+    return JSON.parse(localStorage.getItem("authUser"));
   },
 
-  protect() {
+  requireLogin() {
     if (!this.getUser()) {
       window.location.href = "login.html";
     }
+  },
+
+  logout() {
+    localStorage.removeItem("authUser");
+    window.location.href = "login.html";
   }
 };
-
-// ❌ TIDAK ADA auto protect di sini
-// ❌ Tidak DOMContentLoaded
-// ❌ Tidak cek pathname
-
-function logout() {
-  Auth.logout();
-}
