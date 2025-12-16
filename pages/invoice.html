@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Invoice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  font-family: monospace;
+  font-size: 12px;
+  width: 58mm;
+  margin: 0 auto;
+}
+.center { text-align: center; }
+.line { border-top: 1px dashed #000; margin: 6px 0; }
+.item { display:flex; justify-content:space-between; }
+.total { font-weight:bold; }
+</style>
+</head>
+
+<body>
+
+<div class="center">
+  <strong>JURAGAN BUAH</strong><br>
+  Toko Buah Segar<br>
+</div>
+
+<div class="line"></div>
+
+<div id="items"></div>
+
+<div class="line"></div>
+
+<div class="item total">
+  <span>TOTAL</span>
+  <span id="total"></span>
+</div>
+<div class="item">
+  <span>BAYAR</span>
+  <span id="bayar"></span>
+</div>
+<div class="item">
+  <span>KEMBALI</span>
+  <span id="kembali"></span>
+</div>
+
+<div class="line"></div>
+
+<div class="center">
+  Terima Kasih 🙏<br>
+  Barang yang sudah dibeli<br>
+  tidak dapat dikembalikan
+</div>
+
+<script>
+const sale = JSON.parse(localStorage.getItem("printSale"));
+const itemsDiv = document.getElementById("items");
+
+sale.items.forEach(i=>{
+  itemsDiv.innerHTML += `
+    <div class="item">
+      <span>${i.name} x${i.qty}</span>
+      <span>${(i.price*i.qty).toLocaleString("id-ID")}</span>
+    </div>`;
+});
+
+total.innerText   = "Rp " + sale.total.toLocaleString("id-ID");
+bayar.innerText   = "Rp " + sale.bayar.toLocaleString("id-ID");
+kembali.innerText = "Rp " + (sale.bayar-sale.total).toLocaleString("id-ID");
+
+window.print();
+</script>
+
+</body>
+</html>
