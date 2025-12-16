@@ -169,22 +169,34 @@ barcodeInput.addEventListener("change", e => {
 });
 
 /* CHECKOUT */
+<script>
 function checkout() {
   if (!cart.length) return alert("Keranjang kosong");
 
   const total = cart.reduce((s,c)=>s+c.qty*c.price,0);
-  CloudStore.saveSale({
+  const bayar = Number(payAmount.value||0);
+  if (bayar < total && payMethod.value==="Tunai")
+    return alert("Uang kurang");
+
+  const sale = {
     items: cart,
     total,
+    bayar,
     metode: payMethod.value,
     kasir: Auth.getUser().username,
-    waktu: new Date()
-  });
+    waktu: new Date().toISOString()
+  };
 
-  printStruk(total);
+  CloudStore.saveSale(sale);
+
+  localStorage.setItem("printSale", JSON.stringify(sale));
+
+  window.open("invoice.html","_blank");
+
   cart=[];
   renderCart();
 }
+</script>
 
 /* STRUK */
 function printStruk(total) {
@@ -205,3 +217,4 @@ Terima kasih
 
 </body>
 </html>
+
