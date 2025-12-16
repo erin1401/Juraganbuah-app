@@ -2,82 +2,175 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<title>Dashboard | Juragan Buah POS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard | Juragan Buah</title>
 
+<!-- STYLE -->
 <link rel="stylesheet" href="../css/styles.css">
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- CORE JS -->
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
-<script src="../js/chart.js"></script>
+<script src="../js/permissions.js"></script>
+<script src="../js/cloud.js"></script>
+<script src="../js/sidebar.js"></script>
 </head>
 
 <body>
 
-<div class="topbar">
-  <div class="logo">
-    <img src="../assets/logo.png">
-    <strong>Juragan Buah</strong>
-  </div>
-  <nav>
-    <a href="dashboard.html" class="active">Dashboard</a>
-    <a href="items.html">Item</a>
-    <a href="sales.html">Penjualan</a>
-    <a href="report-sales.html">Laporan</a>
-    <a href="#" onclick="logout()">Logout</a>
-  </nav>
-</div>
-
-<div class="container">
-
-<!-- SUMMARY -->
-<div class="grid-3">
-  <div class="card">
-    <h4>Total Penjualan</h4>
-    <h2 id="TotalSales">Rp </h2>
-  </div>
-  
-  <div class="card">
-    <h4>Total Transaksi</h4>
-    <h2 id="trx">0</h2>
-  </div>
-  <div class="card">
-    <h4>Total Item</h4>
-    <h2 id="itemCount">0</h2>
-  </div>
-</div>
-
-<!-- CHART -->
-<div class="grid-2">
-  <div class="card">
-    <h3>Grafik Penjualan</h3>
-    <canvas id="salesChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h3>Item Terlaris</h3>
-    <canvas id="itemChart"></canvas>
-  </div>
-</div>
-
-</div>
-
 <script>
-const sales = DataStore.getSales();
-const items = DataStore.getItems();
+/* =========================
+   LOGIN PROTECTION
+========================= */
+Auth.requireLogin();
+</script>
 
-document.getElementById("trx").innerText = sales.length;
-document.getElementById("itemCount").innerText = items.length;
+<div class="app">
 
-const total = sales.reduce((a,b)=>a+b.total,0);
-document.getElementById("totalSales").innerText =
-  "Rp " + total.toLocaleString("id-ID");
+  <!-- ================= SIDEBAR ================= -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <img src="../assets/logo.png" alt="Logo">
+      <span>Juragan Buah</span>
+    </div>
 
-renderCharts();
+    <ul class="menu">
+      <li>
+        <a class="active" href="dashboard.html">🏠 Dashboard</a>
+      </li>
+
+      <li data-role="admin">
+        <a href="items.html">📦 Master Item</a>
+      </li>
+
+      <li data-role="admin">
+        <a href="stock-in.html">⬇️ Item Masuk</a>
+      </li>
+
+      <li data-role="admin">
+        <a href="stock-out.html">⬆️ Item Keluar</a>
+      </li>
+
+      <li data-role="admin,kasir">
+        <a href="sales.html">🧾 Kasir</a>
+      </li>
+
+      <li data-role="admin">
+        <a href="users.html">👥 User</a>
+      </li>
+
+      <li>
+        <a href="#" onclick="Auth.logout()">🚪 Logout</a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- ================= CONTENT ================= -->
+  <main class="content">
+
+    <!-- HEADER -->
+    <header class="content-header">
+      <button id="sidebarToggle">☰</button>
+      <span id="currentUser"></span>
+    </header>
+
+    <!-- DASHBOARD BODY -->
+    <div class="dashboard">
+
+      <!-- SUMMARY -->
+      <div class="cards">
+        <div class="card green">
+          <h4>Total Penjualan</h4>
+          <h2 id="totalSales">Rp 0</h2>
+        </div>
+
+        <div class="card blue">
+          <h4>Total Transaksi</h4>
+          <h2 id="totalTrx">0</h2>
+        </div>
+      </div>
+
+      <!-- CHART -->
+      <div class="card chart-card">
+        <h4>Grafik Penjualan</h4>
+        <canvas id="salesChart" height="120"></canvas>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+/* =========================
+   REALTIME DASHBOARD
+========================= */
+
+let chart;
+
+/* Init chart */
+function initChart(labels = [], data = []) {
+  const ctx = document.getElementById("salesChart").getContext("2d");
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Penjualan",
+        data,
+        borderColor: "#16a34a",
+        backgroundColor: "rgba(22,163,74,.2)",
+        fill: true,
+        tension: .3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+/* Load realtime sales */
+CloudStore.onSalesChange(sales => {
+  let total = 0;
+  let labels = [];
+  let values = [];
+
+  sales.forEach(s => {
+    total += s.total || 0;
+
+    const date = s.createdAt?.toDate
+      ? s.createdAt.toDate().toLocaleDateString("id-ID")
+      : "Hari Ini";
+
+    const idx = labels.indexOf(date);
+    if (idx === -1) {
+      labels.push(date);
+      values.push(s.total || 0);
+    } else {
+      values[idx] += s.total || 0;
+    }
+  });
+
+  document.getElementById("totalSales").innerText =
+    "Rp " + total.toLocaleString("id-ID");
+
+  document.getElementById("totalTrx").innerText = sales.length;
+
+  initChart(labels, values);
+});
 </script>
 
 </body>
 </html>
-
-
