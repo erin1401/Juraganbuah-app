@@ -182,7 +182,24 @@ document.getElementById("logoutBtn").onclick = () => {
   localStorage.removeItem("user");
   window.location.href = "./login.html";
 };
+
+function startScan() {
+  const qr = new Html5Qrcode("reader");
+  qr.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    code => {
+      const idx = items.findIndex(i => i.barcode === code);
+      if (idx >= 0) {
+        document.getElementById("productSelect").value = idx;
+        addToCart();
+        qr.stop();
+      } else alert("Produk tidak ditemukan");
+    }
+  );
+}
 </script>
 
 </body>
 </html>
+
