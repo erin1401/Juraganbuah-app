@@ -70,3 +70,8 @@ function renderTopItems() {
     }
   });
 }
+
+ <div class="card" style="height:300px">
+  <h3>Grafik Penjualan</h3>
+  <canvas id="salesChart"></canvas>
+</div>
