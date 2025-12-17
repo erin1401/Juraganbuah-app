@@ -5,191 +5,105 @@
 <title>Dashboard | Juragan Buah POS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- STYLE -->
 <link rel="stylesheet" href="../css/styles.css">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<!-- Chart -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- CORE JS -->
-<script src="../js/data.js"></script>
+<!-- CORE -->
 <script src="../js/auth.js"></script>
-<script src="../js/permissions.js"></script>
-<script src="../js/cloud.js"></script>
 <script src="../js/sidebar.js"></script>
+<script src="../js/data.js"></script>
 </head>
 
 <body>
 
 <script>
-/* ===== AUTH PROTECT ===== */
-Auth.requireLogin();
+  // WAJIB setelah auth.js
+  Auth.requireLogin();
 </script>
 
 <div class="app">
 
-  <!-- ================= SIDEBAR ================= -->
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <img src="../assets/logo.png" alt="Logo">
-      <span>Juragan Buah POS</span>
-    </div>
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="../assets/logo.png" alt="logo">
+    <span>Juragan Buah</span>
+  </div>
 
-    <ul class="menu">
+  <nav class="menu">
+    <a class="active" href="dashboard.html">🏠 Dashboard</a>
+    <a href="items.html">📦 Master Item</a>
+    <a href="stock-in.html">📥 Item Masuk</a>
+    <a href="stock-out.html">📤 Item Keluar</a>
+    <a href="sales.html">🧾 Penjualan</a>
+    <a href="report-sales.html">📊 Laporan Penjualan</a>
+    <a href="report-stock.html">📦 Laporan Stok</a>
+    <a href="report-profit.html">💰 Laba Rugi</a>
+    <a href="#" onclick="Auth.logout()">🚪 Logout</a>
+  </nav>
+</aside>
 
-      <!-- DASHBOARD -->
-      <li>
-        <a class="active" href="dashboard.html">🏠 Dashboard</a>
-      </li>
+<!-- ================= CONTENT ================= -->
+<main class="content">
 
-      <!-- MASTER -->
-      <li class="menu-title">MASTER</li>
-      <li data-role="admin">
-        <a href="items.html">📦 Master Item</a>
-      </li>
-      <li data-role="admin">
-        <a href="buyers.html">👤 Pembeli</a>
-      </li>
+<header class="content-header">
+  <button id="sidebarToggle">☰</button>
+  <h2>Dashboard</h2>
+  <span id="currentUser"></span>
+</header>
 
-      <!-- STOK -->
-      <li class="menu-title">PERSEDIAAN</li>
-      <li data-role="admin">
-        <a href="stock-in.html">⬇️ Item Masuk</a>
-      </li>
-      <li data-role="admin">
-        <a href="stock-out.html">⬆️ Item Keluar</a>
-      </li>
-      <li data-role="admin">
-        <a href="opname.html">📝 Stok Opname</a>
-      </li>
+<!-- ================= SUMMARY ================= -->
+<section class="summary-grid">
 
-      <!-- TRANSAKSI -->
-      <li class="menu-title">TRANSAKSI</li>
-      <li data-role="admin,kasir">
-        <a href="sales.html">🧾 Penjualan (Kasir)</a>
-      </li>
+  <div class="summary-card">
+    <h4>Total Item</h4>
+    <strong id="totalItems">0</strong>
+  </div>
 
-      <!-- LAPORAN -->
-      <li class="menu-title">LAPORAN</li>
-      <li data-role="admin">
-        <a href="report-sales.html">📊 Laporan Penjualan</a>
-      </li>
-      <li data-role="admin">
-        <a href="report-stock.html">📦 Laporan Persediaan</a>
-      </li>
-      <li data-role="admin">
-        <a href="report-profit.html">💰 Laba Rugi</a>
-      </li>
+  <div class="summary-card">
+    <h4>Total Stok</h4>
+    <strong id="totalStock">0</strong>
+  </div>
 
-      <!-- USER -->
-      <li class="menu-title">SYSTEM</li>
-      <li data-role="admin">
-        <a href="users.html">👥 Manajemen User</a>
-      </li>
+  <div class="summary-card">
+    <h4>Total Penjualan</h4>
+    <strong id="totalSales">Rp 0</strong>
+  </div>
 
-      <li>
-        <a href="#" onclick="Auth.logout()">🚪 Logout</a>
-      </li>
+</section>
 
-    </ul>
-  </aside>
+<!-- ================= INFO ================= -->
+<section class="card">
+  <h3>Status Sistem</h3>
+  <p>
+    ✅ Login aman<br>
+    ✅ Sidebar stabil<br>
+    ⏳ Grafik & laporan akan aktif di tahap berikutnya
+  </p>
+</section>
 
-  <!-- ================= CONTENT ================= -->
-  <main class="content">
-
-    <!-- HEADER -->
-    <header class="content-header">
-      <button id="sidebarToggle">☰</button>
-      <span id="currentUser"></span>
-    </header>
-
-    <!-- DASHBOARD BODY -->
-    <div class="dashboard">
-
-      <!-- SUMMARY -->
-      <div class="cards">
-        <div class="card green">
-          <h4>Total Penjualan</h4>
-          <h2 id="totalSales">Rp 0</h2>
-        </div>
-
-        <div class="card blue">
-          <h4>Total Transaksi</h4>
-          <h2 id="totalTrx">0</h2>
-        </div>
-      </div>
-
-      <!-- CHART -->
-      <div class="card chart-card">
-        <h4>Grafik Penjualan</h4>
-        <canvas id="salesChart" height="120"></canvas>
-      </div>
-
-    </div>
-  </main>
+</main>
 </div>
 
 <!-- ================= SCRIPT ================= -->
 <script>
-/* =========================
-   REALTIME DASHBOARD
-========================= */
+  // User info
+  const user = Auth.getUser();
+  document.getElementById("currentUser").innerText =
+    user.username + " (" + user.role + ")";
 
-let chart;
+  // Load summary (aman walau data kosong)
+  const items = DataStore.getItems() || [];
+  const sales = DataStore.getSales() || [];
 
-function initChart(labels = [], data = []) {
-  const ctx = document.getElementById("salesChart").getContext("2d");
-  if (chart) chart.destroy();
+  document.getElementById("totalItems").innerText =
+    items.length;
 
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        data,
-        borderColor: "#16a34a",
-        backgroundColor: "rgba(22,163,74,.2)",
-        fill: true,
-        tension: .3
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } }
-    }
-  });
-}
-
-CloudStore.onSalesChange(sales => {
-  let total = 0;
-  let labels = [];
-  let values = [];
-
-  sales.forEach(s => {
-    total += s.total || 0;
-    const date = s.createdAt?.toDate
-      ? s.createdAt.toDate().toLocaleDateString("id-ID")
-      : "Hari Ini";
-
-    const i = labels.indexOf(date);
-    if (i === -1) {
-      labels.push(date);
-      values.push(s.total || 0);
-    } else {
-      values[i] += s.total || 0;
-    }
-  });
+  document.getElementById("totalStock").innerText =
+    items.reduce((a, b) => a + (b.stock || 0), 0);
 
   document.getElementById("totalSales").innerText =
-    "Rp " + total.toLocaleString("id-ID");
-  document.getElementById("totalTrx").innerText = sales.length;
-
-  initChart(labels, values);
-});
+    "Rp " + sales.reduce((a, b) => a + (b.total || 0), 0)
+      .toLocaleString("id-ID");
 </script>
 
 </body>
