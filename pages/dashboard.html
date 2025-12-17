@@ -47,9 +47,38 @@
 
 <header class="content-header">
   <button id="sidebarToggle">☰</button>
-  <h2>Dashboard</h2>
+  <div>
+    <h2>Dashboard</h2>
+    <small>Ringkasan Sistem</small>
+  </div>
   <span id="currentUser"></span>
 </header>
+
+<section class="summary-grid">
+
+  <div class="summary-card">
+    <span>Total Item</span>
+    <strong id="totalItems">0</strong>
+  </div>
+
+  <div class="summary-card">
+    <span>Total Stok</span>
+    <strong id="totalStock">0</strong>
+  </div>
+
+  <div class="summary-card">
+    <span>Total Penjualan</span>
+    <strong id="totalSales">Rp 0</strong>
+  </div>
+
+</section>
+
+<section class="card chart-card">
+  <h3>Grafik Penjualan</h3>
+  <canvas id="salesChart"></canvas>
+</section>
+
+</main>
 
 <!-- ================= SUMMARY ================= -->
  <section class="summary-grid">
@@ -113,5 +142,6 @@
 
 </body>
 </html>
+
 
 
