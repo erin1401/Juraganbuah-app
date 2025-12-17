@@ -307,3 +307,74 @@ button {
     padding: 14px;
   }
 }
+
+/* ===============================
+   DASHBOARD UI FIX
+================================ */
+
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.content-header h2 {
+  margin: 0;
+}
+
+.content-header small {
+  color: #888;
+}
+
+/* SUMMARY */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.summary-card span {
+  color: #666;
+  font-size: 14px;
+}
+
+.summary-card strong {
+  display: block;
+  font-size: 22px;
+  margin-top: 6px;
+  color: #2ecc71;
+}
+
+/* CHART */
+.chart-card {
+  height: 360px;
+}
+
+.chart-card canvas {
+  height: 280px !important;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .content-header {
+    flex-wrap: wrap;
+  }
+
+  .chart-card {
+    height: auto;
+  }
+
+  .chart-card canvas {
+    height: 240px !important;
+  }
+}
