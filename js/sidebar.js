@@ -1,14 +1,28 @@
-/* =====================================
-   SIDEBAR CONTROLLER — LEVEL 8
-===================================== */
+/* =========================================
+   SIDEBAR CONTROLLER – FINAL LEVEL 8
+========================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("sidebarToggle");
-  const sidebar = document.getElementById("sidebar");
 
-  if (toggleBtn && sidebar) {
-    toggleBtn.onclick = () => {
-      sidebar.classList.toggle("collapsed");
-    };
+  const sidebar = document.querySelector(".sidebar");
+  const toggle  = document.getElementById("sidebarToggle");
+
+  if (!sidebar) return;
+
+  // Toggle sidebar (mobile)
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
   }
+
+  // Auto close sidebar when click link (mobile)
+  sidebar.querySelectorAll("a[href]").forEach(link => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove("open");
+      }
+    });
+  });
+
 });
