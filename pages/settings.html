@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Backup & Restore</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="../assets/logo.png">
+    <span>Juragan Buah</span>
+  </div>
+  <nav class="menu">
+    <a href="dashboard.html">Dashboard</a>
+    <a class="active" href="settings.html">Backup Data</a>
+  </nav>
+</aside>
+
+<main class="content">
+
+<header class="content-header">
+  <button id="sidebarToggle">☰</button>
+  <h2>Backup & Restore Data</h2>
+</header>
+
+<div class="card">
+  <h3>Backup Data</h3>
+  <p>Simpan semua data (item, penjualan, user)</p>
+  <button class="btn btn-green" onclick="backupData()">Download Backup</button>
+</div>
+
+<div class="card">
+  <h3>Restore Data</h3>
+  <p>Upload file backup (.json)</p>
+  <input type="file" id="restoreFile" accept="application/json">
+  <button class="btn btn-red" onclick="restoreData()">Restore</button>
+</div>
+
+</main>
+</div>
+
+<script>
+/* ===============================
+   SIDEBAR
+================================ */
+document.getElementById("sidebarToggle").onclick = () =>
+  document.querySelector(".sidebar").classList.toggle("open");
+
+/* ===============================
+   BACKUP
+================================ */
+function backupData() {
+  const data = {
+    items: JSON.parse(localStorage.getItem("items")) || [],
+    sales: JSON.parse(localStorage.getItem("sales")) || [],
+    users: JSON.parse(localStorage.getItem("users")) || []
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "backup-juragan-buah.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ===============================
+   RESTORE
+================================ */
+function restoreData() {
+  const file = document.getElementById("restoreFile").files[0];
+  if (!file) return alert("Pilih file backup");
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      if (!data.items || !data.sales) {
+        return alert("File backup tidak valid");
+      }
+
+      localStorage.setItem("items", JSON.stringify(data.items));
+      localStorage.setItem("sales", JSON.stringify(data.sales));
+
+      if (data.users) {
+        localStorage.setItem("users", JSON.stringify(data.users));
+      }
+
+      alert("Restore berhasil");
+      location.href = "dashboard.html";
+
+    } catch {
+      alert("Gagal membaca file");
+    }
+  };
+  reader.readAsText(file);
+}
+</script>
+
+</body>
+</html>
