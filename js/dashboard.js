@@ -49,46 +49,65 @@ document.addEventListener("DOMContentLoaded", () => {
     updateStats();
 
 
-    // =======================================================
-    // GRAFIK PENJUALAN
-    // =======================================================
-    function renderSalesChart() {
-        const canvas = document.getElementById("salesChart");
-        if (!canvas) return;
+   /* =========================================
+   DASHBOARD CHART – FINAL STEP 1
+========================================= */
 
-        // Ambil total penjualan per tanggal
-        const dailyTotals = {};
+document.addEventListener("DOMContentLoaded", () => {
 
-        sales.forEach(s => {
-            if (!dailyTotals[s.date]) dailyTotals[s.date] = 0;
-            dailyTotals[s.date] += s.total;
-        });
+  // Pastikan canvas ada
+  const canvas = document.getElementById("salesChart");
+  if (!canvas) return;
 
-        const labels = Object.keys(dailyTotals);
-        const data = Object.values(dailyTotals);
+  // Ambil data penjualan
+  const sales = DataStore.getSales() || [];
 
-        new Chart(canvas, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Total Penjualan (Rp)",
-                    data: data,
-                    borderColor: "#27ae60",
-                    backgroundColor: "rgba(39,174,96,0.2)",
-                    borderWidth: 3,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            }
-        });
+  // Kelompokkan penjualan per tanggal
+  const daily = {};
+  sales.forEach(s => {
+    const date = s.date || new Date().toISOString().slice(0, 10);
+    daily[date] = (daily[date] || 0) + (s.total || 0);
+  });
+
+  const labels = Object.keys(daily);
+  const data   = Object.values(daily);
+
+  // Jika tidak ada data → tampilkan dummy
+  const chartLabels = labels.length ? labels : ["Belum ada data"];
+  const chartData   = data.length ? data : [0];
+
+  // Buat grafik
+  new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: "Penjualan Harian",
+        data: chartData,
+        borderColor: "#2ecc71",
+        backgroundColor: "rgba(46, 204, 113, 0.2)",
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: v => "Rp " + v.toLocaleString("id-ID")
+          }
+        }
+      }
     }
+  });
 
-    renderSalesChart();
-
+});
 
     // =======================================================
     // LOGOUT
@@ -102,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
 
 
 
