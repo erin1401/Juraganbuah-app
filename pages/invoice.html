@@ -1,75 +1,193 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Invoice</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>Penjualan | Juragan Buah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-body {
-  font-family: monospace;
-  font-size: 12px;
-  width: 58mm;
-  margin: 0 auto;
-}
-.center { text-align: center; }
-.line { border-top: 1px dashed #000; margin: 6px 0; }
-.item { display:flex; justify-content:space-between; }
-.total { font-weight:bold; }
-</style>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
 
-<div class="center">
-  <strong>JURAGAN BUAH</strong><br>
-  Toko Buah Segar<br>
-</div>
+<div class="app">
 
-<div class="line"></div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="../assets/logo.png" />
+      <span>Juragan Buah</span>
+    </div>
+    <nav class="menu">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a class="active" href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Stok</a>
+      <a href="report-profit.html">Laba Rugi</a>
+    </nav>
+  </aside>
 
-<div id="items"></div>
+  <!-- CONTENT -->
+  <main class="content">
 
-<div class="line"></div>
+    <header class="content-header">
+      <button id="sidebarToggle">☰</button>
+      <h2>Kasir Penjualan</h2>
+      <span id="currentUser"></span>
+    </header>
 
-<div class="item total">
-  <span>TOTAL</span>
-  <span id="total"></span>
-</div>
-<div class="item">
-  <span>BAYAR</span>
-  <span id="bayar"></span>
-</div>
-<div class="item">
-  <span>KEMBALI</span>
-  <span id="kembali"></span>
-</div>
+    <div class="card">
 
-<div class="line"></div>
+      <label>Pilih Produk</label>
+      <select id="productSelect"></select>
 
-<div class="center">
-  Terima Kasih 🙏<br>
-  Barang yang sudah dibeli<br>
-  tidak dapat dikembalikan
+      <label>Qty</label>
+      <input type="number" id="qty" value="1" min="1" />
+
+      <button class="btn btn-green" onclick="addToCart()">Tambah</button>
+
+    </div>
+
+    <div class="card">
+      <h3>Keranjang</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Produk</th>
+            <th>Qty</th>
+            <th>Harga</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="cartBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <label>Metode Pembayaran</label>
+      <select id="payment">
+        <option>Cash</option>
+        <option>Transfer</option>
+        <option>QRIS</option>
+      </select>
+
+      <label>Bayar</label>
+      <input type="number" id="pay" />
+
+      <h3>Total: <span id="grandTotal">Rp 0</span></h3>
+      <h4>Kembalian: <span id="change">Rp 0</span></h4>
+
+      <button class="btn btn-green" onclick="saveSale()">Simpan Transaksi</button>
+    </div>
+
+  </main>
 </div>
 
 <script>
-const sale = JSON.parse(localStorage.getItem("printSale"));
-const itemsDiv = document.getElementById("items");
+/* ===============================
+   PROTECT PAGE
+================================ */
+const user = JSON.parse(localStorage.getItem("currentUser"));
+if (!user) location.href = "login.html";
+document.getElementById("currentUser").innerText = user.name;
 
-sale.items.forEach(i=>{
-  itemsDiv.innerHTML += `
-    <div class="item">
-      <span>${i.name} x${i.qty}</span>
-      <span>${(i.price*i.qty).toLocaleString("id-ID")}</span>
-    </div>`;
+/* ===============================
+   DATA
+================================ */
+const items = JSON.parse(localStorage.getItem("items")) || [];
+const cart = [];
+
+const productSelect = document.getElementById("productSelect");
+items.forEach((i, idx) => {
+  const opt = document.createElement("option");
+  opt.value = idx;
+  opt.textContent = i.name + " - Rp " + i.price;
+  productSelect.appendChild(opt);
 });
 
-total.innerText   = "Rp " + sale.total.toLocaleString("id-ID");
-bayar.innerText   = "Rp " + sale.bayar.toLocaleString("id-ID");
-kembali.innerText = "Rp " + (sale.bayar-sale.total).toLocaleString("id-ID");
+/* ===============================
+   CART
+================================ */
+function addToCart() {
+  const idx = productSelect.value;
+  const qty = Number(document.getElementById("qty").value);
+  const item = items[idx];
 
-window.print();
+  cart.push({
+    name: item.name,
+    qty,
+    price: item.price
+  });
+
+  renderCart();
+}
+
+function renderCart() {
+  const body = document.getElementById("cartBody");
+  body.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach((c, i) => {
+    const tr = document.createElement("tr");
+    const subtotal = c.qty * c.price;
+    total += subtotal;
+
+    tr.innerHTML = `
+      <td>${c.name}</td>
+      <td>${c.qty}</td>
+      <td>Rp ${c.price.toLocaleString()}</td>
+      <td>Rp ${subtotal.toLocaleString()}</td>
+      <td><button onclick="removeItem(${i})">X</button></td>
+    `;
+    body.appendChild(tr);
+  });
+
+  document.getElementById("grandTotal").innerText =
+    "Rp " + total.toLocaleString();
+
+  const pay = Number(document.getElementById("pay").value || 0);
+  document.getElementById("change").innerText =
+    "Rp " + (pay - total).toLocaleString();
+}
+
+function removeItem(i) {
+  cart.splice(i, 1);
+  renderCart();
+}
+
+/* ===============================
+   SAVE TRANSACTION
+================================ */
+function saveSale() {
+  if (!cart.length) return alert("Keranjang kosong");
+
+  const sales = JSON.parse(localStorage.getItem("sales")) || [];
+
+  const total = cart.reduce((s, i) => s + i.qty * i.price, 0);
+
+  sales.push({
+    id: "TRX" + Date.now(),
+    date: new Date().toISOString().slice(0, 10),
+    items: cart,
+    payment: document.getElementById("payment").value,
+    total
+  });
+
+  localStorage.setItem("sales", JSON.stringify(sales));
+
+  alert("Transaksi berhasil disimpan");
+  location.reload();
+}
+
+/* ===============================
+   SIDEBAR TOGGLE
+================================ */
+document.getElementById("sidebarToggle").onclick = () =>
+  document.querySelector(".sidebar").classList.toggle("open");
 </script>
 
 </body>
