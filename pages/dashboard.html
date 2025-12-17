@@ -16,7 +16,6 @@
 <body>
 
 <script>
-  // WAJIB setelah auth.js
   Auth.requireLogin();
 </script>
 
@@ -54,6 +53,7 @@
   <span id="currentUser"></span>
 </header>
 
+<!-- ================= SUMMARY ================= -->
 <section class="summary-grid">
 
   <div class="summary-card">
@@ -73,65 +73,28 @@
 
 </section>
 
+<!-- ================= CHART ================= -->
 <section class="card chart-card">
   <h3>Grafik Penjualan</h3>
   <canvas id="salesChart"></canvas>
 </section>
 
 </main>
-
-<!-- ================= SUMMARY ================= -->
- <section class="summary-grid">
-
-    <div class="card" style="height:300px">
-  <h3>Grafik Penjualan</h3>
-  <canvas id="salesChart"></canvas>
-</div>
-
-  <div class="summary-card">
-    <h4>Total Item</h4>
-    <strong id="totalItems">0</strong>
-  </div>
-
-  <div class="summary-card">
-    <h4>Total Stok</h4>
-    <strong id="totalStock">0</strong>
-  </div>
-
-  <div class="summary-card">
-    <h4>Total Penjualan</h4>
-    <strong id="totalSales">Rp 0</strong>
-  </div>
-
-</section>
-
-<!-- ================= INFO ================= -->
-<section class="card">
-  <h3>Status Sistem</h3>
-  <p>
-    ✅ Login aman<br>
-    ✅ Sidebar stabil<br>
-    ⏳ Grafik & laporan akan aktif di tahap berikutnya
-  </p>
-</section>
-
-</main>
 </div>
 
 <!-- ================= SCRIPT ================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../js/dashboard.js"></script>
+
 <script>
-  // User info
   const user = Auth.getUser();
   document.getElementById("currentUser").innerText =
     user.username + " (" + user.role + ")";
 
-  // Load summary (aman walau data kosong)
   const items = DataStore.getItems() || [];
   const sales = DataStore.getSales() || [];
 
-  document.getElementById("totalItems").innerText =
-    items.length;
-
+  document.getElementById("totalItems").innerText = items.length;
   document.getElementById("totalStock").innerText =
     items.reduce((a, b) => a + (b.stock || 0), 0);
 
@@ -142,6 +105,3 @@
 
 </body>
 </html>
-
-
-
