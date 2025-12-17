@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>Penjualan | Juragan Buah</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Kasir | Juragan Buah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="../css/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 
@@ -15,7 +14,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <img src="../assets/logo.png" />
+      <img src="../assets/logo.png">
       <span>Juragan Buah</span>
     </div>
     <nav class="menu">
@@ -38,18 +37,18 @@
       <span id="currentUser"></span>
     </header>
 
+    <!-- INPUT PRODUK -->
     <div class="card">
-
-      <label>Pilih Produk</label>
+      <label>Produk</label>
       <select id="productSelect"></select>
 
       <label>Qty</label>
-      <input type="number" id="qty" value="1" min="1" />
+      <input type="number" id="qty" value="1" min="1">
 
       <button class="btn btn-green" onclick="addToCart()">Tambah</button>
-
     </div>
 
+    <!-- KERANJANG -->
     <div class="card">
       <h3>Keranjang</h3>
       <table>
@@ -66,21 +65,22 @@
       </table>
     </div>
 
+    <!-- PEMBAYARAN -->
     <div class="card">
       <label>Metode Pembayaran</label>
       <select id="payment">
-        <option>Cash</option>
-        <option>Transfer</option>
-        <option>QRIS</option>
+        <option value="Cash">Cash</option>
+        <option value="Transfer">Transfer</option>
+        <option value="QRIS">QRIS</option>
       </select>
 
       <label>Bayar</label>
-      <input type="number" id="pay" />
+      <input type="number" id="pay" oninput="renderCart()">
 
-      <h3>Total: <span id="grandTotal">Rp 0</span></h3>
-      <h4>Kembalian: <span id="change">Rp 0</span></h4>
+      <h3>Total : <span id="grandTotal">Rp 0</span></h3>
+      <h4>Kembalian : <span id="change">Rp 0</span></h4>
 
-      <button class="btn btn-green" onclick="saveSale()">Simpan Transaksi</button>
+      <button class="btn btn-green" onclick="saveSale()">Simpan & Cetak</button>
     </div>
 
   </main>
@@ -101,24 +101,26 @@ const items = JSON.parse(localStorage.getItem("items")) || [];
 const cart = [];
 
 const productSelect = document.getElementById("productSelect");
-items.forEach((i, idx) => {
+items.forEach((item, index) => {
   const opt = document.createElement("option");
-  opt.value = idx;
-  opt.textContent = i.name + " - Rp " + i.price;
+  opt.value = index;
+  opt.textContent = item.name + " - Rp " + item.price.toLocaleString();
   productSelect.appendChild(opt);
 });
 
 /* ===============================
-   CART
+   CART FUNCTION
 ================================ */
 function addToCart() {
   const idx = productSelect.value;
   const qty = Number(document.getElementById("qty").value);
   const item = items[idx];
 
+  if (!item || qty <= 0) return;
+
   cart.push({
     name: item.name,
-    qty,
+    qty: qty,
     price: item.price
   });
 
@@ -132,79 +134,76 @@ function renderCart() {
   let total = 0;
 
   cart.forEach((c, i) => {
-    const tr = document.createElement("tr");
     const subtotal = c.qty * c.price;
     total += subtotal;
 
-    tr.innerHTML = `
-      <td>${c.name}</td>
-      <td>${c.qty}</td>
-      <td>Rp ${c.price.toLocaleString()}</td>
-      <td>Rp ${subtotal.toLocaleString()}</td>
-      <td><button onclick="removeItem(${i})">X</button></td>
+    body.innerHTML += `
+      <tr>
+        <td>${c.name}</td>
+        <td>${c.qty}</td>
+        <td>Rp ${c.price.toLocaleString()}</td>
+        <td>Rp ${subtotal.toLocaleString()}</td>
+        <td>
+          <button onclick="removeItem(${i})">✖</button>
+        </td>
+      </tr>
     `;
-    body.appendChild(tr);
   });
 
   document.getElementById("grandTotal").innerText =
-    "Rp " + total.toLocaleString();
+    "Rp " + total.toLocaleString("id-ID");
 
   const pay = Number(document.getElementById("pay").value || 0);
+  const change = pay - total;
+
   document.getElementById("change").innerText =
-    "Rp " + (pay - total).toLocaleString();
+    "Rp " + (change > 0 ? change : 0).toLocaleString("id-ID");
 }
 
-function removeItem(i) {
-  cart.splice(i, 1);
+function removeItem(index) {
+  cart.splice(index, 1);
   renderCart();
 }
 
 /* ===============================
-   SAVE TRANSACTION
+   SAVE + PRINT
 ================================ */
 function saveSale() {
   if (!cart.length) return alert("Keranjang kosong");
 
+  const total = cart.reduce((s, i) => s + i.qty * i.price, 0);
+  const pay = Number(document.getElementById("pay").value || 0);
+
+  if (pay < total) return alert("Uang bayar kurang");
+
   const sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-  const total = cart.reduce((s, i) => s + i.qty * i.price, 0);
-
-  sales.push({
+  const invoice = {
     id: "TRX" + Date.now(),
-    date: new Date().toISOString().slice(0, 10),
+    date: new Date().toLocaleString(),
     items: cart,
     payment: document.getElementById("payment").value,
-    total
-  });
+    total: total,
+    pay: pay,
+    user: user.name
+  };
 
+  sales.push(invoice);
   localStorage.setItem("sales", JSON.stringify(sales));
+  localStorage.setItem("lastInvoice", JSON.stringify(invoice));
 
-  alert("Transaksi berhasil disimpan");
+  window.open("invoice.html", "_blank", "width=400,height=600");
+
   location.reload();
 }
-  const invoice = {
-  id: "TRX" + Date.now(),
-  date: new Date().toLocaleString(),
-  items: cart,
-  payment: document.getElementById("payment").value,
-  total,
-  pay: Number(document.getElementById("pay").value),
-  user: user.name
-};
-
-localStorage.setItem("lastInvoice", JSON.stringify(invoice));
-
-window.open("invoice.html", "_blank", "width=400,height=600");
-
-location.reload();
 
 /* ===============================
-   SIDEBAR TOGGLE
+   SIDEBAR MOBILE
 ================================ */
-document.getElementById("sidebarToggle").onclick = () =>
+document.getElementById("sidebarToggle").onclick = () => {
   document.querySelector(".sidebar").classList.toggle("open");
+};
 </script>
 
 </body>
 </html>
-
