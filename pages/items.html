@@ -1,133 +1,219 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-  <title>Master Item | Juragan Buah</title>
+<meta charset="UTF-8">
+<title>Master Item | Juragan Buah POS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" href="../css/styles.css">
-  <script src="../js/data.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/barcode.js"></script>
+<link rel="stylesheet" href="../css/styles.css">
+
+<!-- CORE -->
+<script src="../js/auth.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/barcode.js"></script>
 </head>
 
 <body>
+<script>
+Auth.requireLogin();
+</script>
 
-<!-- ================= TOPBAR ================= -->
-<div class="topbar">
-  <div class="logo">
-    <img src="../assets/logo.png">
-    <strong>Juragan Buah</strong>
+<div class="app">
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="../assets/logo.png" alt="logo">
+    <span>Juragan Buah</span>
   </div>
-  <nav>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="items.html" class="active">Master Item</a>
-    <a href="sales.html">Penjualan</a>
-    <a href="report-stock.html">Laporan Stok</a>
-    <a href="#" onclick="logout()">Logout</a>
-  </nav>
-</div>
+  <ul class="menu">
+    <li><a href="dashboard.html">🏠 Dashboard</a></li>
+    <li><a class="active" href="items.html">📦 Master Item</a></li>
+    <li><a href="stock-in.html">📥 Item Masuk</a></li>
+    <li><a href="stock-out.html">📤 Item Keluar</a></li>
+    <li><a onclick="Auth.logout()">🚪 Logout</a></li>
+  </ul>
+</aside>
 
 <!-- ================= CONTENT ================= -->
-<div class="container">
+<main class="content">
 
-  <!-- ADD ITEM -->
-  <div class="card">
-    <h3>Tambah Item</h3>
+<header class="content-header">
+  <button id="sidebarToggle">☰</button>
+  <strong>Master Item</strong>
+  <span id="currentUser"></span>
+</header>
 
-    <input id="name" placeholder="Nama Item">
-    <input id="barcode" placeholder="Barcode">
-    <input id="unit" placeholder="Satuan (kg / pcs)">
-    <input id="price" type="number" placeholder="Harga Jual">
-    <input id="cost" type="number" placeholder="Harga Modal">
-    <input id="stock" type="number" placeholder="Stok Awal">
+<!-- ================= FORM ================= -->
+<div class="card">
+  <h3>Tambah Item</h3>
 
-    <input type="file" id="image" accept="image/*">
+  <form id="itemForm">
 
-    <button type="button" class="btn btn-green" id="saveBtn">
-      Simpan Item
+    <!-- NAMA ITEM (INI YANG SEBELUMNYA ERROR) -->
+    <input
+      type="text"
+      id="itemName"
+      placeholder="Nama Produk"
+      required
+    >
+
+    <input
+      type="number"
+      id="itemPrice"
+      placeholder="Harga Jual"
+      required
+    >
+
+    <input
+      type="number"
+      id="itemStock"
+      placeholder="Stok Awal"
+      value="0"
+    >
+
+    <div style="display:flex;gap:6px">
+      <input
+        type="text"
+        id="itemBarcode"
+        placeholder="Barcode"
+        readonly
+      >
+      <button type="button" onclick="generateBarcode()">
+        Generate
+      </button>
+    </div>
+
+    <input
+      type="file"
+      id="itemImage"
+      accept="image/*"
+    >
+
+    <button class="btn btn-green" type="submit">
+      💾 Simpan Item
     </button>
-  </div>
 
-  <!-- ITEM LIST -->
-  <div class="card">
-    <h3>Daftar Item</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Gambar</th>
-          <th>Nama</th>
-          <th>Barcode</th>
-          <th>Stok</th>
-          <th>Harga</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="itemBody"></tbody>
-    </table>
-  </div>
+  </form>
+</div>
 
+<!-- ================= TABLE ================= -->
+<div class="card">
+  <h3>Daftar Item</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Harga</th>
+        <th>Stok</th>
+        <th>Barcode</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="itemTable">
+      <tr><td colspan="5">Belum ada data</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</main>
 </div>
 
 <!-- ================= SCRIPT ================= -->
 <script>
-const body = document.getElementById("itemBody");
+document.getElementById("currentUser").innerText =
+  Auth.getUser().username;
 
-function loadItems() {
-  body.innerHTML = "";
-  const items = DataStore.getItems();
+/* BARCODE */
+function generateBarcode() {
+  document.getElementById("itemBarcode").value =
+    BarcodeUtil.generate();
+}
 
-  if (items.length === 0) {
-    body.innerHTML = `<tr><td colspan="6" align="center">Belum ada item</td></tr>`;
+/* SIMPAN ITEM — FIX UNDEFINED */
+document.getElementById("itemForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const nameEl    = document.getElementById("itemName");
+  const priceEl   = document.getElementById("itemPrice");
+  const stockEl   = document.getElementById("itemStock");
+  const barcodeEl = document.getElementById("itemBarcode");
+  const imageEl   = document.getElementById("itemImage");
+
+  const name  = nameEl.value.trim();
+  const price = Number(priceEl.value);
+  const stock = Number(stockEl.value || 0);
+
+  if (!name) {
+    alert("Nama produk wajib diisi");
     return;
   }
 
-  items.forEach((i, idx) => {
-    body.innerHTML += `
+  const save = (img) => {
+    DataStore.saveItem({
+      name: name,          // ✅ PASTI ADA
+      price: price,
+      stock: stock,
+      barcode: barcodeEl.value,
+      image: img || null
+    });
+
+    nameEl.value = "";
+    priceEl.value = "";
+    stockEl.value = 0;
+    barcodeEl.value = "";
+    imageEl.value = "";
+
+    loadItems();
+  };
+
+  if (imageEl.files[0]) {
+    const reader = new FileReader();
+    reader.onload = () => save(reader.result);
+    reader.readAsDataURL(imageEl.files[0]);
+  } else {
+    save(null);
+  }
+});
+
+/* LOAD TABLE */
+function loadItems() {
+  const items = DataStore.getItems();
+  const tbody = document.getElementById("itemTable");
+
+  if (!items.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="5">Belum ada data</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = "";
+  items.forEach(i => {
+    tbody.innerHTML += `
       <tr>
-        <td>${i.image ? `<img src="${i.image}" class="thumb">` : "-"}</td>
         <td>${i.name}</td>
+        <td>Rp ${Number(i.price).toLocaleString("id-ID")}</td>
+        <td>${i.stock || 0}</td>
         <td>${i.barcode || "-"}</td>
-        <td>${i.stock}</td>
-        <td>Rp ${i.price}</td>
         <td>
-          <button type="button" class="btn btn-red btn-sm" onclick="removeItem(${idx})">Hapus</button>
+          <button class="btn btn-red"
+            onclick="deleteItem('${i.id}')">
+            Hapus
+          </button>
         </td>
       </tr>
     `;
   });
 }
 
-function removeItem(index) {
-  const items = DataStore.getItems();
-  items.splice(index, 1);
-  DataStore.saveItems(items);
-  loadItems();
-}
-
-document.getElementById("saveBtn").onclick = () => {
-  const reader = new FileReader();
-  const file = document.getElementById("image").files[0];
-
-  reader.onload = () => {
-    const items = DataStore.getItems();
-    items.push({
-      id: "I" + Date.now(),
-      name: name.value,
-      barcode: barcode.value,
-      unit: unit.value,
-      price: +price.value,
-      cost: +cost.value,
-      stock: +stock.value,
-      image: reader.result || ""
-    });
-    DataStore.saveItems(items);
+function deleteItem(id) {
+  if (confirm("Hapus item ini?")) {
+    DataStore.deleteItem(id);
     loadItems();
-  };
-
-  if (file) reader.readAsDataURL(file);
-  else reader.onload();
-};
+  }
+}
 
 loadItems();
 </script>
