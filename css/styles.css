@@ -1,9 +1,9 @@
-/* ===============================
-   GLOBAL
-================================ */
+/* =================================================
+   GLOBAL RESET & BASE
+================================================= */
 * {
   box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
@@ -17,20 +17,24 @@ a {
   color: inherit;
 }
 
-/* ===============================
+button {
+  cursor: pointer;
+}
+
+/* =================================================
    LAYOUT
-================================ */
+================================================= */
 .app {
   display: flex;
   min-height: 100vh;
 }
 
-/* ===============================
-   SIDEBAR
-================================ */
+/* =================================================
+   SIDEBAR (POS STYLE)
+================================================= */
 .sidebar {
   width: 240px;
-  background: #1e272e;
+  background: #1f2933;
   color: #fff;
   flex-shrink: 0;
 }
@@ -40,7 +44,8 @@ a {
   align-items: center;
   gap: 10px;
   padding: 16px;
-  background: #111;
+  background: #111827;
+  font-weight: bold;
 }
 
 .sidebar-header img {
@@ -51,13 +56,13 @@ a {
 .menu a {
   display: block;
   padding: 14px 18px;
-  color: #ddd;
+  color: #d1d5db;
   transition: 0.2s;
 }
 
 .menu a:hover,
 .menu a.active {
-  background: #2ecc71;
+  background: #22c55e;
   color: #fff;
 }
 
@@ -68,49 +73,60 @@ a {
     left: -240px;
     top: 0;
     height: 100%;
-    z-index: 100;
+    z-index: 1000;
     transition: 0.3s;
   }
+
   .sidebar.open {
     left: 0;
   }
 }
 
-/* ===============================
+/* =================================================
    CONTENT
-================================ */
+================================================= */
 .content {
   flex: 1;
   padding: 20px;
 }
 
+/* HEADER */
 .content-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
-.content-header button {
-  font-size: 18px;
-  background: none;
-  border: none;
-  cursor: pointer;
+.content-header h2 {
+  margin: 0;
 }
 
-/* ===============================
-   CARDS
-================================ */
+.content-header small {
+  color: #6b7280;
+}
+
+#sidebarToggle {
+  font-size: 20px;
+  background: none;
+  border: none;
+}
+
+/* =================================================
+   CARD
+================================================= */
 .card {
   background: #fff;
   padding: 18px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
 }
 
-/* ===============================
-   SUMMARY
-================================ */
+/* =================================================
+   SUMMARY (DASHBOARD)
+================================================= */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -120,26 +136,95 @@ a {
 
 .summary-card {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 18px;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
 }
 
 .summary-card span {
-  color: #777;
+  font-size: 14px;
+  color: #6b7280;
 }
 
 .summary-card strong {
   display: block;
   margin-top: 8px;
   font-size: 22px;
-  color: #2ecc71;
+  color: #22c55e;
 }
 
-/* ===============================
+/* =================================================
+   TABLE
+================================================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #f3f4f6;
+  text-align: left;
+  padding: 12px;
+  font-size: 14px;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+tr:hover td {
+  background: #f9fafb;
+}
+
+/* =================================================
+   FORM
+================================================= */
+input,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #22c55e;
+}
+
+/* =================================================
+   BUTTON
+================================================= */
+.btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+}
+
+.btn-green {
+  background: #22c55e;
+  color: #fff;
+}
+
+.btn-red {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-gray {
+  background: #9ca3af;
+  color: #fff;
+}
+
+/* =================================================
    CHART
-================================ */
+================================================= */
 .chart-card {
   height: 360px;
 }
@@ -148,19 +233,40 @@ a {
   height: 280px !important;
 }
 
-/* ===============================
-   RESPONSIVE
-================================ */
-@media (max-width: 768px) {
-  .content {
-    padding: 14px;
-  }
+/* =================================================
+   LOGIN PAGE
+================================================= */
+.login-page {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .chart-card {
-    height: auto;
-  }
+.login-wrapper {
+  width: 100%;
+  max-width: 380px;
+}
 
-  .chart-card canvas {
-    height: 240px !important;
-  }
+.login-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.login-logo {
+  width: 72px;
+  margin-bottom: 10px;
+}
+
+.login-card h2 {
+  margin: 10px 0 5px;
+}
+
+.login-card p {
+  color: #6b7280;
+  margin-bottom: 20px;
 }
