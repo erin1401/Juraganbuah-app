@@ -182,6 +182,21 @@ function saveSale() {
   alert("Transaksi berhasil disimpan");
   location.reload();
 }
+  const invoice = {
+  id: "TRX" + Date.now(),
+  date: new Date().toLocaleString(),
+  items: cart,
+  payment: document.getElementById("payment").value,
+  total,
+  pay: Number(document.getElementById("pay").value),
+  user: user.name
+};
+
+localStorage.setItem("lastInvoice", JSON.stringify(invoice));
+
+window.open("invoice.html", "_blank", "width=400,height=600");
+
+location.reload();
 
 /* ===============================
    SIDEBAR TOGGLE
@@ -192,3 +207,4 @@ document.getElementById("sidebarToggle").onclick = () =>
 
 </body>
 </html>
+
