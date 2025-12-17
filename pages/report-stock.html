@@ -1,81 +1,51 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-  <title>Laporan Persediaan | Juragan Buah</title>
-
-  <link rel="stylesheet" href="../css/styles.css">
-  <script src="../js/data.js"></script>
-  <script src="../js/auth.js"></script>
+<meta charset="UTF-8">
+<title>Laporan Stok</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../css/styles.css">
 </head>
-
 <body>
 
-<!-- ================= TOPBAR ================= -->
-<div class="topbar">
-  <div class="logo">
-    <img src="../assets/logo.png" alt="Juragan Buah">
-    <strong>Juragan Buah</strong>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="../assets/logo.png">
+    <span>Juragan Buah</span>
   </div>
-  <nav>
+  <nav class="menu">
     <a href="dashboard.html">Dashboard</a>
     <a href="items.html">Master Item</a>
-    <a href="report-sales.html">Laporan Penjualan</a>
-    <a href="report-stock.html" class="active">Laporan Persediaan</a>
-    <a href="report-profit.html">Laba Rugi</a>
-    <a href="#" onclick="logout()">Logout</a>
+    <a class="active" href="report-stock.html">Laporan Stok</a>
   </nav>
+</aside>
+
+<main class="content">
+<h2>Laporan Persediaan</h2>
+
+<div class="card">
+<table>
+<thead>
+<tr><th>Produk</th><th>Stok</th><th>Harga</th></tr>
+</thead>
+<tbody id="stockTable"></tbody>
+</table>
+</div>
+</main>
 </div>
 
-<!-- ================= CONTENT ================= -->
-<div class="container">
-
-  <div class="card">
-    <h2>Laporan Persediaan</h2>
-    <button type="button" class="btn btn-blue" onclick="window.print()">Print</button>
-  </div>
-
-  <div class="card">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Gambar</th>
-          <th>Nama Item</th>
-          <th>Barcode</th>
-          <th>Satuan</th>
-          <th>Stok</th>
-          <th>Harga Jual</th>
-        </tr>
-      </thead>
-      <tbody id="stockBody"></tbody>
-    </table>
-  </div>
-
-</div>
-
-<!-- ================= SCRIPT ================= -->
 <script>
-const tbody = document.getElementById("stockBody");
-const items = DataStore.getItems();
-
-if (items.length === 0) {
-  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center">Belum ada data item</td></tr>`;
-}
+const items = JSON.parse(localStorage.getItem("items")) || [];
+const tb = document.getElementById("stockTable");
 
 items.forEach(i => {
-  tbody.innerHTML += `
+  tb.innerHTML += `
     <tr>
-      <td>
-        ${i.image ? `<img src="${i.image}" class="thumb">` : "-"}
-      </td>
       <td>${i.name}</td>
-      <td>${i.barcode || "-"}</td>
-      <td>${i.unit}</td>
       <td>${i.stock}</td>
-      <td>Rp ${i.price}</td>
-    </tr>
-  `;
+      <td>Rp ${i.price.toLocaleString()}</td>
+    </tr>`;
 });
 </script>
 
