@@ -1,104 +1,99 @@
-/* ============================================================
-   JURAGAN BUAH — dashboard.js FINAL LEVEL 4
-   ============================================================ */
+// ================================
+// DASHBOARD.JS FINAL LEVEL 8
+// ================================
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    // =======================================================
-    // CEK LOGIN
-    // =======================================================
-    document.addEventListener("DOMContentLoaded", () => {
-  const user = localStorage.getItem("user");
-
-  if (!user) {
-    // 🔥 BALIK KE LOGIN DENGAN PATH BENAR
-    window.location.replace("./login.html");
-    return;
-  }
-
-  // optional: tampilkan nama user
-  try {
-    const u = JSON.parse(user);
-    const el = document.getElementById("currentUser");
-    if (el) el.innerText = u.username;
-  } catch (e) {}
+  protectPage();
+  loadDashboard();
+  setupSidebar();
 });
 
-    // =======================================================
-    // LOAD DATA
-    // =======================================================
-    const items = DataStore.getItems();
-    const sales = DataStore.getSales();
-    const buyers = DataStore.getBuyers();
+/* ================================
+   PROTECT PAGE (LOGIN CHECK)
+================================ */
+function protectPage() {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if (!user) {
+    window.location.href = "../pages/login.html";
+  }
+  document.getElementById("currentUser").innerText =
+    user.name + " (" + user.role + ")";
+}
 
+/* ================================
+   LOAD DASHBOARD DATA
+================================ */
+function loadDashboard() {
+  const items = JSON.parse(localStorage.getItem("items")) || [];
+  const sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-    // =======================================================
-    // UPDATE STAT BOX
-    // =======================================================
-    function updateStats() {
-        const totalItems = document.getElementById("statTotalItems");
-        const totalBuyers = document.getElementById("statBuyers");
-        const totalSales = document.getElementById("statSales");
+  // TOTAL ITEM
+  document.getElementById("totalItems").innerText = items.length;
 
-        if (totalItems) totalItems.innerText = items.length;
-        if (totalBuyers) totalBuyers.innerText = buyers.length;
+  // TOTAL STOK
+  let totalStock = 0;
+  items.forEach(i => {
+    totalStock += Number(i.stock || 0);
+  });
+  document.getElementById("totalStock").innerText = totalStock;
 
-        let totalRevenue = sales.reduce((a, b) => a + b.total, 0);
-        if (totalSales) totalSales.innerText = "Rp " + totalRevenue.toLocaleString();
-    }
-    updateStats();
-
-
-   /* =========================================
-   DASHBOARD CHART – FINAL STEP 1
-========================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  // Pastikan canvas ada
-  const canvas = document.getElementById("salesChart");
-  if (!canvas) return;
-
-  // Ambil data penjualan
-  const sales = DataStore.getSales() || [];
-
-  // Kelompokkan penjualan per tanggal
-  const daily = {};
-  sales.forEach(s => {
-    const date = s.date || new Date().toISOString().slice(0, 10);
-    daily[date] = (daily[date] || 0) + (s.total || 0);
+  // TOTAL PENJUALAN (AKURAT)
+  let totalSales = 0;
+  sales.forEach(trx => {
+    trx.items.forEach(it => {
+      totalSales += it.qty * it.price;
+    });
   });
 
-  const labels = Object.keys(daily);
-  const data   = Object.values(daily);
+  document.getElementById("totalSales").innerText =
+    "Rp " + totalSales.toLocaleString("id-ID");
 
-  // Jika tidak ada data → tampilkan dummy
-  const chartLabels = labels.length ? labels : ["Belum ada data"];
-  const chartData   = data.length ? data : [0];
+  // LOAD CHART
+  renderSalesChart(sales);
+}
 
-  // Buat grafik
-  new Chart(canvas, {
+/* ================================
+   SALES CHART
+================================ */
+function renderSalesChart(sales) {
+  const ctx = document.getElementById("salesChart");
+  if (!ctx) return;
+
+  // GROUP BY DATE
+  const map = {};
+  sales.forEach(trx => {
+    const date = trx.date;
+    let sum = 0;
+    trx.items.forEach(it => {
+      sum += it.qty * it.price;
+    });
+    map[date] = (map[date] || 0) + sum;
+  });
+
+  const labels = Object.keys(map);
+  const values = Object.values(map);
+
+  new Chart(ctx, {
     type: "line",
     data: {
-      labels: chartLabels,
+      labels,
       datasets: [{
         label: "Penjualan Harian",
-        data: chartData,
-        borderColor: "#2ecc71",
-        backgroundColor: "rgba(46, 204, 113, 0.2)",
-        tension: 0.4,
-        fill: true
+        data: values,
+        borderColor: "#22c55e",
+        backgroundColor: "rgba(34,197,94,0.15)",
+        fill: true,
+        tension: 0.3
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: true }
+        legend: { display: false }
       },
       scales: {
         y: {
-          beginAtZero: true,
           ticks: {
             callback: v => "Rp " + v.toLocaleString("id-ID")
           }
@@ -106,28 +101,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+}
 
-});
-
-    // =======================================================
-    // LOGOUT
-    // =======================================================
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("jb_logged_user");
-            window.location.href = ".../pages/login.html";
-        });
-    }
-
-});
-
- <div class="card" style="height:300px">
-  <h3>Grafik Penjualan</h3>
-  <canvas id="salesChart"></canvas>
-</div>
-
-
-
-
-
+/* ================================
+   SIDEBAR TOGGLE (MOBILE)
+================================ */
+function setupSidebar() {
+  const toggle = document.getElementById("sidebarToggle");
+  const sidebar = document.querySelector(".sidebar");
+  if (toggle) {
+    toggle.onclick = () => sidebar.classList.toggle("open");
+  }
+}
