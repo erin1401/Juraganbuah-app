@@ -2,220 +2,93 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Master Item | Juragan Buah POS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<title>Master Item</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="../css/styles.css">
-
-<!-- CORE -->
-<script src="../js/auth.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/sidebar.js"></script>
-<script src="../js/barcode.js"></script>
 </head>
-
 <body>
-<script>
-Auth.requireLogin();
-</script>
 
 <div class="app">
 
-<!-- ================= SIDEBAR ================= -->
 <aside class="sidebar">
   <div class="sidebar-header">
-    <img src="../assets/logo.png" alt="logo">
+    <img src="../assets/logo.png">
     <span>Juragan Buah</span>
   </div>
-  <ul class="menu">
-    <li><a href="dashboard.html">🏠 Dashboard</a></li>
-    <li><a class="active" href="items.html">📦 Master Item</a></li>
-    <li><a href="stock-in.html">📥 Item Masuk</a></li>
-    <li><a href="stock-out.html">📤 Item Keluar</a></li>
-    <li><a onclick="Auth.logout()">🚪 Logout</a></li>
-  </ul>
+  <nav class="menu">
+    <a href="dashboard.html">Dashboard</a>
+    <a class="active" href="items.html">Master Item</a>
+    <a href="sales.html">Penjualan</a>
+    <a href="report-stock.html">Laporan Stok</a>
+  </nav>
 </aside>
 
-<!-- ================= CONTENT ================= -->
 <main class="content">
-
 <header class="content-header">
   <button id="sidebarToggle">☰</button>
-  <strong>Master Item</strong>
-  <span id="currentUser"></span>
+  <h2>Master Item</h2>
 </header>
 
-<!-- ================= FORM ================= -->
 <div class="card">
-  <h3>Tambah Item</h3>
-
-  <form id="itemForm">
-
-    <!-- NAMA ITEM (INI YANG SEBELUMNYA ERROR) -->
-    <input
-      type="text"
-      id="itemName"
-      placeholder="Nama Produk"
-      required
-    >
-
-    <input
-      type="number"
-      id="itemPrice"
-      placeholder="Harga Jual"
-      required
-    >
-
-    <input
-      type="number"
-      id="itemStock"
-      placeholder="Stok Awal"
-      value="0"
-    >
-
-    <div style="display:flex;gap:6px">
-      <input
-        type="text"
-        id="itemBarcode"
-        placeholder="Barcode"
-        readonly
-      >
-      <button type="button" onclick="generateBarcode()">
-        Generate
-      </button>
-    </div>
-
-    <input
-      type="file"
-      id="itemImage"
-      accept="image/*"
-    >
-
-    <button class="btn btn-green" type="submit">
-      💾 Simpan Item
-    </button>
-
-  </form>
+  <input id="itemName" placeholder="Nama Produk">
+  <input id="itemPrice" type="number" placeholder="Harga">
+  <input id="itemStock" type="number" placeholder="Stok Awal">
+  <input id="itemBarcode" placeholder="Barcode">
+  <input id="itemImage" type="file" accept="image/*">
+  <button class="btn btn-green" onclick="addItem()">Tambah Item</button>
 </div>
 
-<!-- ================= TABLE ================= -->
 <div class="card">
-  <h3>Daftar Item</h3>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Nama</th>
-        <th>Harga</th>
-        <th>Stok</th>
-        <th>Barcode</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="itemTable">
-      <tr><td colspan="5">Belum ada data</td></tr>
-    </tbody>
-  </table>
+<table>
+<thead>
+<tr><th>Nama</th><th>Harga</th><th>Stok</th><th>Barcode</th></tr>
+</thead>
+<tbody id="itemTable"></tbody>
+</table>
 </div>
 
 </main>
 </div>
 
-<!-- ================= SCRIPT ================= -->
 <script>
-document.getElementById("currentUser").innerText =
-  Auth.getUser().username;
+const items = JSON.parse(localStorage.getItem("items")) || [];
 
-/* BARCODE */
-function generateBarcode() {
-  document.getElementById("itemBarcode").value =
-    BarcodeUtil.generate();
-}
-
-/* SIMPAN ITEM — FIX UNDEFINED */
-document.getElementById("itemForm").addEventListener("submit", function(e){
-  e.preventDefault();
-
-  const nameEl    = document.getElementById("itemName");
-  const priceEl   = document.getElementById("itemPrice");
-  const stockEl   = document.getElementById("itemStock");
-  const barcodeEl = document.getElementById("itemBarcode");
-  const imageEl   = document.getElementById("itemImage");
-
-  const name  = nameEl.value.trim();
-  const price = Number(priceEl.value);
-  const stock = Number(stockEl.value || 0);
-
-  if (!name) {
-    alert("Nama produk wajib diisi");
-    return;
-  }
-
-  const save = (img) => {
-    DataStore.saveItem({
-      name: name,          // ✅ PASTI ADA
-      price: price,
-      stock: stock,
-      barcode: barcodeEl.value,
-      image: img || null
-    });
-
-    nameEl.value = "";
-    priceEl.value = "";
-    stockEl.value = 0;
-    barcodeEl.value = "";
-    imageEl.value = "";
-
-    loadItems();
-  };
-
-  if (imageEl.files[0]) {
-    const reader = new FileReader();
-    reader.onload = () => save(reader.result);
-    reader.readAsDataURL(imageEl.files[0]);
-  } else {
-    save(null);
-  }
-});
-
-/* LOAD TABLE */
-function loadItems() {
-  const items = DataStore.getItems();
-  const tbody = document.getElementById("itemTable");
-
-  if (!items.length) {
-    tbody.innerHTML =
-      `<tr><td colspan="5">Belum ada data</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = "";
+function renderItems() {
+  const tb = document.getElementById("itemTable");
+  tb.innerHTML = "";
   items.forEach(i => {
-    tbody.innerHTML += `
+    tb.innerHTML += `
       <tr>
         <td>${i.name}</td>
-        <td>Rp ${Number(i.price).toLocaleString("id-ID")}</td>
-        <td>${i.stock || 0}</td>
+        <td>Rp ${i.price.toLocaleString()}</td>
+        <td>${i.stock}</td>
         <td>${i.barcode || "-"}</td>
-        <td>
-          <button class="btn btn-red"
-            onclick="deleteItem('${i.id}')">
-            Hapus
-          </button>
-        </td>
-      </tr>
-    `;
+      </tr>`;
   });
 }
 
-function deleteItem(id) {
-  if (confirm("Hapus item ini?")) {
-    DataStore.deleteItem(id);
-    loadItems();
-  }
+function addItem() {
+  const name = document.getElementById("itemName").value.trim();
+  const price = Number(document.getElementById("itemPrice").value);
+  const stock = Number(document.getElementById("itemStock").value);
+  const barcode = document.getElementById("itemBarcode").value.trim();
+
+  if (!name || price <= 0) return alert("Data item belum lengkap");
+
+  items.push({ name, price, stock, barcode });
+  localStorage.setItem("items", JSON.stringify(items));
+  renderItems();
+
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemPrice").value = "";
+  document.getElementById("itemStock").value = "";
+  document.getElementById("itemBarcode").value = "";
 }
 
-loadItems();
+renderItems();
+
+document.getElementById("sidebarToggle").onclick = () =>
+  document.querySelector(".sidebar").classList.toggle("open");
 </script>
 
 </body>
