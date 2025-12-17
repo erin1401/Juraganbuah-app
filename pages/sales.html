@@ -1,251 +1,194 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Kasir | Juragan Buah POS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>Penjualan | Juragan Buah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link rel="stylesheet" href="../css/styles.css">
-
-<!-- CORE JS (URUTAN PENTING) -->
-<script src="../js/auth.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/sidebar.js"></script>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-
-<script>
-Auth.requireLogin();
-</script>
 
 <div class="app">
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <img src="../assets/logo.png" alt="logo">
-    <span>Juragan Buah</span>
-  </div>
-  <ul class="menu">
-    <li><a href="dashboard.html">🏠 Dashboard</a></li>
-    <li><a class="active" href="sales.html">🧾 Kasir</a></li>
-    <li><a onclick="Auth.logout()">🚪 Logout</a></li>
-  </ul>
-</aside>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="../assets/logo.png" />
+      <span>Juragan Buah</span>
+    </div>
+    <nav class="menu">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="items.html">Master Item</a>
+      <a href="buyers.html">Pembeli</a>
+      <a class="active" href="sales.html">Penjualan</a>
+      <a href="report-sales.html">Laporan Penjualan</a>
+      <a href="report-stock.html">Laporan Stok</a>
+      <a href="report-profit.html">Laba Rugi</a>
+    </nav>
+  </aside>
 
-<!-- CONTENT -->
-<main class="content">
+  <!-- CONTENT -->
+  <main class="content">
 
-<header class="content-header">
-  <button id="sidebarToggle">☰</button>
-  <strong>SUPER KASIR</strong>
-  <span id="currentUser"></span>
-</header>
+    <header class="content-header">
+      <button id="sidebarToggle">☰</button>
+      <h2>Kasir Penjualan</h2>
+      <span id="currentUser"></span>
+    </header>
 
-<!-- POS LAYOUT -->
-<div class="pos-layout">
+    <div class="card">
 
-  <!-- PRODUK -->
-  <div class="card">
-    <h3>Produk</h3>
+      <label>Pilih Produk</label>
+      <select id="productSelect"></select>
 
-    <input id="barcodeInput"
-      placeholder="Scan / ketik barcode"
-      style="width:100%;padding:10px;margin-bottom:10px">
+      <label>Qty</label>
+      <input type="number" id="qty" value="1" min="1" />
 
-    <table>
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Harga</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="productList">
-        <tr><td colspan="3">Memuat data...</td></tr>
-      </tbody>
-    </table>
-  </div>
+      <button class="btn btn-green" onclick="addToCart()">Tambah</button>
 
-  <!-- KERANJANG -->
-  <div class="card">
-    <h3>Keranjang</h3>
+    </div>
 
-    <div id="cartList">Keranjang kosong</div>
+    <div class="card">
+      <h3>Keranjang</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Produk</th>
+            <th>Qty</th>
+            <th>Harga</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="cartBody"></tbody>
+      </table>
+    </div>
 
-    <hr>
+    <div class="card">
+      <label>Metode Pembayaran</label>
+      <select id="payment">
+        <option>Cash</option>
+        <option>Transfer</option>
+        <option>QRIS</option>
+      </select>
 
-    <h2>Total: <span id="grandTotal">Rp 0</span></h2>
+      <label>Bayar</label>
+      <input type="number" id="pay" />
 
-    <label>Metode Bayar</label>
-    <select id="payMethod">
-      <option value="Tunai">Tunai</option>
-      <option value="QRIS">QRIS</option>
-      <option value="Transfer">Transfer</option>
-    </select>
+      <h3>Total: <span id="grandTotal">Rp 0</span></h3>
+      <h4>Kembalian: <span id="change">Rp 0</span></h4>
 
-    <label>Bayar</label>
-    <input id="payAmount" type="number">
+      <button class="btn btn-green" onclick="saveSale()">Simpan Transaksi</button>
+    </div>
 
-    <p>Kembali: <strong id="change">Rp 0</strong></p>
-
-    <button class="btn btn-green" onclick="checkout()">
-      💾 BAYAR & CETAK
-    </button>
-  </div>
-
-</div>
-</main>
+  </main>
 </div>
 
-<!-- ================== SCRIPT ================== -->
 <script>
-let items = [];
-let cart = [];
+/* ===============================
+   PROTECT PAGE
+================================ */
+const user = JSON.parse(localStorage.getItem("currentUser"));
+if (!user) location.href = "login.html";
+document.getElementById("currentUser").innerText = user.name;
 
-/* ===== LOAD MASTER ITEM ===== */
-function loadItems() {
-  const data = DataStore.getItems(); // dari data.js
-  items = data || [];
+/* ===============================
+   DATA
+================================ */
+const items = JSON.parse(localStorage.getItem("items")) || [];
+const cart = [];
 
-  const tbody = document.getElementById("productList");
-  tbody.innerHTML = "";
-
-  if (!items.length) {
-    tbody.innerHTML =
-      `<tr><td colspan="3">Belum ada master item</td></tr>`;
-    return;
-  }
-
-  items.forEach(i => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${i.name}</td>
-        <td>Rp ${Number(i.price).toLocaleString("id-ID")}</td>
-        <td>
-          <button class="btn btn-blue" onclick="addToCart('${i.id}')">+</button>
-        </td>
-      </tr>
-    `;
-  });
-}
-
-/* ===== TAMBAH KE KERANJANG ===== */
-function addToCart(id) {
-  const item = items.find(i => i.id === id);
-  if (!item) return alert("Item tidak ditemukan");
-
-  const found = cart.find(c => c.id === id);
-  if (found) found.qty++;
-  else cart.push({ ...item, qty: 1 });
-
-  renderCart();
-}
-
-/* ===== RENDER KERANJANG ===== */
-function renderCart() {
-  const div = document.getElementById("cartList");
-  let total = 0;
-
-  if (!cart.length) {
-    div.innerHTML = "Keranjang kosong";
-  } else {
-    div.innerHTML = "";
-    cart.forEach((c, i) => {
-      const sub = c.qty * c.price;
-      total += sub;
-      div.innerHTML += `
-        <div class="cart-row">
-          <div>
-            <strong>${c.name}</strong><br>
-            Rp ${c.price.toLocaleString("id-ID")} x ${c.qty}
-          </div>
-          <div>
-            <button onclick="changeQty(${i},-1)">−</button>
-            <button onclick="changeQty(${i},1)">+</button>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  document.getElementById("grandTotal").innerText =
-    "Rp " + total.toLocaleString("id-ID");
-
-  payAmount.oninput = () => {
-    const bayar = Number(payAmount.value || 0);
-    document.getElementById("change").innerText =
-      "Rp " + (bayar - total).toLocaleString("id-ID");
-  };
-}
-
-/* ===== QTY ===== */
-function changeQty(i, delta) {
-  cart[i].qty += delta;
-  if (cart[i].qty <= 0) cart.splice(i,1);
-  renderCart();
-}
-
-/* ===== BARCODE ===== */
-barcodeInput.addEventListener("change", e => {
-  const code = e.target.value.trim();
-  const found = items.find(i => i.barcode === code);
-  if (found) addToCart(found.id);
-  e.target.value = "";
+const productSelect = document.getElementById("productSelect");
+items.forEach((i, idx) => {
+  const opt = document.createElement("option");
+  opt.value = idx;
+  opt.textContent = i.name + " - Rp " + i.price;
+  productSelect.appendChild(opt);
 });
 
-/* ===== CHECKOUT ===== */
-function checkout() {
-  if (!cart.length) return alert("Keranjang kosong");
+/* ===============================
+   CART
+================================ */
+function addToCart() {
+  const idx = productSelect.value;
+  const qty = Number(document.getElementById("qty").value);
+  const item = items[idx];
 
-  const total = cart.reduce((s,c)=>s+c.qty*c.price,0);
-  const bayar = Number(payAmount.value||0);
+  cart.push({
+    name: item.name,
+    qty,
+    price: item.price
+  });
 
-  if (payMethod.value==="Tunai" && bayar < total)
-    return alert("Uang kurang");
-
-  const sale = {
-    id: Date.now(),
-    items: cart,
-    total,
-    bayar,
-    metode: payMethod.value,
-    kasir: Auth.getUser().username,
-    waktu: new Date().toISOString()
-  };
-
-  DataStore.saveSale(sale);
-
-  localStorage.setItem("printSale", JSON.stringify(sale));
-  window.open("invoice.html","_blank");
-
-  cart = [];
   renderCart();
 }
 
-/* INIT */
-document.getElementById("currentUser").innerText =
-  Auth.getUser().username;
+function renderCart() {
+  const body = document.getElementById("cartBody");
+  body.innerHTML = "";
 
-loadItems();
+  let total = 0;
+
+  cart.forEach((c, i) => {
+    const tr = document.createElement("tr");
+    const subtotal = c.qty * c.price;
+    total += subtotal;
+
+    tr.innerHTML = `
+      <td>${c.name}</td>
+      <td>${c.qty}</td>
+      <td>Rp ${c.price.toLocaleString()}</td>
+      <td>Rp ${subtotal.toLocaleString()}</td>
+      <td><button onclick="removeItem(${i})">X</button></td>
+    `;
+    body.appendChild(tr);
+  });
+
+  document.getElementById("grandTotal").innerText =
+    "Rp " + total.toLocaleString();
+
+  const pay = Number(document.getElementById("pay").value || 0);
+  document.getElementById("change").innerText =
+    "Rp " + (pay - total).toLocaleString();
+}
+
+function removeItem(i) {
+  cart.splice(i, 1);
+  renderCart();
+}
+
+/* ===============================
+   SAVE TRANSACTION
+================================ */
+function saveSale() {
+  if (!cart.length) return alert("Keranjang kosong");
+
+  const sales = JSON.parse(localStorage.getItem("sales")) || [];
+
+  const total = cart.reduce((s, i) => s + i.qty * i.price, 0);
+
+  sales.push({
+    id: "TRX" + Date.now(),
+    date: new Date().toISOString().slice(0, 10),
+    items: cart,
+    payment: document.getElementById("payment").value,
+    total
+  });
+
+  localStorage.setItem("sales", JSON.stringify(sales));
+
+  alert("Transaksi berhasil disimpan");
+  location.reload();
+}
+
+/* ===============================
+   SIDEBAR TOGGLE
+================================ */
+document.getElementById("sidebarToggle").onclick = () =>
+  document.querySelector(".sidebar").classList.toggle("open");
 </script>
-
-<style>
-.pos-layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-}
-.cart-row {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:8px;
-}
-@media(max-width:768px){
-  .pos-layout{grid-template-columns:1fr}
-}
-</style>
 
 </body>
 </html>
