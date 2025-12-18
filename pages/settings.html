@@ -40,6 +40,16 @@
   <input type="file" id="restoreFile" accept="application/json">
   <button class="btn btn-red" onclick="restoreData()">Restore</button>
 </div>
+<div class="card">
+  <h3>Import Master Item (CSV)</h3>
+  <input type="file" id="csvItem" accept=".csv">
+  <button class="btn btn-green" onclick="importItemsCSV()">Import CSV</button>
+</div>
+
+<div class="card">
+  <h3>Export Penjualan (CSV)</h3>
+  <button class="btn btn-blue" onclick="exportSalesCSV()">Export CSV</button>
+</div>
 
 </main>
 </div>
@@ -106,6 +116,43 @@ function restoreData() {
   };
   reader.readAsText(file);
 }
+
+  function importItemsCSV() {
+  const file = document.getElementById("csvItem").files[0];
+  if (!file) return alert("Pilih file CSV");
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split("\n");
+    const headers = lines[0].split(",");
+
+    const items = JSON.parse(localStorage.getItem("items")) || [];
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+
+      const data = lines[i].split(",");
+
+      const item = {
+        id: Date.now() + i,
+        name: data[headers.indexOf("name")] || "",
+        price: Number(data[headers.indexOf("price")] || 0),
+        stock: Number(data[headers.indexOf("stock")] || 0),
+        barcode: data[headers.indexOf("barcode")] || "",
+        unit: data[headers.indexOf("unit")] || "pcs",
+        image: data[headers.indexOf("image")] || ""
+      };
+
+      items.push(item);
+    }
+
+    localStorage.setItem("items", JSON.stringify(items));
+    alert("Import item berhasil");
+  };
+
+  reader.readAsText(file);
+}
+
 </script>
 
 </body>
