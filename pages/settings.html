@@ -153,6 +153,26 @@ function restoreData() {
   reader.readAsText(file);
 }
 
+  function exportSalesCSV() {
+  const sales = JSON.parse(localStorage.getItem("sales")) || [];
+  if (!sales.length) return alert("Belum ada penjualan");
+
+  let csv = "date,invoice,total,payment,method\n";
+
+  sales.forEach(s => {
+    csv += `${s.date},${s.invoice},${s.total},${s.payment},${s.method}\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "penjualan.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 </script>
 
 </body>
